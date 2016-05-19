@@ -33,6 +33,9 @@ class XueQiuTrader(WebTrader):
         self.account_config = None
         self.multiple = 1000000  # 资金换算倍数
 
+    def setattr(self, key, value):
+        self.account_config[key] = value
+
     def autologin(self):
         """
         重写自动登录方法
@@ -164,12 +167,15 @@ class XueQiuTrader(WebTrader):
         position = portfolio_info['view_rebalancing']  # 仓位结构
         cash = asset_balance * float(position['cash']) / 100
         market = asset_balance - cash
+        name = portfolio_info['name']
+
         return [{'asset_balance': asset_balance,
                  'current_balance': cash,
                  'enable_balance': cash,
                  'market_value': market,
                  'money_type': u'人民币',
-                 'pre_interest': 0.25}]
+                 'pre_interest': 0.25,
+                 'name': name}]
 
     def __get_position(self):
         """
@@ -207,7 +213,8 @@ class XueQiuTrader(WebTrader):
                                   'market_value': volume,
                                   'position_str': 'xxxxxx',
                                   'stock_code': pos['stock_symbol'],
-                                  'stock_name': pos['stock_name']
+                                  'stock_name': pos['stock_name'],
+                                  'percent': pos['weight']
                                   })
         return position_list
 
@@ -244,18 +251,18 @@ class XueQiuTrader(WebTrader):
             else:
                 status = "已成"
             for entrust in xq_entrusts['rebalancing_histories']:
-                volume = abs(entrust['target_weight'] - entrust['weight']) * self.multiple / 10000
+                volume = entrust['target_weight'] - entrust['prev_weight']
                 entrust_list.append({
                     'entrust_no': entrust['id'],
-                    'entrust_bs': u"买入" if entrust['target_weight'] > entrust['weight'] else u"卖出",
+                    'entrust_bs': u"买入" if entrust['target_weight'] > entrust['prev_weight'] else u"卖出",
                     'report_time': self.__time_strftime(entrust['updated_at']),
                     'entrust_status': status,
                     'stock_code': entrust['stock_symbol'],
                     'stock_name': entrust['stock_name'],
-                    'business_amount': 100,
-                    'business_price': volume,
-                    'entrust_amount': 100,
-                    'entrust_price': volume,
+                    'business_amount': entrust['target_weight'],
+                    'business_price': entrust['price'],
+                    'entrust_amount': volume,
+                    'entrust_price': entrust['price'],
                 })
         return entrust_list
 
@@ -424,3 +431,6 @@ class XueQiuTrader(WebTrader):
         :return:
         """
         return self.__trade(stock_code, price, amount, volume, 'sell')
+
+if __name__ == '__main__':
+    XueQiuTrader.main()

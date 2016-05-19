@@ -233,3 +233,6 @@ class YJBTrader(WebTrader):
     def check_account_live(self, response):
         if hasattr(response, 'get') and response.get('error_no') == '-1':
             self.heart_active = False
+
+if __name__ == '__main__':
+    YJBTrader.main()
