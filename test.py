@@ -36,17 +36,20 @@ portfolio_list =[
     'ZH796463'
 ]
 info = {}
-info = user.get_xq_strategy("9")
+
 dbclient = DB.getDB()
 db = dbclient[XUEQIU_DB_NAME]
-if not DB.get_doc(db, COLLECTION, info):
-    DB.insert_doc(db, COLLECTION, info)
+
 
 while(1):
-    for p in portfolio_list:
-        user.setattr("portfolio_code", p)
-        time.sleep(8)
-        position = user.get_position()
+    time.sleep(10)
+    info = user.get_xq_strategy("9")
+    if not DB.get_doc(db, COLLECTION, info):
+        DB.insert_doc(db, COLLECTION, info)
+    # for p in portfolio_list:
+    #     user.setattr("portfolio_code", p)
+    #     time.sleep(8)
+    #     position = user.get_position()
     # for e in user.get_balance()[0]:
     #     print e + ": " +str(user.get_balance()[0][e])
 
@@ -56,7 +59,7 @@ while(1):
     #         print i + ": " + str(e[i])
     #     print "*"*50
 
-        logger.info("-"*50)
-        for stock in position:
-            logger.info(stock["stock_name"] + ": " + str(stock["percent"]))
+        # logger.info("-"*50)
+        # for stock in position:
+        #     logger.info(stock["stock_name"] + ": " + str(stock["percent"]))
 
