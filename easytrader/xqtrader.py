@@ -6,10 +6,11 @@ import json
 import urllib
 import time
 import six
-
+import datetime
 from . import helpers
 from .webtrader import NotLoginError
 from .webtrader import WebTrader
+from HTMLParser import HTMLParser
 
 if six.PY2:
     import urllib2
@@ -251,6 +252,8 @@ class XueQiuTrader(WebTrader):
             else:
                 status = "已成"
             for entrust in xq_entrusts['rebalancing_histories']:
+                if not entrust['prev_weight']:
+                    entrust['prev_weight'] = float(0)
                 volume = entrust['target_weight'] - entrust['prev_weight']
                 entrust_list.append({
                     'entrust_no': entrust['id'],
@@ -431,6 +434,66 @@ class XueQiuTrader(WebTrader):
         :return:
         """
         return self.__trade(stock_code, price, amount, volume, 'sell')
+
+    def get_xq_strategy(self, no):
+        """
+        获取雪球策略
+        :param instance:
+        :param owner:
+        :return:
+        """
+        url = self.config['strategy'] + no
+        html = self.__get_html(url)
+        hp = MyHTMLParser()
+        hp.feed(html)
+        data = hp.getresult()
+        hp.close()
+        return data
+
+class MyHTMLParser(HTMLParser):
+    def __init__(self):
+      self.data=[]
+      self.rt=0
+      self.sy=0
+      self.td=0
+      self.linkname=''
+      HTMLParser.__init__(self)
+
+    def handle_starttag(self,tag,attrs):
+        if tag =='div':
+            for name,value in attrs:
+                if value == 'column-rt':
+                    self.rt=1
+                if value == 'stock-symbol':
+                    self.sy=1
+        if tag=='td':
+            self.td=1
+
+    def handle_data(self,data):
+      if self.rt or self.sy or self.td:
+          self.linkname+=data
+    def handle_endtag(self,tag):
+        if tag=='div' or tag=='td':
+            # self.linkname=''.join(self.linkname.split())
+            self.linkname=self.linkname.strip()
+            if  self.linkname:
+              self.data.append(self.linkname)
+            self.linkname=''
+            self.rt=0
+            self.sy=0
+            self.td=0
+
+    def getresult(self):
+        data = self.data
+        dic = {}
+        time = data[1][:-2]
+        num = len(data)/6
+        dic["time"] = datetime.datetime.strptime(time, "%Y.%m.%d %H:%M")
+        for i in range(0,num):
+            stock = {"price":data[i*6+5], "reason":data[i*6+7]}
+            stock_name = data[i*6+3]
+            dic[stock_name] = stock
+        return dic
 
 if __name__ == '__main__':
     XueQiuTrader.main()
