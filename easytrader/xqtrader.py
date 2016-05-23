@@ -266,6 +266,8 @@ class XueQiuTrader(WebTrader):
                     'business_price': entrust['price'],
                     'entrust_amount': volume,
                     'entrust_price': entrust['price'],
+                    'prev_weight': entrust['prev_weight'],
+                    'target_weight': entrust['target_weight'],
                 })
         return entrust_list
 

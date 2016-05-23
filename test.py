@@ -12,8 +12,9 @@ from easytrader import MongoDB as DB
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "strategy"
+
 TIME = datetime.datetime.now().strftime("%Y-%m-%d")
-LOG_FILE = 'logs/' + TIME +'.log'
+LOG_FILE = 'logs/' + TIME + COLLECTION +'.log'
 
 handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes = 1024*1024, backupCount = 5) # 实例化handler
 fmt = '%(asctime)s -  %(message)s'
@@ -45,6 +46,8 @@ while(1):
     time.sleep(10)
     info = user.get_xq_strategy("9")
     if not DB.get_doc(db, COLLECTION, info):
+        logger.info("-"*50)
+        logger.info("update new message!")
         DB.insert_doc(db, COLLECTION, info)
     # for p in portfolio_list:
     #     user.setattr("portfolio_code", p)

@@ -29,7 +29,7 @@ def getDB():
 def get_collection(db, coll):
     # 选择集合（mongo中collection和database都是延时创建的）
     colls = db[coll]
-    print db.collection_names()
+    # print db.collection_names()
     return colls
 
 def insert_doc(db, coll, information):
