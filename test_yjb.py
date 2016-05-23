@@ -68,7 +68,7 @@ while(1):
                     logger.info(k + " update new operaion!")
                     code = str(trade["stock_code"][2:])
                     price = trade["business_price"]
-                    dif = trade['entrust_amount']
+                    dif = trade['entrust_amount']/100
                     result = ""
                     volume = dif*asset*portfolio_list[k]
                     if dif > 0:
@@ -76,7 +76,7 @@ while(1):
                         logger.info("买入 "+code+" @ " + str(price) + " 共 " + str(volume))
                     else:
                         result = yjb.sell(code, price, volume= -volume)
-                        logger.info("买入 "+code+" @ " + str(price) + " 共 " + str(-volume))
+                        logger.info("卖出 "+code+" @ " + str(price) + " 共 " + str(-volume))
                     out = ""
                     for key in result.keys():
                         out = out + key + " : " + result[key] + " "
