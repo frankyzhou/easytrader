@@ -10,7 +10,7 @@ from easytrader import MongoDB as DB
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
-factor = 1.003
+factor = 1
 
 TIME = datetime.datetime.now().strftime("%Y-%m-%d")
 LOG_FILE = 'logs/' + TIME + COLLECTION +'.log'
@@ -32,9 +32,9 @@ yjb = easytrader.use('yjb')
 yjb.prepare('yjb.json')
 
 portfolio_list ={
-    # 'ZH000893':0.5,#成长投资组合
-    'ZH743053':0.5,#我爱新能源
-    'ZH016097':0.5,#绝对模拟
+    'ZH000893':0.4,#成长投资组合
+    'ZH743053':0.4,#我爱新能源
+    'ZH016097':0.2,#绝对模拟
 }
 
 dbclient = DB.getDB()
