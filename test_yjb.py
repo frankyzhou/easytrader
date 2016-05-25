@@ -4,14 +4,13 @@ __author__ = 'frankyzhou'
 import datetime
 import logging
 import logging.handlers
-import sys
 import time
 import easytrader
-import pymongo
 from easytrader import MongoDB as DB
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
+factor = 1.003
 
 TIME = datetime.datetime.now().strftime("%Y-%m-%d")
 LOG_FILE = 'logs/' + TIME + COLLECTION +'.log'
@@ -33,8 +32,9 @@ yjb = easytrader.use('yjb')
 yjb.prepare('yjb.json')
 
 portfolio_list ={
-    'ZH000893':0.5,#成长投资组合
+    # 'ZH000893':0.5,#成长投资组合
     'ZH743053':0.5,#我爱新能源
+    'ZH016097':0.5,#绝对模拟
 }
 
 dbclient = DB.getDB()
@@ -48,13 +48,20 @@ def is_today(report_time):
     else:
         return False
 
+def get_position_by_stock(stockcode, position_yjb, asset):
+    for e in position_yjb:
+        if e["stock_code"] == stockcode:
+            return e["market_value"]/asset
+    return 0
+
+
 while(1):
     for k in portfolio_list.keys():
         xq.setattr("portfolio_code", k)
         time.sleep(8)
         position_xq = xq.get_position()
         entrust = xq.get_entrust()
-        position_yb = yjb.get_position()
+        position_yjb = yjb.get_position()
         balance = yjb.get_balance()[0]
         asset = balance["asset_balance"]
 
@@ -64,22 +71,29 @@ while(1):
             else:
                 trade["portfolio"] = k
                 if not DB.get_doc(db, COLLECTION, trade):
+
                     logger.info("-"*50)
                     logger.info(k + " update new operaion!")
                     code = str(trade["stock_code"][2:])
                     price = trade["business_price"]
-                    dif = trade['entrust_amount']/100
+                    # dif = trade['entrust_amount']/100
+                    target_percent = trade["target_weight"] * portfolio_list[k] /100 if trade["target_weight"] > 2.0 else 0.0
+                    before_percent = get_position_by_stock(code, position_yjb, asset)
+                    dif = target_percent - before_percent
                     result = ""
-                    volume = dif*asset*portfolio_list[k]
+                    volume = dif*asset
+
                     if dif > 0:
-                        result = yjb.buy(code, price, volume= volume)
-                        logger.info("买入 "+code+" @ " + str(price) + " 共 " + str(volume))
+                        result = yjb.buy(code, price*factor, volume= volume)
+                        logger.info("买入 "+code+" @ " + str(price*factor) + " 共 " + str(volume))
                     else:
-                        result = yjb.sell(code, price, volume= -volume)
-                        logger.info("卖出 "+code+" @ " + str(price) + " 共 " + str(-volume))
+                        result = yjb.sell(code, price/factor, volume= -volume)
+                        logger.info("卖出 "+code+" @ " + str(price/factor) + " 共 " + str(-volume))
+
                     out = ""
                     for key in result.keys():
-                        out = out + key + " : " + result[key] + " "
+                        out = out + str(key) + " : " + str(result[key]) + " "
                     logger.info(out)
+
                     DB.insert_doc(db, COLLECTION, trade)
 

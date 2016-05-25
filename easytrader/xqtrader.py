@@ -487,15 +487,17 @@ class MyHTMLParser(HTMLParser):
 
     def getresult(self):
         data = self.data
-        dic = {}
+        info_list = []
         time = data[1][:-2]
         num = len(data)/6
-        dic["time"] = datetime.datetime.strptime(time, "%Y.%m.%d %H:%M")
+        # dic["time"] = datetime.datetime.strptime(time, "%Y.%m.%d %H:%M")
         for i in range(0,num):
+            e = {}
             stock = {"price":data[i*6+5], "reason":data[i*6+7]}
             stock_name = data[i*6+3]
-            dic[stock_name] = stock
-        return dic
+            e[stock_name] = stock
+            info_list.append(e)
+        return info_list
 
 if __name__ == '__main__':
     XueQiuTrader.main()
