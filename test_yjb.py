@@ -10,7 +10,6 @@ from easytrader import MongoDB as DB
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
-factor = 1
 
 TIME = datetime.datetime.now().strftime("%Y-%m-%d")
 LOG_FILE = 'logs/' + TIME + COLLECTION +'.log'
@@ -32,9 +31,18 @@ yjb = easytrader.use('yjb')
 yjb.prepare('yjb.json')
 
 portfolio_list ={
-    'ZH000893':0.4,#成长投资组合
-    'ZH743053':0.4,#我爱新能源
-    'ZH016097':0.2,#绝对模拟
+    'ZH000893':#成长投资组合
+        {"percent":0.4,
+        "factor":0,
+         },
+    'ZH743053':#我爱新能源
+        {"percent":0.4,
+        "factor":0,
+         },
+    'ZH016097':#绝对模拟
+        {"percent":0.2,
+        "factor":0.008,
+         },
 }
 
 dbclient = DB.getDB()
@@ -54,6 +62,9 @@ def get_position_by_stock(stockcode, position_yjb, asset):
             return e["market_value"]/asset
     return 0
 
+def get_price_by_factor(price, factor):
+    return round(price*factor, 2)
+
 def get_xq_entrust_checked(xq):
     entrust = None
     done = True
@@ -70,10 +81,6 @@ def get_xq_entrust_checked(xq):
                         break
     return entrust
 
-
-
-
-
 while(1):
     for k in portfolio_list.keys():
         xq.setattr("portfolio_code", k)
@@ -85,6 +92,7 @@ while(1):
 
         balance = yjb.get_balance()[0]
         asset = balance["asset_balance"]
+        factor = portfolio_list[k]["factor"]
 
         for trade in entrust:
             if not is_today(trade["report_time"]):
@@ -105,11 +113,13 @@ while(1):
                     volume = dif*asset
 
                     if dif > 0:
-                        result = yjb.buy(code, price*factor, volume= volume)
-                        logger.info("买入 "+code+" @ " + str(price*factor) + " 共 " + str(volume))
+                        buy_pirce = get_price_by_factor(price, (1+factor))
+                        result = yjb.buy(code, buy_pirce, volume= volume)
+                        logger.info("买入 "+code+" @ " + str(buy_pirce) + " 共 " + str(volume))
                     else:
-                        result = yjb.sell(code, price/factor, volume= -volume)
-                        logger.info("卖出 "+code+" @ " + str(price/factor) + " 共 " + str(-volume))
+                        sell_pirce = get_price_by_factor(price, (1-factor))
+                        result = yjb.sell(code, sell_pirce, volume= -volume)
+                        logger.info("卖出 "+code+" @ " + str(sell_pirce) + " 共 " + str(-volume))
 
                     out = ""
                     for key in result.keys():
