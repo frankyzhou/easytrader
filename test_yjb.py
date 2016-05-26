@@ -84,7 +84,7 @@ def get_xq_entrust_checked(xq):
 while(1):
     for k in portfolio_list.keys():
         xq.setattr("portfolio_code", k)
-        time.sleep(8)
+        time.sleep(1)
         # position_xq = xq.get_position()
         entrust = get_xq_entrust_checked(xq)
 
