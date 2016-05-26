@@ -93,6 +93,7 @@ while(1):
         balance = yjb.get_balance()[0]
         asset = balance["asset_balance"]
         factor = portfolio_list[k]["factor"]
+        percent = portfolio_list[k]["percent"]
 
         for trade in entrust:
             if not is_today(trade["report_time"]):
@@ -106,7 +107,7 @@ while(1):
                     code = str(trade["stock_code"][2:])
                     price = trade["business_price"]
                     # dif = trade['entrust_amount']/100
-                    target_percent = trade["target_weight"] * portfolio_list[k] /100 if trade["target_weight"] > 2.0 else 0.0
+                    target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
                     before_percent = get_position_by_stock(code, position_yjb, asset)
                     dif = target_percent - before_percent
                     result = ""
