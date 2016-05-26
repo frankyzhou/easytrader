@@ -54,14 +54,35 @@ def get_position_by_stock(stockcode, position_yjb, asset):
             return e["market_value"]/asset
     return 0
 
+def get_xq_entrust_checked(xq):
+    entrust = None
+    done = True
+    while(not (entrust and done)):
+        entrust = xq.get_entrust()
+        for trade in entrust:
+            if len(trade) !=12:
+                done = False
+                break
+            else:
+                for e in trade.keys():
+                    if trade[e] is None:
+                        done = False
+                        break
+    return entrust
+
+
+
+
 
 while(1):
     for k in portfolio_list.keys():
         xq.setattr("portfolio_code", k)
         time.sleep(8)
-        position_xq = xq.get_position()
-        entrust = xq.get_entrust()
+        # position_xq = xq.get_position()
+        entrust = get_xq_entrust_checked(xq)
+
         position_yjb = yjb.get_position()
+
         balance = yjb.get_balance()[0]
         asset = balance["asset_balance"]
 
