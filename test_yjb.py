@@ -62,7 +62,7 @@ def get_xq_entrust_checked(xq):
         for trade in entrust:
             if not is_today(trade["report_time"]):
                 break
-            if len(trade) !=12:
+            elif len(trade) !=12:
                 done = False
                 break
             else:
