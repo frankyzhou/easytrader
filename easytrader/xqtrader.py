@@ -6,11 +6,11 @@ import json
 import urllib
 import time
 import six
-import datetime
 from . import helpers
 from .webtrader import NotLoginError
 from .webtrader import WebTrader
-from HTMLParser import HTMLParser
+import zlib
+from util import *
 
 if six.PY2:
     import urllib2
@@ -104,11 +104,15 @@ class XueQiuTrader(WebTrader):
 
     def __get_html(self, url):
         send_headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.154 Safari/537.36 LBBROWSER',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             'Connection': 'keep-alive',
             'Host': 'xueqiu.com',
-            'Cookie': r'xxxxxx',
+            'Accept-Encoding': 'gzip, deflate, sdch',
+            'Accept-Language':  'zh-CN,zh;q=0.8',
+            'Cache-Control': 'max-age=0',
+            'Accept-Charset': 'GBK,utf-8;q=0.7,*;q=0.3',
+            'Cookie': r's=34ud15widf; xq_a_token=bd62e1a38eac647828f5a200dc293bec5dbb17d3; xqat=bd62e1a38eac647828f5a200dc293bec5dbb17d3; xq_r_token=93dca6aa4016f02170128cc0edf6289bfa091837; xq_is_login=1; u=1598957202; xq_token_expire=Tue%20Jun%2021%202016%2000%3A17%3A44%20GMT%2B0800%20(CST); bid=ff993c512f6fe6cee99f3e1f5824afad_iooi6qdm; __utma=1.2127333089.1464279402.1464279402.1464279402.1; __utmz=1.1464279402.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); Hm_lvt_1db88642e346389874251b5a1eded6e3=1464142184,1464144939,1464181576,1464279402',
         }
 
         if six.PY2:
@@ -117,8 +121,10 @@ class XueQiuTrader(WebTrader):
         else:
             req = urllib.request.Request(url, headers=send_headers)
             resp = urllib.request.urlopen(req)
-        html = resp.read().decode('UTF-8')
+        # html = resp.read().decode('UTF-8')
+        html = zlib.decompress(resp.read(), 16+zlib.MAX_WBITS)
         return html
+
 
     def __search_stock_info(self, code):
         """
@@ -452,52 +458,21 @@ class XueQiuTrader(WebTrader):
         hp.close()
         return data
 
-class MyHTMLParser(HTMLParser):
-    def __init__(self):
-      self.data=[]
-      self.rt=0
-      self.sy=0
-      self.td=0
-      self.linkname=''
-      HTMLParser.__init__(self)
-
-    def handle_starttag(self,tag,attrs):
-        if tag =='div':
-            for name,value in attrs:
-                if value == 'column-rt':
-                    self.rt=1
-                if value == 'stock-symbol':
-                    self.sy=1
-        if tag=='td':
-            self.td=1
-
-    def handle_data(self,data):
-      if self.rt or self.sy or self.td:
-          self.linkname+=data
-    def handle_endtag(self,tag):
-        if tag=='div' or tag=='td':
-            # self.linkname=''.join(self.linkname.split())
-            self.linkname=self.linkname.strip()
-            if  self.linkname:
-              self.data.append(self.linkname)
-            self.linkname=''
-            self.rt=0
-            self.sy=0
-            self.td=0
-
-    def getresult(self):
-        data = self.data
-        info_list = []
-        time = data[1][:-2]
-        num = len(data)/6
-        # dic["time"] = datetime.datetime.strptime(time, "%Y.%m.%d %H:%M")
-        for i in range(0,num):
-            e = {}
-            stock = {"price":data[i*6+5], "reason":data[i*6+7]}
-            stock_name = data[i*6+3]
-            e[stock_name] = stock
-            info_list.append(e)
-        return info_list
-
+    # frankyzhou add @ 2016/5/28
+    def get_xq_entrust_checked(self):
+        entrust = None
+        done = True
+        while(not (entrust and done)):
+            entrust = self.get_entrust()
+            for trade in entrust:
+                if len(trade) !=12:
+                    done = False
+                    break
+                else:
+                    for e in trade.keys():
+                        if trade[e] is None:
+                            done = False
+                            break
+        return entrust
 if __name__ == '__main__':
     XueQiuTrader.main()

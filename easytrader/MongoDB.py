@@ -91,6 +91,10 @@ def clear_all_datas(db):
     #清空一个集合中的所有数据
     db["informations"].remove()
 
+def get_mongodb(DB_NAME):
+    dbclient = getDB()
+    return dbclient[DB_NAME]
+
 if __name__ == '__main__':
     db = getDB()
     my_collection = get_collection(db)
