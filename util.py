@@ -10,7 +10,7 @@ from HTMLParser import HTMLParser
 # after the last trade day
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
-    last_trade_time = datetime.datetime.strptime(last_trade_time,"%Y-%m-%d")
+    last_trade_time = datetime.datetime.strptime(last_trade_time,"%Y-%m-%d") + datetime.timedelta(hours=15, minutes=5)
     if report_time > last_trade_time:
         return True
     else:
@@ -19,14 +19,19 @@ def is_today(report_time, last_trade_time):
 def get_price_by_factor(price, factor):
     return round(price*factor, 2)
 
-def is_trade_time():
+def get_date_now():
     now_time = datetime.datetime.now()
-    trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 25, 0)
-    trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 55, 0)
-    trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 35, 0)
-    trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 23, 05, 0)
+    trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 20, 0)
+    trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 50, 0)
+    trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 35, 0)
+    trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 05, 0)
+    return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
 
-    if trade_begin_am < now_time < trade_end_am or trade_begin_pm < now_time < trade_end_pm:
+def is_trade_time(test, trade_time):
+    now_time = datetime.datetime.now()
+    if test:    return True
+
+    if trade_time[0] < now_time < trade_time[1] or trade_time[2] < now_time < trade_time[3]:
         return True
     else:
         return False

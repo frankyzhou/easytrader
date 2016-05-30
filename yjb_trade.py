@@ -9,6 +9,7 @@ from easytrader import MongoDB as DB
 from util import *
 
 # declare basic vars
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 portfolio_list ={
@@ -36,6 +37,7 @@ class yjb_trade:
         self.logger = get_logger(COLLECTION)
         self.db = DB.get_mongodb(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series()
+        self.trade_time = get_date_now()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -104,25 +106,31 @@ class yjb_trade:
                 DB.insert_doc(self.db, COLLECTION, trade)
 
     def main(self):
-        while(is_trade_time()):
-        # judge whether it is trade time
-            for k in portfolio_list.keys():
-                try:
-                    self.xq.setattr("portfolio_code", k)
-                    time.sleep(1)
-                    entrust = self.xq.get_xq_entrust_checked()
+        while(1):
+            if(is_trade_time(TEST_STATE, self.trade_time)):
+            # judge whether it is trade time
+                for k in portfolio_list.keys():
+                    try:
+                        self.xq.setattr("portfolio_code", k)
+                        time.sleep(1)
+                        entrust = self.xq.get_xq_entrust_checked()
 
-                    factor = portfolio_list[k]["factor"]
-                    percent = portfolio_list[k]["percent"]
+                        factor = portfolio_list[k]["factor"]
+                        percent = portfolio_list[k]["percent"]
 
-                    self.trade_by_entrust(entrust, k, factor, percent)
+                        self.trade_by_entrust(entrust, k, factor, percent)
 
-                except Exception, e:
-                    print e
-                    self.logger.info(e)
+                    except Exception, e:
+                        print e
+                        self.logger.info(e)
 
 if __name__ == '__main__':
-    yjb = yjb_trade()
-    yjb.main()
+    while(1):
+        try:
+            yjb = yjb_trade()
+            yjb.main()
 
-
+        except Exception, e:
+            print e
+            yjb.logger.info(e)
+            time.sleep(100)
