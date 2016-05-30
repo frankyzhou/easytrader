@@ -13,7 +13,11 @@ TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 portfolio_list ={
-    'ZH000893':#成长投资组合
+    # 'ZH000893':#成长投资组合
+    #     {"percent":0.4,
+    #     "factor":0,
+    #      },
+    'ZH278165':#次新股副班长
         {"percent":0.4,
         "factor":0,
          },
