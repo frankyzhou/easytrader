@@ -41,7 +41,6 @@ info = {}
 dbclient = DB.getDB()
 db = dbclient[XUEQIU_DB_NAME]
 
-
 while(1):
     try:
         time.sleep(10)
@@ -50,23 +49,10 @@ while(1):
             if not DB.get_doc(db, COLLECTION, info):
                 logger.info("-"*50)
                 logger.info("update new message!")
+                for item in info:
+                    print item + " @" + info[item]["price"] + " :" + info[item]["reason"]
                 DB.insert_doc(db, COLLECTION, info)
     except Exception, e:
         print e
-    # for p in portfolio_list:
-    #     user.setattr("portfolio_code", p)
-    #     time.sleep(8)
-    #     position = user.get_position()
-    # for e in user.get_balance()[0]:
-    #     print e + ": " +str(user.get_balance()[0][e])
 
-    # print "-"*50
-    # for e in user.get_entrust():
-    #     for i in e:
-    #         print i + ": " + str(e[i])
-    #     print "*"*50
-
-        # logger.info("-"*50)
-        # for stock in position:
-        #     logger.info(stock["stock_name"] + ": " + str(stock["percent"]))
 

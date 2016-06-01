@@ -30,6 +30,7 @@ class XueQiuTrader(WebTrader):
     def __init__(self):
         super(XueQiuTrader, self).__init__()
         self.cookies = {}
+        self.str_cookies = ""
         self.requests = requests
         self.account_config = None
         self.multiple = 1000000  # 资金换算倍数
@@ -89,6 +90,7 @@ class XueQiuTrader(WebTrader):
         login_response = self.requests.post(self.config['login_api'], cookies=self.cookies, data=login_post_data,
                                             headers=self.headers)
         self.cookies = login_response.cookies
+        self.str_cookies = self.get_cookies()
         login_status = json.loads(login_response.text)
         if 'error_description' in login_status.keys():
             return False, login_status['error_description']
@@ -112,7 +114,7 @@ class XueQiuTrader(WebTrader):
             'Accept-Language':  'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Accept-Charset': 'GBK,utf-8;q=0.7,*;q=0.3',
-            'Cookie': r's=34ud15widf; xq_a_token=bd62e1a38eac647828f5a200dc293bec5dbb17d3; xqat=bd62e1a38eac647828f5a200dc293bec5dbb17d3; xq_r_token=93dca6aa4016f02170128cc0edf6289bfa091837; xq_is_login=1; u=1598957202; xq_token_expire=Tue%20Jun%2021%202016%2000%3A17%3A44%20GMT%2B0800%20(CST); bid=ff993c512f6fe6cee99f3e1f5824afad_iooi6qdm; __utma=1.2127333089.1464279402.1464279402.1464279402.1; __utmz=1.1464279402.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); Hm_lvt_1db88642e346389874251b5a1eded6e3=1464142184,1464144939,1464181576,1464279402',
+            'Cookie': self.str_cookies
         }
 
         if six.PY2:
@@ -474,5 +476,13 @@ class XueQiuTrader(WebTrader):
                             done = False
                             break
         return entrust
+
+    # frankyzhou add @ 2016/06/01
+    def get_cookies(self):
+        str_cookies = ""
+        for item in self.cookies.items():
+            str_cookies = str_cookies + item[0] + "=" + item[1] + "; "
+        return str_cookies
+
 if __name__ == '__main__':
     XueQiuTrader.main()
