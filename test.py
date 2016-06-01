@@ -43,13 +43,16 @@ db = dbclient[XUEQIU_DB_NAME]
 
 
 while(1):
-    time.sleep(10)
-    info_list = user.get_xq_strategy("9")
-    for info in info_list:
-        if not DB.get_doc(db, COLLECTION, info):
-            logger.info("-"*50)
-            logger.info("update new message!")
-            DB.insert_doc(db, COLLECTION, info)
+    try:
+        time.sleep(10)
+        info_list = user.get_xq_strategy("9")
+        for info in info_list:
+            if not DB.get_doc(db, COLLECTION, info):
+                logger.info("-"*50)
+                logger.info("update new message!")
+                DB.insert_doc(db, COLLECTION, info)
+    except Exception, e:
+        print e
     # for p in portfolio_list:
     #     user.setattr("portfolio_code", p)
     #     time.sleep(8)

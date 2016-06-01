@@ -100,7 +100,7 @@ class yjb_trade:
                         self.logger.info("卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(volume))
                         result = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
                 elif dif == 0:
-                    result = "数量为0，不动！"
+                    result = code + " 数量为0，不动！"
                 # out = ""
                 # for key in result.keys():
                 #     out = out + str(key) + " : " + str(result[key]) + " "
