@@ -63,6 +63,9 @@ class IBWrapper(EWrapper):
     Following methods will be called, but we don't use them
     """
 
+    def nextValidId(self, id):
+        pass
+
     def managedAccounts(self, openOrderEnd):
         pass
 
@@ -71,6 +74,9 @@ class IBWrapper(EWrapper):
         pass
 
     def commissionReport(self, blah):
+        pass
+
+    def updateAccountTime(self, timeStamp):
         pass
 
 
@@ -578,3 +584,8 @@ class IBclient(object):
 
         return (account_value, portfolio_data)
 
+    def get_position_by_stock(self, position_ib, stockcode, asset):
+        for e in position_ib:
+            if e[0] == stockcode:
+                return e[2]/asset
+        return 0

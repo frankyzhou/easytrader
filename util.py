@@ -60,6 +60,10 @@ def get_logger(COLLECTION):
 
     return logger
 
+def record_msg(logger, msg):
+    logger.info(msg)
+    print msg
+
 class MyHTMLParser(HTMLParser):
     def __init__(self):
       self.data=[]
