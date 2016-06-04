@@ -9,7 +9,7 @@ from easytrader import MongoDB as DB
 from util import *
 
 # declare basic vars
-TEST_STATE = True
+TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 portfolio_list ={
@@ -18,17 +18,22 @@ portfolio_list ={
     #     "factor":0,
     #      },
     'ZH278165':#次新股副班长
-        {"percent":0.4,
+        {"percent":0.33,
         "factor":0,
          },
     'ZH743053':#我爱新能源
-        {"percent":0.4,
+        {"percent":0.34,
         "factor":0,
          },
-    'ZH016097':#绝对模拟
-        {"percent":0.2,
-        "factor":0.008,
-         },
+    #'ZH016097':#绝对模拟
+    #    {"percent":0.2,
+    #    "factor":0.008,
+    #     },
+    'ZH401833':#叫板瑞鹤仙
+    {"percent":0.33,
+    "factor":0,
+     },
+
 }
 
 class yjb_trade:

@@ -15,11 +15,11 @@ XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "USA_history_operation"
 portfolio_list ={
     'ZH796463':#试一试
-        {"percent":0.4,
+        {"percent":0.015,
         "factor":0,
          },
     'ZH776826':#2016商品抄底组合
-        {"percent":0.4,
+        {"percent":0.015,
         "factor":0,
          },
 }
@@ -68,12 +68,12 @@ class ib_trade:
                 # 2,the position is caled by xq
                 #已经有比例，故其他需要对应
                 before_percent_xq = trade["prev_weight"] * percent /100 if trade["prev_weight"] > 2.0 else 0.0
-                before_percent_ib = min(self.client.get_position_by_stock(code, position_ib, asset), before_percent_xq)
+                before_percent_ib = max(self.client.get_position_by_stock(position_ib, code, asset), before_percent_xq)
 
                 dif_xq = target_percent - before_percent_xq
                 dif_ib = target_percent - before_percent_ib
 
-                dif = dif_xq if dif_xq > 0 else min(max(dif_xq, dif_ib), 0)
+                dif = dif_xq if dif_xq > 0 else min(min(dif_xq, dif_ib), 0)
                 # 如果dif_xq为正，那幅度选择dif_xq，避免过高成本建仓；
                 # 当dif_xq为负，
                 # 若dif_ib为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
@@ -84,7 +84,7 @@ class ib_trade:
                     volume = int(turn_volume/price)
                     if abs(volume) >= 1:
                         self.ibcontract.symbol = code
-                        result = self.client.place_new_IB_order(self.ibcontract, volume, price, "LMT", orderid=None)
+                        orderid = self.client.place_new_IB_order(self.ibcontract, volume, price, "LMT", orderid=None)
                         if volume > 0:
                             msg = "买入 "+code+" @ " + str(price) + " 共 " + str(volume)
                             record_msg(self.logger, msg)

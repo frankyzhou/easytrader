@@ -587,5 +587,5 @@ class IBclient(object):
     def get_position_by_stock(self, position_ib, stockcode, asset):
         for e in position_ib:
             if e[0] == stockcode:
-                return e[2]/asset
+                return e[4]/asset
         return 0
