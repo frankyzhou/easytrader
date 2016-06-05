@@ -6,115 +6,85 @@ from easytrader import helpers
 import pymongo
 import datetime
 
+class MongoDB():
+    def __init__(self, db):
+        """载入MongoDB数据库的配置"""
+        try:
+            config_path = os.path.dirname(__file__) + '/easytrader/config/db.json'
+            config = helpers.file2dict(config_path)
+            host = config['mongoHost']
+            port = config['mongoPort']
+        except:
+            host = 'localhost'
+            port = 27017
 
-def loadMongoSetting():
-    """载入MongoDB数据库的配置"""
-    try:
-        config_path = os.path.dirname(__file__) + '/easytrader/config/db.json'
-        config = helpers.file2dict(config_path)
-        host = config['mongoHost']
-        port = config['mongoPort']
-    except:
-        host = 'localhost'
-        port = 27017
+        self.dbClient = pymongo.MongoClient(host, port)
+        self.db = self.dbClient[db]
 
-    return host, port
+    def insert_doc(self, coll, info):
+        # 插入一个document
+        colls = self.db[coll]
+        colls.insert(info)
 
-def getDB():
-    host, port = loadMongoSetting()
-    dbClient = pymongo.MongoClient(host, port)
-    # db = dbClient['example']
-    return dbClient
-
-def get_collection(db, coll):
-    # 选择集合（mongo中collection和database都是延时创建的）
-    colls = db[coll]
-    # print db.collection_names()
-    return colls
-
-def insert_doc(db, coll, information):
-    # 插入一个document
-    colls = get_collection(db, coll)
-    information_id = colls.insert(information)
-    print information_id
+    def get_doc(self, coll, info):
+        # 有就返回一个，没有就返回None
+        # print colls.find_one()  # 返回第一条记录
+        colls = self.db[coll]
+        return colls.find_one(info)
+        # print coll.find_one({"name": "none"})
 
 
-# def insert_multi_docs(db):
-#     # 批量插入documents,插入一个数组
-#     coll = db['informations']
-#     information = [{"name": "xiaoming", "age": "25"}, {"name": "xiaoqiang", "age": "24"}]
-#     information_id = coll.insert(information)
-#     print information_id
+    def get_one_by_id(db):
+        # 通过objectid来查找一个doc
+        coll = db['informations']
+        obj = coll.find_one()
+        obj_id = obj["_id"]
+        print "_id 为ObjectId类型，obj_id:" + str(obj_id)
 
+        print coll.find_one({"_id": obj_id})
+        # 需要注意这里的obj_id是一个对象，不是一个str，使用str类型作为_id的值无法找到记录
+        print "_id 为str类型 "
+        print coll.find_one({"_id": str(obj_id)})
+        # 可以通过ObjectId方法把str转成ObjectId类型
+        from bson.objectid import ObjectId
 
-def get_doc(db, coll, info):
-    # 有就返回一个，没有就返回None
-    colls = get_collection(db, coll)
-    # print colls.find_one()  # 返回第一条记录
-    return colls.find_one(info)
-    # print coll.find_one({"name": "none"})
+        print "_id 转换成ObjectId类型"
+        print coll.find_one({"_id": ObjectId(str(obj_id))})
 
-
-def get_one_by_id(db):
-    # 通过objectid来查找一个doc
-    coll = db['informations']
-    obj = coll.find_one()
-    obj_id = obj["_id"]
-    print "_id 为ObjectId类型，obj_id:" + str(obj_id)
-
-    print coll.find_one({"_id": obj_id})
-    # 需要注意这里的obj_id是一个对象，不是一个str，使用str类型作为_id的值无法找到记录
-    print "_id 为str类型 "
-    print coll.find_one({"_id": str(obj_id)})
-    # 可以通过ObjectId方法把str转成ObjectId类型
-    from bson.objectid import ObjectId
-
-    print "_id 转换成ObjectId类型"
-    print coll.find_one({"_id": ObjectId(str(obj_id))})
-
-
-def get_many_docs(db, coll, info):
-    # mongo中提供了过滤查找的方法，可以通过各种条件筛选来获取数据集，还可以对数据进行计数，排序等处理
-    colls = get_collection(db, coll)
-    #ASCENDING = 1 升序;DESCENDING = -1降序;default is ASCENDING
-    # for item in coll.find().sort("age", pymongo.DESCENDING):
-    #     print item
-    #
-    # count = coll.count()
-    # print "集合中所有数据 %s个" % int(count)
-
-    #条件查询
-    count = colls.find(info).count()
-    print "quyang: %s"%count
-
-def clear_all_datas(db):
-    #清空一个集合中的所有数据
-    db["informations"].remove()
-
-def get_mongodb(DB_NAME):
-    dbclient = getDB()
-    return dbclient[DB_NAME]
+    def clear_all_datas(self, coll):
+        #清空一个集合中的所有数据
+        colls = self.db[coll]
+        colls.drop()
 
 if __name__ == '__main__':
-    db = getDB()
-    my_collection = get_collection(db)
-    post = {"author": "Mike", "text": "My first blog post!", "tags": ["mongodb", "python", "pymongo"],
-            "date": datetime.datetime.utcnow()}
-    # 插入记录
-    my_collection.insert(post)
-    insert_doc(db)
-    # 条件查询
-    print my_collection.find_one({"x": "10"})
-    # 查询表中所有的数据
-    for iii in my_collection.find():
+    db = MongoDB("Positions", "IB")
+    # get_doc(db, "example", "sdfa")
+    post =  {
+    "ZH776826" : {
+        "RIO" : {"price":28.34, "volume":2453},
+        "DUST" : {"price":11.02, "volume":349},
+        "DGAZ" : {"price":12.18, "volume":44},
+        "DWTI" : {"price":74.84, "volume":105},
+    },
+    "date": datetime.datetime.now(),
+    "ZH796463" : {
+        "LGCY" : {"price":2.32, "volume":9800},
+    }
+    }
+
+    # # 插入记录
+    db.insert_doc(post)
+    # # 条件查询
+    # # 查询表中所有的数据
+    for iii in db.coll.find():
         print iii
-    print my_collection.count()
-    my_collection.update({"author": "Mike"},
-                         {"author": "quyang", "text": "My first blog post!", "tags": ["mongodb", "python", "pymongo"],
-                          "date": datetime.datetime.utcnow()})
-    for jjj in my_collection.find():
-        print jjj
-    get_doc(db)
-    get_one_by_id(db)
-    get_many_docs(db)
+    # print my_collection.count()
+    # my_collection.update({"author": "Mike"},
+    #                      {"author": "quyang", "text": "My first blog post!", "tags": ["mongodb", "python", "pymongo"],
+    #                       "date": datetime.datetime.utcnow()})
+    # for jjj in my_collection.find():
+    #     print jjj
+    # get_doc(db)
+    # get_one_by_id(db)
+    # get_many_docs(db)
     # clear_all_datas(db)

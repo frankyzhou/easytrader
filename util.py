@@ -6,6 +6,7 @@ import tushare as ts
 import logging
 import logging.handlers
 from HTMLParser import HTMLParser
+from easytrader.MongoDB import *
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
@@ -110,6 +111,35 @@ class MyHTMLParser(HTMLParser):
             e[stock_name] = stock
             info_list.append(e)
         return info_list
+
+class PorfolioPosition():
+    def __init__(self, db, coll):
+        # self.db_name = db
+        # self.coll_name = coll
+        self.db = MongoDB(db)
+        self.coll = self.db.db[coll]
+        self.read_position()
+
+    def read_position(self):
+        for a in self.coll.find():
+            self.position = a
+            return
+        self.position = {"none":0}
+
+    def write_position(self, coll):
+        self.db.clear_all_datas(coll)
+        self.db.insert_doc(coll, self.position)
+
+    def get_position_by_stock(self, portfolio, code):
+        if portfolio in self.position.keys():
+            if code in self.position[portfolio]:
+                return self.position[portfolio][code]
+
 # is_trade_time()
 # get_trade_date_series()
+# a = PorfolioPosition("Positions", "IB")
+# # b = a.read_position("Positions", "IB")
+# c = a.get_position_by_stock('ZH776826', "DUST")
+# a.write_position("IB")
+# print c
 

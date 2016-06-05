@@ -2,6 +2,7 @@
 __author__ = 'frankyzhou'
 
 import time
+import datetime
 from swigibpy import EWrapper, EPosixClientSocket, ExecutionFilter
 from swigibpy import Order as IBOrder
 from easytrader.IButils import bs_resolve, action_ib_fill
@@ -575,8 +576,6 @@ class IBclient(object):
         portfolio_data=self.cb.data_portfoliodata
         account_value=self.cb.data_accountvalue
 
-
-
         if iserror:
             print self.cb.error_msg
             print "Problem getting details"
@@ -584,8 +583,35 @@ class IBclient(object):
 
         return (account_value, portfolio_data)
 
-    def get_position_by_stock(self, position_ib, stockcode, asset):
-        for e in position_ib:
-            if e[0] == stockcode:
-                return e[4]/asset
-        return 0
+    def get_position_by_stock(self, position_ib, stockcode, asset, p):
+        if p in position_ib.position["portfolio"]:
+            rest = position_ib.position["portfolio"][p]["percent_fixed"] - position_ib.position["portfolio"][p]["percent_now"]
+            if stockcode in position_ib.position["portfolio"][p]["stock"].keys():
+                return position_ib.position["portfolio"][p]["stock"][stockcode]["percent"], rest
+        return 0, rest
+
+    def update_portfolio(self, position_ib, position, asset, portfolio_list):
+        # update price
+        for e in position:
+            code = e[0]
+            price = round(e[3], 2)
+            position_ib.position["asset"] = asset
+            position_ib.position["date"] = datetime.datetime.now()
+            for p in position_ib.position["portfolio"]:
+                if code in position_ib.position["portfolio"][p]["stock"].keys():
+                    position_ib.position["portfolio"][p]["stock"][code]["price"] = price
+        #update percent
+        for p in position_ib.position["portfolio"]:
+            sum_percent = 0
+            for code in position_ib.position["portfolio"][p]["stock"]:
+                price = position_ib.position["portfolio"][p]["stock"][code]["price"]
+                volume = position_ib.position["portfolio"][p]["stock"][code]["volume"]
+                position_ib.position["portfolio"][p]["stock"][code]["percent"] = price * volume / asset
+                sum_percent += position_ib.position["portfolio"][p]["stock"][code]["percent"]
+            position_ib.position["portfolio"][p]["percent_now"] = sum_percent
+            position_ib.position["portfolio"][p]["percent_fixed"] = portfolio_list[p]["percent"]
+
+    def update_operation(self, position_ib, p, code, volume):
+        volume_before = position_ib.position["portfolio"][p]["stock"][code]["volume"]
+        volume_now = volume_before + volume
+        position_ib.position["portfolio"][p]["stock"][code]["volume"] = volume_now

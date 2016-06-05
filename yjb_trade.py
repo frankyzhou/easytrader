@@ -42,7 +42,7 @@ class yjb_trade:
         self.xq.prepare('xq.json')
         self.xq.setattr("portfolio_code", "ZH776826")
         self.yjb = easytrader.use('yjb')
-        self.yjb.prepare('yjb.json')
+        # self.yjb.prepare('yjb.json')
         self.logger = get_logger(COLLECTION)
         self.db = DB.get_mongodb(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series()
@@ -50,8 +50,8 @@ class yjb_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            if not is_today(trade["report_time"], self.last_trade_time) or DB.get_doc(self.db, COLLECTION, trade):
-            # if DB.get_doc(self.db, COLLECTION, trade):
+            # if not is_today(trade["report_time"], self.last_trade_time) or DB.get_doc(self.db, COLLECTION, trade):
+            if DB.get_doc(self.db, COLLECTION, trade):
                 break
             else:
                 #  only if entrust is today or not finished by no trade time
