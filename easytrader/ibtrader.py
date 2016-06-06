@@ -591,6 +591,11 @@ class IBclient(object):
         return 0, rest
 
     def update_portfolio(self, position_ib, position, asset, portfolio_list):
+        if "portfolio" not in position_ib.position.keys():
+            position_ib.position["portfolio"] = {}
+            for p in portfolio_list.keys():
+                position_ib.position["portfolio"][p] = {"stock":{}, "percent_now":0, "percent_fixed":0}
+
         # update price
         for e in position:
             code = e[0]
