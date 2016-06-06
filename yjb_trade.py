@@ -5,7 +5,7 @@ import datetime
 
 import time
 import easytrader
-from easytrader import MongoDB as DB
+from easytrader.MongoDB import *
 from util import *
 
 # declare basic vars
@@ -42,16 +42,16 @@ class yjb_trade:
         self.xq.prepare('xq.json')
         self.xq.setattr("portfolio_code", "ZH776826")
         self.yjb = easytrader.use('yjb')
-        # self.yjb.prepare('yjb.json')
+        self.yjb.prepare('yjb.json')
         self.logger = get_logger(COLLECTION)
-        self.db = DB.get_mongodb(XUEQIU_DB_NAME)
+        self.db = MongoDB(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series()
         self.trade_time = get_date_now()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            # if not is_today(trade["report_time"], self.last_trade_time) or DB.get_doc(self.db, COLLECTION, trade):
-            if DB.get_doc(self.db, COLLECTION, trade):
+            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            # if self.db.get_doc(COLLECTION, trade):
                 break
             else:
                 #  only if entrust is today or not finished by no trade time
@@ -112,7 +112,7 @@ class yjb_trade:
                 result = result["error_info"] if "error_info" in result else result
                 self.logger.info(result)
                 print result
-                DB.insert_doc(self.db, COLLECTION, trade)
+                self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
         while(1):
@@ -141,5 +141,5 @@ if __name__ == '__main__':
 
         except Exception, e:
             print e
-            yjb.logger.info(e)
+            # yjb.logger.info(e)
             time.sleep(100)
