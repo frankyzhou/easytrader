@@ -8,7 +8,7 @@ import pymongo
 import easytrader
 import time
 
-from easytrader import MongoDB as DB
+from easytrader.MongoDB import *
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "strategy"
@@ -38,20 +38,20 @@ portfolio_list =[
 ]
 info = {}
 
-dbclient = DB.getDB()
-db = dbclient[XUEQIU_DB_NAME]
+##dbclient = DB.getDB()
+db = MongoDB(XUEQIU_DB_NAME)
 
 while(1):
     try:
-        time.sleep(10)
+        time.sleep(8)
         info_list = user.get_xq_strategy("9")
         for info in info_list:
-            if not DB.get_doc(db, COLLECTION, info):
+            if not db.get_doc(COLLECTION, info):
                 logger.info("-"*50)
                 logger.info("update new message!")
                 for item in info:
                     print item + " @" + info[item]["price"] + " :" + info[item]["reason"]
-                DB.insert_doc(db, COLLECTION, info)
+                db.insert_doc(COLLECTION, info)
     except Exception, e:
         print e
 

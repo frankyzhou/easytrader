@@ -605,6 +605,8 @@ class IBclient(object):
             for p in position_ib.position["portfolio"]:
                 if code in position_ib.position["portfolio"][p]["stock"].keys():
                     position_ib.position["portfolio"][p]["stock"][code]["price"] = price
+                else:
+                    position_ib.position["portfolio"][p]["stock"][code] = {"price":price, "volume":0, "percent":0}
         #update percent
         for p in position_ib.position["portfolio"]:
             sum_percent = 0
@@ -617,6 +619,9 @@ class IBclient(object):
             position_ib.position["portfolio"][p]["percent_fixed"] = portfolio_list[p]["percent"]
 
     def update_operation(self, position_ib, p, code, volume):
-        volume_before = position_ib.position["portfolio"][p]["stock"][code]["volume"]
+        if code in  position_ib.position["portfolio"][p]["stock"].keys():
+            volume_before = position_ib.position["portfolio"][p]["stock"][code]["volume"]
+        else:
+            volume_before = 0
         volume_now = volume_before + volume
         position_ib.position["portfolio"][p]["stock"][code]["volume"] = volume_now

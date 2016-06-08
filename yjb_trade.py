@@ -50,8 +50,8 @@ class yjb_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-            # if self.db.get_doc(COLLECTION, trade):
+            #if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            if self.db.get_doc(COLLECTION, trade):
                 break
             else:
                 #  only if entrust is today or not finished by no trade time
