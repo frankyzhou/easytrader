@@ -489,6 +489,7 @@ class XueQiuTrader(WebTrader):
             "cube_symbol": str(self.account_config['portfolio_code'])
         }
         r = self.requests.get(self.config['profit_daily'], headers=self.headers, cookies=self.cookies, params=data)
+        if r.status_code != 200: return  None, None
         r = json.loads(r.text)
         return r[0]['list'], r[1]['list']
 
