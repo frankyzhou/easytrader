@@ -18,12 +18,20 @@ IB_POSITION = "Position"
 IB_HISTORY = "History"
 
 portfolio_list ={
-    'ZH796463':#试一试
-        {"percent":0.015,
+    # 'ZH796463':#试一试
+    #     {"percent":0.015,
+    #     "factor":0,
+    #      },
+    # 'ZH776826':#2016商品抄底组合
+    #     {"percent":0.015,
+    #     "factor":0,
+    #      },
+    'ZH856129':#etf负向做空
+        {"percent":0.008,
         "factor":0,
          },
-    'ZH776826':#2016商品抄底组合
-        {"percent":0.015,
+    'ZH866458':#中国市场多空
+        {"percent":0.008,
         "factor":0,
          },
 }
