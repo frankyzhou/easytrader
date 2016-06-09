@@ -595,7 +595,9 @@ class IBclient(object):
             position_ib.position["portfolio"] = {}
             for p in portfolio_list.keys():
                 position_ib.position["portfolio"][p] = {"stock":{}, "percent_now":0, "percent_fixed":0}
-
+        for p in portfolio_list.keys():
+            if p not in position_ib.position["portfolio"].keys():
+                position_ib.position["portfolio"][p] = {"stock":{}, "percent_now":0, "percent_fixed":0}
         # update price
         for e in position:
             code = e[0]
