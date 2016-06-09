@@ -484,5 +484,13 @@ class XueQiuTrader(WebTrader):
             str_cookies = str_cookies + item[0] + "=" + item[1] + "; "
         return str_cookies
 
+    def get_profit_daily(self):
+        data = {
+            "cube_symbol": str(self.account_config['portfolio_code'])
+        }
+        r = self.requests.get(self.config['profit_daily'], headers=self.headers, cookies=self.cookies, params=data)
+        r = json.loads(r.text)
+        return r[0]['list'], r[1]['list']
+
 if __name__ == '__main__':
     XueQiuTrader.main()

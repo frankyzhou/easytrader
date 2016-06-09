@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 __author__ = 'frankyzhou'
 
-import datetime
 import tushare as ts
 import logging
 import logging.handlers
 from HTMLParser import HTMLParser
 from easytrader.MongoDB import *
+from yahoo_finance import Share
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
-    last_trade_time = datetime.datetime.strptime(last_trade_time,"%Y-%m-%d") + datetime.timedelta(hours=15, minutes=5)
     if report_time > last_trade_time:
         return True
     else:
@@ -20,31 +19,43 @@ def is_today(report_time, last_trade_time):
 def get_price_by_factor(price, factor):
     return round(price*factor, 2)
 
-def get_date_now():
+def get_date_now(country):
     now_time = datetime.datetime.now()
-    trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 20, 0)
-    trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 50, 0)
-    trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 35, 0)
-    trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 05, 0)
-    return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
+    if country == "CN":
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 20, 0)
+        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 05, 0)
+    elif country == "US":
+        offsize = 0 if now_time.hour < 4 else 1
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize-1, 21, 25, 0)
+        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize, 4, 05, 0)
+
+    return [trade_begin_am, trade_end_pm]
 
 def is_trade_time(test, trade_time):
     now_time = datetime.datetime.now()
-    if test:    return True
+    if test: return True
 
-    if trade_time[0] < now_time < trade_time[1] or trade_time[2] < now_time < trade_time[3]:
+    if trade_time[0] < now_time < trade_time[1]:
         return True
     else:
         return False
 
-def get_trade_date_series():
+def get_trade_date_series(country):
     # get the data of 000001 by tushare
-    now = datetime.datetime.today()
-    before = now - datetime.timedelta(days=30)
-    start = before.strftime("%Y-%m-%d")
-    end = now.strftime("%Y-%m-%d")
-    df = ts.get_hist_data(code='sh', start=start, end=end)
-    return df.index.values[0]
+    if country == "CN":
+        now = datetime.datetime.today()
+        before = now - datetime.timedelta(days=30)
+        start = before.strftime("%Y-%m-%d")
+        end = now.strftime("%Y-%m-%d")
+        df = ts.get_hist_data(code='sh', start=start, end=end)
+        date_cn = datetime.datetime.strptime(df.index.values[0],"%Y-%m-%d") + datetime.timedelta(hours=15, minutes=5)
+        return date_cn
+
+    elif country == "US":
+        yahoo = Share('QQQ')
+        time_str = yahoo.get_trade_datetime()
+        date_us = datetime.datetime.strptime(time_str[:10], "%Y-%m-%d") + datetime.timedelta(hours=28, minutes=5)
+        return date_us
 
 def get_logger(COLLECTION):
     TIME = datetime.datetime.now().strftime("%Y-%m-%d")

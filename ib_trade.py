@@ -10,7 +10,7 @@ from easytrader.ibtrader import IBWrapper, IBclient
 from swigibpy import Contract as IBcontract
 
 # declare basic vars
-TEST_STATE = True
+TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 IB_DB_NAME = "IB"
 HISTORY_OPERATION_XQ = "USA_history_operation"
@@ -36,8 +36,8 @@ class ib_trade:
         self.logger = get_logger(HISTORY_OPERATION_XQ)
         self.db_xq = MongoDB(XUEQIU_DB_NAME)
         # self.db_ib = MongoDB(IB_DB_NAME)
-        # self.last_trade_time = get_trade_date_series()
-        self.trade_time = get_date_now()
+        self.last_trade_time = get_trade_date_series("US")
+        self.trade_time = get_date_now("US")
         self.callback = IBWrapper()
         self.ibcontract = IBcontract()
         self.ibcontract.secType = "STK"
@@ -50,8 +50,8 @@ class ib_trade:
         for trade in entrust:
             msg = ""
             try:
-                # if not is_stoday(trade["report_time"], self.last_trade_time) or DB.get_doc(self.db, COLLECTION, trade):
-                if self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
+                if not is_today(trade["report_time"], self.last_trade_time) or self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
+                # if self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
                     break
                 else:
                     #  only if entrust is today or not finished by no trade time
@@ -133,10 +133,10 @@ class ib_trade:
 
 if __name__ == '__main__':
     while(1):
-        try:
+        # try:
             ib = ib_trade()
             ib.main()
-        except Exception, e:
-            print e
-            ib_trade.logger.info(e)
+        # except Exception, e:
+        #     print e
+            # ib.logger.info(e)
             time.sleep(100)

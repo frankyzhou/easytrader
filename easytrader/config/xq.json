@@ -6,5 +6,6 @@
   "rebalance_url": "https://xueqiu.com/cubes/rebalancing/create.json",
   "history_url": "https://xueqiu.com/cubes/rebalancing/history.json",
   "referer": "https://xueqiu.com/p/update?action=holdings&symbol=%s",
-  "strategy": "https://xueqiu.com/strategy/"
+  "strategy": "https://xueqiu.com/strategy/",
+  "profit_daily": "https://xueqiu.com/cubes/nav_daily/all.json"
 }
