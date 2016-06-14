@@ -9,7 +9,7 @@ from easytrader.MongoDB import *
 from util import *
 
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 portfolio_list ={
