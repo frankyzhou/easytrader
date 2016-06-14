@@ -12,26 +12,78 @@ YEAR_TRADE_DAYS = 252
 unrisk_rate = 0.025
 COLLECTION = "seek_alpha"
 portfolio_list ={
-    'ZH000893':#成长投资组合
-        {"percent":0.4,
-        "factor":0,
-         },
-    'ZH278165':#次新股副班长
-        {"percent":0.33,
-        "factor":0,
-         },
-    'ZH743053':#我爱新能源
-        {"percent":0.34,
-        "factor":0,
-         },
-    'ZH016097':#绝对模拟
-       {"percent":0.2,
-       "factor":0.008,
+    # 'ZH000893':
+    #     {
+    #         "percent": 0.4,
+    #         "factor": 0,
+    #         "name": "成长投资组合"
+    #      },
+    # 'ZH278165':
+    #     {
+    #         "percent": 0.33,
+    #         "factor": 0,
+    #         "name": "次新股副班长"
+    #      },
+    # 'ZH743053':
+    #     {
+    #         "percent": 0.34,
+    #         "factor": 0,
+    #         "name": "我爱新能源"
+    #      },
+    # 'ZH016097':#绝对模拟
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "绝对模拟"
+    #     },
+    # 'ZH401833':#叫板瑞鹤仙
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "叫板瑞鹤仙"
+    #     },
+    'ZH793025':#全天候
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "全天候"
         },
-    'ZH401833':#叫板瑞鹤仙
-    {"percent":0.33,
-    "factor":0,
-     },
+    'ZH017122':#战胜华尔街
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "战胜华尔街"
+        },
+    'ZH847759':#黄金黄金
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "黄金黄金"
+        },
+    'ZH796463':#试一试
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "试一试"
+        },
+    'ZH776826':#2016商品抄底组合
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "2016商品抄底组合"
+        },
+    'ZH654591':#顺势止损
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "顺势止损"
+        },
+    'ZH793193':#全天候灵活配置
+       {
+            "percent": 0.2,
+            "factor": 0.008,
+            "name": "全天候灵活配置"
+        },
 }
 class get_alpha:
     def __init__(self):
@@ -71,12 +123,26 @@ class get_alpha:
         年标准差为日标准差乘以根号240.按照实际交易日来计算而不是日历时间来计算"""
         return np.std(p) * np.sqrt(YEAR_TRADE_DAYS)
 
+    def get_para_by_portfolio(self, p_name):
+        self.xq.setattr("portfolio_code", p_name)
+        time.sleep(1)
+        p, b = self.xq.get_profit_daily()
+        if p != None and b !=None:
+            p, b = self.analyse_profit(p), self.analyse_profit(b)
+            p_annua_profit = self.get_annualized_returns(p)
+            b_annua_profit = self.get_annualized_returns(b)
+            cov = self.get_cov(p["daily"].values, b["daily"].values)
+            beta = cov / np.var(b["daily"].values)  #方差
+            alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
+            volatility = self.get_volatility(p["daily"].values)
+            sharp = (p_annua_profit - unrisk_rate) / volatility
+            print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp) + " volatility:" + str(volatility)
 
     def main(self):
-        for no in range(999999):
+        for no in range(13728+1, 999999):
             p_name = "ZH" + '{:0>6}'.format(no)
             self.xq.setattr("portfolio_code", p_name)
-            # time.sleep(3)
+            time.sleep(1)
             p, b = self.xq.get_profit_daily()
             if p != None and b !=None:
                 p, b = self.analyse_profit(p), self.analyse_profit(b)
@@ -87,9 +153,11 @@ class get_alpha:
                 alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
                 volatility = self.get_volatility(p["daily"].values)
                 sharp = (p_annua_profit - unrisk_rate) / volatility
-                # if alpha >1 and sharp > 2:
-                record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp))
+                if alpha > 0 and sharp > 0:
+                    record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp))
 
 if __name__ == '__main__':
     a = get_alpha()
-    a.main()
+    # a.main()
+    for p in portfolio_list:
+        a.get_para_by_portfolio(p)

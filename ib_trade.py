@@ -18,22 +18,22 @@ IB_POSITION = "Position"
 IB_HISTORY = "History"
 
 portfolio_list ={
-    # 'ZH796463':#试一试
-    #     {"percent":0.015,
-    #     "factor":0,
-    #      },
-    # 'ZH776826':#2016商品抄底组合
-    #     {"percent":0.015,
-    #     "factor":0,
-    #      },
-    'ZH856129':#etf负向做空
-        {"percent":0.008,
+    'ZH796463':#试一试
+        {"percent":0.015,
         "factor":0,
          },
-    'ZH866458':#中国市场多空
-        {"percent":0.008,
+    'ZH776826':#2016商品抄底组合
+        {"percent":0.015,
         "factor":0,
          },
+    # 'ZH856129':#etf负向做空
+    #     {"percent":0.008,
+    #     "factor":0,
+    #      },
+    # 'ZH866458':#中国市场多空
+    #     {"percent":0.008,
+    #     "factor":0,
+    #      },
 }
 
 class ib_trade:
@@ -57,14 +57,16 @@ class ib_trade:
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
             msg = ""
+            account_data = []
+            position_ib = []
             # try:
             if not is_today(trade["report_time"], self.last_trade_time) or self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
             # if self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
                 break
             else:
                 #  only if entrust is today or not finished by no trade time
-                account_data = []
-                position_ib = []
+                del account_data[:]
+                del position_ib[:]
                 account_data, position_ib = self.client.get_IB_account_data()
                 asset = float(account_data[31][1])
                 self.client.update_portfolio(self.position_ib, position_ib, asset, portfolio_list)
@@ -101,7 +103,7 @@ class ib_trade:
                     volume = int(turn_volume/price)
                     if abs(volume) >= 1:
                         self.ibcontract.symbol = code
-                        orderid = self.client.place_new_IB_order(self.ibcontract, volume, price, "LMT", orderid=None)
+                        orderid = self.client.place_new_IB_order(self.ibcontract, volume, price, "MKT", orderid=None)
                         if volume > 0:
                             msg = "买入 "+code+" @ " + str(price) + " 共 " + str(volume)
                         else:
@@ -136,7 +138,7 @@ class ib_trade:
                     # except Exception, e:
                     #     print e
                     #     self.logger.info(e)
-                    self.position_ib.write_position(IB_POSITION)
+                    # self.position_ib.write_position(IB_POSITION)
 
 if __name__ == '__main__':
     while(1):

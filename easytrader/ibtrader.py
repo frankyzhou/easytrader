@@ -623,7 +623,9 @@ class IBclient(object):
     def update_operation(self, position_ib, p, code, volume):
         if code in  position_ib.position["portfolio"][p]["stock"].keys():
             volume_before = position_ib.position["portfolio"][p]["stock"][code]["volume"]
+            volume_now = volume_before + volume
         else:
-            volume_before = 0
-        volume_now = volume_before + volume
+            volume_now = volume
+            position_ib.position["portfolio"][p]["stock"][code] = {"volume":0, "price":0, "percent":0}
+
         position_ib.position["portfolio"][p]["stock"][code]["volume"] = volume_now

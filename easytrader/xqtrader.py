@@ -91,6 +91,7 @@ class XueQiuTrader(WebTrader):
                                             headers=self.headers)
         self.cookies = login_response.cookies
         self.str_cookies = self.get_cookies()
+        self.cookies["Cookies"] = self.str_cookies
         login_status = json.loads(login_response.text)
         if 'error_description' in login_status.keys():
             return False, login_status['error_description']
@@ -489,7 +490,9 @@ class XueQiuTrader(WebTrader):
             "cube_symbol": str(self.account_config['portfolio_code'])
         }
         r = self.requests.get(self.config['profit_daily'], headers=self.headers, cookies=self.cookies, params=data)
-        if r.status_code != 200: return  None, None
+        if r.status_code != 200:
+            print r.status_code
+            return  None, None
         r = json.loads(r.text)
         return r[0]['list'], r[1]['list']
 
