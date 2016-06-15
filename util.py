@@ -20,7 +20,7 @@ def send_email(msg):
     sender = 'zljszlj@163.com'
     receivers = ['zljszlj@163.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
 
-    message = MIMEText('买入', 'plain', 'utf-8')
+    message = MIMEText(msg, 'plain', 'utf-8')
     message['From'] = "stock"
     message['To'] =  "zlj"
 

@@ -112,7 +112,7 @@ class yjb_trade:
                 result = result["error_info"] if "error_info" in result else result
                 self.logger.info(result)
                 print result
-                send_email(result)
+                send_email(k + ": " + result)
                 self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
@@ -132,6 +132,9 @@ class yjb_trade:
 
                     except Exception, e:
                         print e
+                        send_email("inner: " + e)
+                        self.yjb.login()
+                        self.xq.login()
                         self.logger.info("inner: " + e)
 
 if __name__ == '__main__':
