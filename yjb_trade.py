@@ -50,8 +50,8 @@ class yjb_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-            if self.db.get_doc(COLLECTION, trade):
+            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            # if self.db.get_doc(COLLECTION, trade):
                 break
             else:
                 #  only if entrust is today or not finished by no trade time
@@ -120,9 +120,9 @@ class yjb_trade:
             if(is_trade_time(TEST_STATE, self.trade_time)):
             # judge whether it is trade time
                 for k in portfolio_list.keys():
-                    try:
+                    # try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(2)
+                        time.sleep(5)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]
@@ -130,21 +130,24 @@ class yjb_trade:
 
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    except Exception, e:
-                        print e
-                        send_email("inner: " + e)
-                        self.yjb.login()
-                        self.xq.login()
-                        self.logger.info("inner: " + e)
+                    # except Exception, e:
+                    #     print e
+                    #     send_email("inner: " + e.message)
+                    #     self.logger.info("inner: " + e.message)
+                    #
+                    #     time.sleep(120)
+                    #     self.yjb.login()
+                    #     self.xq.login()
 
 if __name__ == '__main__':
     yjb = None
     while(1):
-        try:
+        # try:
             yjb = yjb_trade()
             yjb.main()
+            # a = 1/0
 
-        except Exception, e:
-            print e
-            yjb.logger.info("outer: " + e)
-            time.sleep(100)
+        # except Exception, e:
+        #     print e
+        #     yjb.logger.info("outer: " + e.message)
+        #     time.sleep(12)
