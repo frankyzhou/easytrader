@@ -50,8 +50,8 @@ class yjb_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-            # if self.db.get_doc(COLLECTION, trade):
+            # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            if self.db.get_doc(COLLECTION, trade):
                 break
             else:
                 #  only if entrust is today or not finished by no trade time
@@ -112,6 +112,7 @@ class yjb_trade:
                 result = result["error_info"] if "error_info" in result else result
                 self.logger.info(result)
                 print result
+                send_email(result)
                 self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
@@ -121,7 +122,7 @@ class yjb_trade:
                 for k in portfolio_list.keys():
                     try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(1)
+                        time.sleep(2)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]
@@ -131,9 +132,10 @@ class yjb_trade:
 
                     except Exception, e:
                         print e
-                        self.logger.info(e)
+                        self.logger.info("inner: " + e)
 
 if __name__ == '__main__':
+    yjb = None
     while(1):
         try:
             yjb = yjb_trade()
@@ -141,5 +143,5 @@ if __name__ == '__main__':
 
         except Exception, e:
             print e
-            # yjb.logger.info(e)
+            yjb.logger.info("outer: " + e)
             time.sleep(100)
