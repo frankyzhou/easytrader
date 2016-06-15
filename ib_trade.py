@@ -18,7 +18,7 @@ IB_POSITION = "Position"
 IB_HISTORY = "History"
 
 portfolio_list ={
-    'ZH796463':#试一试
+    'ZH793193':#全天候灵活配置
         {"percent":0.015,
         "factor":0,
          },
