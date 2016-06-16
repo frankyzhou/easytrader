@@ -10,32 +10,7 @@ from yahoo_finance import Share
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-
-def send_email(msg):
-    # 第三方 SMTP 服务
-    mail_host="smtp.163.com"  #设置服务器
-    mail_user="zljszlj@163.com"    #用户名
-    mail_pass="ZLJ#BH=bhw@u08"   #口令
-
-    sender = 'zljszlj@163.com'
-    receivers = ['zljszlj@163.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
-
-    message = MIMEText(msg, 'plain', 'utf-8')
-    message['From'] = "stock"
-    message['To'] =  "zlj"
-
-    subject = msg
-    message['Subject'] = Header(subject, 'utf-8')
-    try:
-        smtpObj = smtplib.SMTP()
-        smtpObj.connect(mail_host, 25)    # 25 为 SMTP 端口号
-        smtpObj.login(mail_user,mail_pass)
-        smtpObj.sendmail(sender, receivers, message.as_string())
-        print "邮件发送成功"
-    except smtplib.SMTPException, ex:
-        print "Error: 无法发送邮件"
-        print ex
-
+import time
 # after the last trade day
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
@@ -100,9 +75,10 @@ def get_logger(COLLECTION):
 
     return logger
 
-def record_msg(logger, msg):
+def record_msg(logger, email, msg):
     logger.info(msg)
     print msg
+    email.send_email(msg)
 
 class MyHTMLParser(HTMLParser):
     def __init__(self):
@@ -174,6 +150,36 @@ class PorfolioPosition():
             if code in self.position[portfolio]:
                 return self.position[portfolio][code]
 
+class Email():
+    config_path = os.path.dirname(__file__) + '/easytrader/config/email.json'
+    def __init__(self):
+        self.read_config(self.config_path)
+        self.mail_host = self.account_config["mail_host"]  #设置服务器
+        self.mail_user = self.account_config["mail_user"]   #用户名
+        self.mail_pass = self.account_config["mail_pass"]   #口令
+        self.smtpObj = smtplib.SMTP()
+
+    def read_config(self, path):
+        self.account_config = helpers.file2dict(path)
+
+    def send_email(self, msg):
+        # 第三方 SMTP 服务
+        message = MIMEText(msg, 'plain', 'utf-8')
+        message['From'] = "stock@163.com"
+        message['To'] =  "zlj"
+
+        subject = msg
+        message['Subject'] = Header(subject, 'utf-8')
+        while(1):
+            try:
+                self.smtpObj.sendmail(self.mail_user, self.mail_user, message.as_string())
+                # print "邮件发送成功"
+                return
+            except smtplib.SMTPException, ex:
+                self.smtpObj.connect(self.mail_host, 25)
+                self.smtpObj.login(self.mail_user, self.mail_pass)
+                # print "Error: 无法发送邮件"
+                print ex
 # is_trade_time()
 # get_trade_date_series()
 # a = PorfolioPosition("Positions", "IB")
@@ -181,4 +187,7 @@ class PorfolioPosition():
 # c = a.get_position_by_stock('ZH776826', "DUST")
 # a.write_position("IB")
 # print c
-
+# e = Email()
+# while True:
+#     time.sleep(60*10)
+#     e.send_email("i love you")

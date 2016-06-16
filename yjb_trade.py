@@ -21,10 +21,10 @@ portfolio_list ={
     #     {"percent":0.33,
     #     "factor":0,
     #      },
-    # 'ZH743053':#我爱新能源
-    #     {"percent":0.34,
-    #     "factor":0,
-    #      },
+    'ZH743053':#我爱新能源
+        {"percent":0.2,
+        "factor":0,
+         },
     #'ZH016097':#绝对模拟
     #    {"percent":0.2,
     #    "factor":0.008,
@@ -47,12 +47,15 @@ class yjb_trade:
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
+        self.email = Email()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
             if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-            # if self.db.get_doc(COLLECTION, trade):
                 break
+            # if self.db.get_doc(COLLECTION, trade):
+            #     pass
+
             else:
                 #  only if entrust is today or not finished by no trade time
                 position_yjb = self.yjb.get_position()
@@ -84,35 +87,31 @@ class yjb_trade:
                 # 当dif_xq为负，
                 # 若dif_yjb为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
                 # 若dif_yib为负，择最大的变化，避免持有证券数量不够
+                    # code = "600037"
+                    # dif = -0.04
+                    # price = 14.74
                 volume = dif*asset
+                result = {}
 
                 if dif > 0:
                     price = get_price_by_factor(price, (1+factor))
                     if volume/price >= 100:
-                        result = self.yjb.buy(code, price, volume= volume)
-                        self.logger.info("买入 "+code+" @ " + str(price) + " 共 " + str(volume))
-                        print "买入 "+code+" @ " + str(price) + " 共 " + str(volume)
+                        result = self.yjb.buy(code, price, volume=volume)
+                        result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(volume)
                     else:
-                        self.logger.info("不足100股 "+code+" @ " + str(price) + " 共 " + str(volume))
-                        result = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
+                        result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
                 elif dif < 0:
                     volume = -volume
                     if volume/price >= 100:
-                        result = self.yjb.sell(code, price, volume= volume)
-                        self.logger.info("卖出 "+code+" @ " + str(price) + " 共 " + str(volume))
-                        print "卖出 "+code+" @ " + str(price) + " 共 " + str(volume)
+                        result = self.yjb.sell(code, price, volume=volume)
+                        result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(volume)
                     else:
-                        self.logger.info("卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(volume))
-                        result = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
+                        result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
                 elif dif == 0:
-                    result = code + " 数量为0，不动！"
-                # out = ""
-                # for key in result.keys():
-                #     out = out + str(key) + " : " + str(result[key]) + " "
-                result = result["error_info"] if "error_info" in result else result
-                self.logger.info(result)
-                print result
-                send_email(k + ": " + result)
+                    result["trade"] = code + " 数量为0，不动！"
+
+                result = result["error_info"] + result["trade"] if "error_info" in result else result["trade"]
+                record_msg(self.logger, self.email, result)
                 self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
@@ -122,7 +121,7 @@ class yjb_trade:
                 for k in portfolio_list.keys():
                     # try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(5)
+                        time.sleep(3)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]

@@ -159,7 +159,7 @@ class YJBTrader(WebTrader):
         params = dict(
                 self.config['sell'],
                 entrust_bs=2,  # 买入1 卖出2
-                entrust_amount=amount if amount else volume // price
+                entrust_amount=amount if amount else volume // price // 100 * 100
         )
         return self.__trade(stock_code, price, entrust_prop=entrust_prop, other=params)
 
