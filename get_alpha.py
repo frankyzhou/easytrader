@@ -12,6 +12,12 @@ YEAR_TRADE_DAYS = 252
 unrisk_rate = 0.025
 COLLECTION = "seek_alpha"
 portfolio_list ={
+    'ZH226990':
+        {
+            "percent": 0.4,
+            "factor": 0,
+            "name": "雨后彩虹"
+         },
     # 'ZH000893':
     #     {
     #         "percent": 0.4,
@@ -42,48 +48,48 @@ portfolio_list ={
     #         "factor": 0.008,
     #         "name": "叫板瑞鹤仙"
     #     },
-    'ZH793025':#全天候
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "全天候"
-        },
-    'ZH017122':#战胜华尔街
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "战胜华尔街"
-        },
-    'ZH847759':#黄金黄金
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "黄金黄金"
-        },
-    'ZH796463':#试一试
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "试一试"
-        },
-    'ZH776826':#2016商品抄底组合
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "2016商品抄底组合"
-        },
-    'ZH654591':#顺势止损
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "顺势止损"
-        },
-    'ZH793193':#全天候灵活配置
-       {
-            "percent": 0.2,
-            "factor": 0.008,
-            "name": "全天候灵活配置"
-        },
+    # 'ZH793025':#全天候
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "全天候"
+    #     },
+    # 'ZH017122':#战胜华尔街
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "战胜华尔街"
+    #     },
+    # 'ZH847759':#黄金黄金
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "黄金黄金"
+    #     },
+    # 'ZH796463':#试一试
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "试一试"
+    #     },
+    # 'ZH776826':#2016商品抄底组合
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "2016商品抄底组合"
+    #     },
+    # 'ZH654591':#顺势止损
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "顺势止损"
+    #     },
+    # 'ZH793193':#全天候灵活配置
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "全天候灵活配置"
+    #     },
 }
 class get_alpha:
     def __init__(self):

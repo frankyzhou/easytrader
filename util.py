@@ -157,29 +157,28 @@ class Email():
         self.mail_host = self.account_config["mail_host"]  #设置服务器
         self.mail_user = self.account_config["mail_user"]   #用户名
         self.mail_pass = self.account_config["mail_pass"]   #口令
-        self.smtpObj = smtplib.SMTP()
 
     def read_config(self, path):
         self.account_config = helpers.file2dict(path)
 
     def send_email(self, msg):
         # 第三方 SMTP 服务
+        self.smtpObj = smtplib.SMTP()
         message = MIMEText(msg, 'plain', 'utf-8')
         message['From'] = "stock@163.com"
         message['To'] =  "zlj"
 
         subject = msg
         message['Subject'] = Header(subject, 'utf-8')
-        while(1):
-            try:
-                self.smtpObj.sendmail(self.mail_user, self.mail_user, message.as_string())
-                # print "邮件发送成功"
-                return
-            except smtplib.SMTPException, ex:
-                self.smtpObj.connect(self.mail_host, 25)
-                self.smtpObj.login(self.mail_user, self.mail_pass)
-                # print "Error: 无法发送邮件"
-                print ex
+        try:
+            self.smtpObj.connect(self.mail_host, 25)
+            self.smtpObj.login(self.mail_user, self.mail_pass)
+            self.smtpObj.sendmail(self.mail_user, self.mail_user, message.as_string())
+            # print "邮件发送成功"
+            return
+        except smtplib.SMTPException, ex:
+            # print "Error: 无法发送邮件"
+            print ex
 # is_trade_time()
 # get_trade_date_series()
 # a = PorfolioPosition("Positions", "IB")
