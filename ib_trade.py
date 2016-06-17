@@ -53,6 +53,7 @@ class ib_trade:
         self.ibcontract.currency="USD"
         self.client = IBclient(self.callback)
         self.position_ib = PorfolioPosition(IB_DB_NAME, IB_POSITION)
+        self.email = Email()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -117,7 +118,7 @@ class ib_trade:
         #     record_msg(self.logger, e)
         # finally:
             if len(msg) !=0:
-                record_msg(self.logger, msg)
+                record_msg(self.logger, self.email, msg)
                 self.position_ib.write_position(IB_POSITION)
                 self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
 
