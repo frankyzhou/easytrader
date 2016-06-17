@@ -128,7 +128,7 @@ class ib_trade:
                 for k in portfolio_list.keys():
                     # try:
                     self.xq.setattr("portfolio_code", k)
-                    time.sleep(1)
+                    time.sleep(3)
                     entrust = self.xq.get_xq_entrust_checked()
 
                     factor = portfolio_list[k]["factor"]

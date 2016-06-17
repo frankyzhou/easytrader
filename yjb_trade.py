@@ -82,7 +82,13 @@ class yjb_trade:
                 dif_xq = target_percent - before_percent_xq
                 dif_yjb = target_percent - before_percent_yjb
 
-                dif = dif_xq if dif_xq > 0 else min(max(dif_xq, dif_yjb), 0)
+                # dif = dif_xq if dif_xq > 0 else min(max(dif_xq, dif_yjb), 0)
+                if dif_xq > 0:
+                    dif = dif_xq
+                elif target_percent == 0:
+                    dif = dif_yjb
+                else:
+                    dif = min(max(dif_xq, dif_yjb), 0)
                 # 如果dif_xq为正，那幅度选择dif_xq，避免过高成本建仓；
                 # 当dif_xq为负，
                 # 若dif_yjb为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
