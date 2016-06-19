@@ -94,8 +94,7 @@ portfolio_list ={
 class get_alpha:
     def __init__(self):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('xq.json')
-        self.xq.setattr("portfolio_code", "ZH776826")
+        self.xq.prepare('config/xq2.json')
         self.logger = get_logger(COLLECTION)
 
     def get_annualized_returns(self, profit_list):

@@ -18,28 +18,24 @@ IB_POSITION = "Position"
 IB_HISTORY = "History"
 
 portfolio_list ={
-    'ZH793193':#全天候灵活配置
-        {"percent":0.015,
-        "factor":0,
-         },
-    'ZH776826':#2016商品抄底组合
-        {"percent":0.015,
-        "factor":0,
-         },
-    # 'ZH856129':#etf负向做空
-    #     {"percent":0.008,
-    #     "factor":0,
+    # 'ZH793193':
+    #     {
+    #         "percent": 0.015,
+    #         "factor": 0,
+    #         "name": "全天候灵活配置"
     #      },
-    # 'ZH866458':#中国市场多空
-    #     {"percent":0.008,
-    #     "factor":0,
-    #      },
+    'ZH776826':
+        {
+            "percent": 0.015,
+            "factor": 0,
+            "name": "2016商品抄底组合"
+         },
 }
 
 class ib_trade:
     def __init__(self):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('xq.json')
+        self.xq.prepare('config/xq3.json')
         self.xq.setattr("portfolio_code", "ZH776826")
         self.logger = get_logger(HISTORY_OPERATION_XQ)
         self.db_xq = MongoDB(XUEQIU_DB_NAME)
@@ -48,7 +44,7 @@ class ib_trade:
         self.trade_time = get_date_now("US")
         self.callback = IBWrapper()
         self.ibcontract = IBcontract()
-        self.ibcontract.secType = "STK"
+        # self.ibcontract.secType = "STK"
         self.ibcontract.exchange="SMART"
         self.ibcontract.currency="USD"
         self.client = IBclient(self.callback)
@@ -62,8 +58,9 @@ class ib_trade:
             position_ib = []
             # try:
             if not is_today(trade["report_time"], self.last_trade_time) or self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
-            # if self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
                 break
+            # if self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
+            #     pass
             else:
                 #  only if entrust is today or not finished by no trade time
                 del account_data[:]
@@ -73,14 +70,10 @@ class ib_trade:
                 self.client.update_portfolio(self.position_ib, position_ib, asset, portfolio_list)
 
                 trade["portfolio"] = k
-                self.logger.info("-"*50)
-                print "-"*50
-                self.logger.info(k + " update new operaion!")
-                print k + " update new operaion!"
+                record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!")
 
                 code = str(trade["stock_code"])
-                price = trade["business_price"]
-                # dif = trade['entrust_amount']/100
+                price = get_price_by_factor(trade["business_price"], (1+factor))
 
                 target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
                 # before_percent has two version.
@@ -100,15 +93,11 @@ class ib_trade:
                     # 若dif_ib为负，择dif_ib，将该组合下所有标的清仓
                 turn_volume = dif*asset
                 if dif != 0:
-                    price = get_price_by_factor(price, (1+factor))
                     volume = int(turn_volume/price)
                     if abs(volume) >= 1:
                         self.ibcontract.symbol = code
                         orderid = self.client.place_new_IB_order(self.ibcontract, volume, price, "MKT", orderid=None)
-                        if volume > 0:
-                            msg = "买入 "+code+" @ " + str(price) + " 共 " + str(volume)
-                        else:
-                            msg = "卖出 "+code+" @ " + str(price) + " 共 " + str(-volume)
+                        msg = code+" @ " + str(price) + " 股数变化 " + str(volume) + " ID:" + str(orderid)
                         self.client.update_operation(self.position_ib, k, code, volume)
                     else:
                         msg = "不足1股 "+code+" @ " + str(price)
@@ -118,7 +107,7 @@ class ib_trade:
         #     record_msg(self.logger, e)
         # finally:
             if len(msg) !=0:
-                record_msg(self.logger, self.email, msg)
+                record_msg(logger=self.logger, email=self.email, msg=portfolio_list[k]["name"] + ": " + msg)
                 self.position_ib.write_position(IB_POSITION)
                 self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
 

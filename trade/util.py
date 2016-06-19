@@ -10,7 +10,8 @@ from yahoo_finance import Share
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-import time
+import socket, traceback
+
 # after the last trade day
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
@@ -62,7 +63,7 @@ def get_trade_date_series(country):
 
 def get_logger(COLLECTION):
     TIME = datetime.datetime.now().strftime("%Y-%m-%d")
-    LOG_FILE = 'logs/' + TIME + COLLECTION +'.log'
+    LOG_FILE = '../logs/' + TIME + COLLECTION +'.log'
     handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes = 1024*1024, backupCount = 5) # 实例化handler
 
     fmt = '%(asctime)s -  %(message)s'
@@ -75,10 +76,24 @@ def get_logger(COLLECTION):
 
     return logger
 
-def record_msg(logger, email, msg):
+def record_msg(logger, msg, email=None):
     logger.info(msg)
     print msg
-    email.send_email(msg)
+    if email != None:
+        email.send_email(msg)
+
+def get_server():
+    host = '' # Bind to all interfaces
+    port = 51500
+
+    # Step1: 创建socket对象
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # Step2: 设置socket选项(可选)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    # Step3: 绑定到某一个端口
+    s.bind((host, port))
 
 class MyHTMLParser(HTMLParser):
     def __init__(self):
@@ -151,7 +166,7 @@ class PorfolioPosition():
                 return self.position[portfolio][code]
 
 class Email():
-    config_path = os.path.dirname(__file__) + '/easytrader/config/email.json'
+    config_path = os.path.dirname(__file__) + '/config/email.json'
     def __init__(self):
         self.read_config(self.config_path)
         self.mail_host = self.account_config["mail_host"]  #设置服务器
@@ -182,6 +197,7 @@ class Email():
                 self.smtpObj.connect(self.mail_host, 25)
                 self.smtpObj.login(self.mail_user, self.mail_pass)
                 print ex
+
 # is_trade_time()
 # get_trade_date_series()
 # a = PorfolioPosition("Positions", "IB")

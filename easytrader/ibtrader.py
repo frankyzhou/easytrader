@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'frankyzhou'
 
-import time
-import datetime
 from swigibpy import EWrapper, EPosixClientSocket, ExecutionFilter
 from swigibpy import Order as IBOrder
+
 from easytrader.IButils import bs_resolve, action_ib_fill
+from trade.util import *
 
 MAX_WAIT_SECONDS=10
 MEANINGLESS_NUMBER=1729
@@ -55,6 +55,7 @@ class IBWrapper(EWrapper):
         if errorCode in ERRORS_TO_TRIGGER:
             errormsg="IB error id %d errorcode %d string %s" %(id, errorCode, errorString)
             print errormsg
+
             setattr(self, "flag_iserror", True)
             setattr(self, "error_msg", True)
 
@@ -336,9 +337,6 @@ class IBWrapper(EWrapper):
         Finished can look at portfolio_structure and account_value
         """
         setattr(self, "flag_finished_portfolio", True)
-
-
-
 
 class IBclient(object):
     """

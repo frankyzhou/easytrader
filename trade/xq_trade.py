@@ -1,48 +1,37 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'frankyzhou'
-import datetime
 
-import time
 import easytrader
-from easytrader.MongoDB import *
-from util import *
+from trade.util import *
+import time
 
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 portfolio_list ={
-    'ZH000893':#成长投资组合
-        {"percent":1,
-        "factor":0,
+    'ZH000893':
+        {
+            "percent": 1.5,
+            "factor": 0,
+            "name": "成长投资组合"
          },
-    # 'ZH278165':#次新股副班长
-    #     {"percent":0.33,
-    #     "factor":0,
-    #      },
-    'ZH743053':#我爱新能源
-        {"percent":0.2,
-        "factor":0,
+    'ZH743053':
+        {
+            "percent": 0.2,
+            "factor": 0,
+            "name": "我爱新能源"
          },
-    #'ZH016097':#绝对模拟
-    #    {"percent":0.2,
-    #    "factor":0.008,
-    #     },
-    # 'ZH401833':#叫板瑞鹤仙
-    # {"percent":0.33,
-    # "factor":0,
-    #  },
-
 }
 
-class yjb_trade:
+class xq_trade:
     def __init__(self):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('xq.json')
+        self.xq.prepare('config/xq.json')
         self.xq.setattr("portfolio_code", "ZH776826")
         self.yjb = easytrader.use('yjb')
-        self.yjb.prepare('yjb.json')
+        self.yjb.prepare('config/yjb.json')
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series("CN")
@@ -51,32 +40,24 @@ class yjb_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-                break
-            # if self.db.get_doc(COLLECTION, trade):
-            #     pass
-
+            # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            #     break
+            if self.db.get_doc(COLLECTION, trade):
+                pass
             else:
-                #  only if entrust is today or not finished by no trade time
+                """only if entrust is today or not finished by no trade time"""
                 position_yjb = self.yjb.get_position()
                 balance = self.yjb.get_balance()[0]
                 asset = balance["asset_balance"]
                 trade["portfolio"] = k
 
-                self.logger.info("-"*50)
-                print "-"*50
-                self.logger.info(k + " update new operaion!")
-                print k + " update new operaion!"
+                record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!")
 
                 code = str(trade["stock_code"][2:])
-                price = trade["business_price"]
-                # dif = trade['entrust_amount']/100
-
+                price = get_price_by_factor(trade["business_price"], (1+factor))
                 target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
-                # before_percent has two version.
-                # 1.the position is caled by yjb
-                # 2,the position is caled by xq
-                #已经有比例，故其他需要对应
+
+                '''before_percent has two version.  1.the position is caled by yjb;  2,the position is caled by xq; 已经有比例，故其他需要对应'''
                 before_percent_yjb = self.yjb.get_position_by_stock(code, position_yjb, asset)
                 before_percent_xq = trade["prev_weight"] * percent /100 if trade["prev_weight"] > 2.0 else 0.0
                 dif_xq = target_percent - before_percent_xq
@@ -89,35 +70,34 @@ class yjb_trade:
                     dif = dif_yjb
                 else:
                     dif = min(max(dif_xq, dif_yjb), 0)
-                # 如果dif_xq为正，那幅度选择dif_xq，避免过高成本建仓；
-                # 当dif_xq为负，
-                # 若dif_yjb为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
-                # 若dif_yib为负，择最大的变化，避免持有证券数量不够
-                    # code = "600037"
-                    # dif = -0.04
-                    # price = 14.74
+                '''如果dif_xq为正，那幅度选择dif_xq，避免过高成本建仓；
+                当dif_xq为负，
+                若dif_yjb为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
+                若dif_yib为负，择最大的变化，避免持有证券数量不够
+                code = "600037"
+                dif = -0.04
+                price = 14.74'''
                 volume = dif*asset
+                amount = abs(volume) // price // 100 * 100
                 result = {}
 
                 if dif > 0:
-                    price = get_price_by_factor(price, (1+factor))
-                    if volume/price >= 100:
-                        result = self.yjb.buy(code, price, volume=volume)
-                        result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(volume)
+                    if amount >= 100:
+                        result = self.yjb.buy(stock_code=code, price=price, amount=amount)
+                        result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(amount)
                     else:
-                        result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
+                        result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
                 elif dif < 0:
-                    volume = -volume
-                    if volume/price >= 100:
-                        result = self.yjb.sell(code, price, volume=volume)
-                        result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(volume)
+                    if amount >= 100:
+                        result = self.yjb.sell(stock_code=code, price=price, amount=amount)
+                        result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
                     else:
-                        result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(volume)
+                        result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
                 elif dif == 0:
                     result["trade"] = code + " 数量为0，不动！"
 
                 result = result["error_info"] + result["trade"] if "error_info" in result else result["trade"]
-                record_msg(self.logger, self.email, result)
+                record_msg(logger=self.logger, email=self.email, msg=portfolio_list[k]["name"] + ": " + result)
                 self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
@@ -145,11 +125,11 @@ class yjb_trade:
                     #     self.xq.login()
 
 if __name__ == '__main__':
-    yjb = None
+    xq = None
     while(1):
         # try:
-            yjb = yjb_trade()
-            yjb.main()
+            xq = xq_trade()
+            xq.main()
             # a = 1/0
 
         # except Exception, e:
