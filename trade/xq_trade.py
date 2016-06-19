@@ -10,6 +10,8 @@ import time
 TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
+SLIP_POINT = 0.01
+
 portfolio_list ={
     'ZH000893':
         {
@@ -78,7 +80,7 @@ class xq_trade:
                 dif = -0.04
                 price = 14.74'''
                 volume = dif*asset
-                amount = abs(volume) // price // 100 * 100
+                amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
                 result = {}
 
                 if dif > 0:
