@@ -15,16 +15,22 @@ SLIP_POINT = 0.01
 portfolio_list ={
     'ZH000893':
         {
-            "percent": 1.5,
+            "percent": 1.3,
             "factor": 0,
             "name": "成长投资组合"
          },
     'ZH743053':
         {
-            "percent": 0.2,
+            "percent": 0.18,
             "factor": 0,
             "name": "我爱新能源"
          },
+    'ZH226990':
+        {
+            "percent": 0.18,
+            "factor": 0,
+            "name": "雨后彩虹"
+         }
 }
 
 class xq_trade:
