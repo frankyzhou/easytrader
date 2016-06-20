@@ -470,6 +470,8 @@ class XueQiuTrader(WebTrader):
             for trade in entrust:
                 if len(trade) !=12:
                     done = False
+                    time.sleep(60)
+                    self.autologin()
                     break
                 else:
                     for e in trade.keys():

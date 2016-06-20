@@ -113,7 +113,7 @@ class xq_trade:
             if(is_trade_time(TEST_STATE, self.trade_time)):
             # judge whether it is trade time
                 for k in portfolio_list.keys():
-                    # try:
+                    try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(3)
                         entrust = self.xq.get_xq_entrust_checked()
@@ -123,14 +123,13 @@ class xq_trade:
 
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    # except Exception, e:
-                    #     print e
-                    #     send_email("inner: " + e.message)
-                    #     self.logger.info("inner: " + e.message)
-                    #
-                    #     time.sleep(120)
-                    #     self.yjb.login()
-                    #     self.xq.login()
+                    except Exception, e:
+                        msg = "inner: " + e.message
+                        record_msg(logger=self.logger, msg=msg, email=self.email)
+
+                        time.sleep(60)
+                        self.yjb.autologin()
+                        self.xq.autologin()
 
 if __name__ == '__main__':
     xq = None
