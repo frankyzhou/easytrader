@@ -25,7 +25,7 @@ while(1):
                     print item + " @" + info[item]["price"] + " :" + info[item]["reason"]
                 db.insert_doc(COLLECTION, info)
     except Exception, e:
-        msg = "inner: " + e.message
+        msg = "catch: " + e.message
         record_msg(logger=logger, msg=msg, email=email)
 
         time.sleep(60)

@@ -471,6 +471,7 @@ class XueQiuTrader(WebTrader):
                 if len(trade) !=12:
                     done = False
                     time.sleep(60)
+                    print "has relogin xq...."
                     self.autologin()
                     break
                 else:

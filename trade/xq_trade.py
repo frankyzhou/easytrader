@@ -7,7 +7,7 @@ from trade.util import *
 import time
 
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0.01
@@ -115,20 +115,18 @@ class xq_trade:
                 for k in portfolio_list.keys():
                     try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(3)
+                        time.sleep(5)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]
                         percent = portfolio_list[k]["percent"]
-
                         self.trade_by_entrust(entrust, k, factor, percent)
 
                     except Exception, e:
-                        msg = "inner: " + e.message
+                        msg = "xq:" + str(e.message)
                         record_msg(logger=self.logger, msg=msg, email=self.email)
 
-                        time.sleep(60)
-                        self.yjb.autologin()
+                        time.sleep(30)
                         self.xq.autologin()
 
 if __name__ == '__main__':
