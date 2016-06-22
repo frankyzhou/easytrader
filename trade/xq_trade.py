@@ -7,7 +7,7 @@ from trade.util import *
 import time
 
 # declare basic vars
-TEST_STATE = True
+TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0.01

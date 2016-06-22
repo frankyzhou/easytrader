@@ -26,20 +26,27 @@ def get_price_by_factor(price, factor):
 def get_date_now(country):
     now_time = datetime.datetime.now()
     if country == "CN":
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 20, 0)
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 25, 0)
+        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 35, 0)
+        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 55, 0)
         trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 05, 0)
+
     elif country == "US":
         offsize = 0 if now_time.hour < 4 else 1
         trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize-1, 21, 25, 0)
         trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize, 4, 05, 0)
+        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize, 0, 0, 0)
+        trade_begin_pm = trade_end_am
 
-    return [trade_begin_am, trade_end_pm]
+
+    return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
 
 def is_trade_time(test, trade_time):
     now_time = datetime.datetime.now()
     if test: return True
 
-    if trade_time[0] < now_time < trade_time[1]:
+    if trade_time[0] <= now_time <= trade_time[1] \
+            or trade_time[2] <= now_time <= trade_time[3]:
         return True
     else:
         return False
