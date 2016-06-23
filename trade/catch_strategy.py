@@ -5,9 +5,11 @@ import easytrader
 from trade.util import *
 from easytrader.MongoDB import *
 import time
+import types
+
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "strategy"
-TEST_STATE = True
+TEST_STATE = False
 TEST_NUM = 30
 PAGE_DICT = {
     "1": "大股东增持",
@@ -51,23 +53,23 @@ class catch_strategy:
     def main(self):
         while(1):
             if is_trade_time(test=TEST_STATE, trade_time=self.trade_time):
-                try:
+                # try:
                     time.sleep(5)
-                    info_list = self.xq.get_xq_strategy("1")
+                    info_list = self.xq.get_xq_strategy("9")
                     for info in info_list:
-                        if not self.db.get_doc(COLLECTION, info):
+                        if not self.db.get_doc(COLLECTION, info) and type(info) != types.StringType:
                             for item in info:
                                 print item + " @" + info[item]["price"] + " :" + info[item]["reason"]
                             self.db.insert_doc(COLLECTION, info)
 
-                except Exception, e:
-                    msg = "catch: " + e.message
-                    record_msg(logger=self.logger, msg=msg, email=self.email)
-
-                    time.sleep(60)
-                    self.xq.autologin()
+                # except Exception, e:
+                #     msg = "catch: " + e.message
+                #     record_msg(logger=self.logger, msg=msg, email=self.email)
+                #
+                #     time.sleep(60)
+                #     self.xq.autologin()
 
 if __name__ == "__main__":
     e = catch_strategy()
-    # e.main()
-    e.update_name()
+    e.main()
+    # e.update_name()
