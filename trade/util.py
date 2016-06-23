@@ -108,43 +108,57 @@ class MyHTMLParser(HTMLParser):
       self.rt=0
       self.sy=0
       self.td=0
+      self.mt=0
       self.linkname=''
       HTMLParser.__init__(self)
 
-    def handle_starttag(self,tag,attrs):
-        if tag =='div':
-            for name,value in attrs:
-                if value == 'column-rt':
-                    self.rt=1
-                if value == 'stock-symbol':
-                    self.sy=1
-        if tag=='td':
-            self.td=1
+    def handle_starttag(self, tag, attrs):
+        if tag == 'meta':
+            for name, value in attrs:
+                if name == "content" and "雪球" in value  and self.mt == 0:
+                    self.data.append(value.split(" ")[0])
+                    self.mt = 1
+                    # return
 
-    def handle_data(self,data):
-      if self.rt or self.sy or self.td:
-          self.linkname+=data
-    def handle_endtag(self,tag):
-        if tag=='div' or tag=='td':
+        if tag == 'div':
+            for name, value in attrs:
+                if value == 'column-rt':
+                    self.rt = 1
+                    # return
+                if value == 'stock-symbol':
+                    self.sy = 1
+                    # return
+
+        if tag == 'td':
+            self.td = 1
+            # return
+
+    def handle_data(self, data):
+        if self.rt or self.sy or self.td or self.mt:
+            self.linkname += data
+
+    def handle_endtag(self, tag):
+        if tag == 'div' or tag == 'td':
             # self.linkname=''.join(self.linkname.split())
-            self.linkname=self.linkname.strip()
-            if  self.linkname:
-              self.data.append(self.linkname)
-            self.linkname=''
-            self.rt=0
-            self.sy=0
-            self.td=0
+            if self.rt or self.sy or self.td:
+                self.linkname = self.linkname.strip()
+                if self.linkname:
+                    self.data.append(self.linkname)
+                self.linkname = ''
+                self.rt = 0
+                self.sy = 0
+                self.td = 0
 
     def getresult(self):
         data = self.data
         info_list = []
-        time = data[1][:-2]
+        # time = data[1][:-2]
         num = len(data)/6
-        # dic["time"] = datetime.datetime.strptime(time, "%Y.%m.%d %H:%M")
+        info_list.append(data[0])
         for i in range(0,num):
             e = {}
-            stock = {"price":data[i*6+5], "reason":data[i*6+7]}
-            stock_name = data[i*6+3]
+            stock = {"price":data[i*6+6], "reason":data[i*6+8]}
+            stock_name = data[i*6+4]
             e[stock_name] = stock
             info_list.append(e)
         return info_list
