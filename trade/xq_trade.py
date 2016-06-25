@@ -44,7 +44,7 @@ class xq_trade:
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
-        self.email = Email()
+        # self.email = Email()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -105,7 +105,7 @@ class xq_trade:
                     result["trade"] = code + " 数量为0，不动！"
 
                 result = result["error_info"] + result["trade"] if "error_info" in result else result["trade"]
-                record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + result, email=self.email)
+                record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + result)
                 self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
