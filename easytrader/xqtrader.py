@@ -464,21 +464,18 @@ class XueQiuTrader(WebTrader):
     # frankyzhou add @ 2016/5/28
     def get_xq_entrust_checked(self):
         entrust = None
-        done = True
-        while(not (entrust and done)):
+
+        while(not entrust):
             entrust = self.get_entrust()
-            for trade in entrust:
-                if len(trade) !=12:
-                    done = False
-                    time.sleep(60)
-                    print "has relogin xq...."
-                    self.autologin()
-                    break
-                else:
-                    for e in trade.keys():
-                        if trade[e] is None:
-                            done = False
-                            break
+            i = 0
+            while(i < len(entrust)):
+                trade = entrust[i]
+                for e in trade.keys():
+                    if trade[e] is None:
+                        entrust.remove(trade)
+                        i -= 1
+                        break
+                i += 1
         return entrust
 
     # frankyzhou add @ 2016/06/01

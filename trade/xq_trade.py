@@ -7,7 +7,7 @@ from trade.util import *
 import time
 
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0.01
@@ -48,10 +48,10 @@ class xq_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-                break
-            # if self.db.get_doc(COLLECTION, trade):
-            #     pass
+            # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            #     break
+            if self.db.get_doc(COLLECTION, trade):
+                pass
             else:
                 """only if entrust is today or not finished by no trade time"""
                 position_yjb = self.yjb.get_position()
@@ -105,7 +105,7 @@ class xq_trade:
                     result["trade"] = code + " 数量为0，不动！"
 
                 result = result["error_info"] + result["trade"] if "error_info" in result else result["trade"]
-                record_msg(logger=self.logger, email=self.email, msg=portfolio_list[k]["name"] + ": " + result)
+                record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + result, email=self.email)
                 self.db.insert_doc(COLLECTION, trade)
 
     def main(self):
@@ -113,7 +113,7 @@ class xq_trade:
             if(is_trade_time(TEST_STATE, self.trade_time)):
             # judge whether it is trade time
                 for k in portfolio_list.keys():
-                    try:
+                    # try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(5)
                         entrust = self.xq.get_xq_entrust_checked()
@@ -122,12 +122,12 @@ class xq_trade:
                         percent = portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    except Exception, e:
-                        msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-
-                        time.sleep(30)
-                        self.xq.autologin()
+                    # except Exception, e:
+                    #     msg = "xq:" + str(e.message)
+                    #     record_msg(logger=self.logger, msg=msg)
+                    #
+                    #     time.sleep(30)
+                    #     self.xq.autologin()
 
 if __name__ == '__main__':
     xq = None

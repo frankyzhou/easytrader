@@ -10,7 +10,7 @@ import types
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "strategy"
 TEST_STATE = False
-TEST_NUM = 30
+TEST_NUM = 50
 PAGE_DICT = {
     "1": "大股东增持",
     "2": "高送转预期",
@@ -42,9 +42,10 @@ class catch_strategy:
         self.trade_time = get_date_now("CN")
 
     def update_name(self):
-        for i in range(TEST_NUM):
+        for i in range(1, TEST_NUM, 1):
+            key = str(i)
             try:
-                info_list = self.xq.get_xq_strategy(str(i))
+                info_list = self.xq.get_xq_strategy(key)
                 print info_list[0]
                 time.sleep(5)
             except Exception, e:
@@ -71,5 +72,5 @@ class catch_strategy:
 
 if __name__ == "__main__":
     e = catch_strategy()
-    e.main()
-    # e.update_name()
+    # e.main()
+    e.update_name()

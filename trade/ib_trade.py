@@ -120,6 +120,7 @@ class ib_trade:
                     self.xq.setattr("portfolio_code", k)
                     time.sleep(3)
                     entrust = self.xq.get_xq_entrust_checked()
+                    if entrust == None: break
 
                     factor = portfolio_list[k]["factor"]
                     percent = portfolio_list[k]["percent"]
