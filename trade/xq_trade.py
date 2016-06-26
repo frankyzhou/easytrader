@@ -16,19 +16,19 @@ portfolio_list ={
     'ZH000893':
         {
             "percent": 1.3,
-            "factor": 0,
+            "factor": 0.003,
             "name": "成长投资组合"
          },
     'ZH743053':
         {
             "percent": 0.18,
-            "factor": 0,
+            "factor": 0.003,
             "name": "我爱新能源"
          },
     'ZH226990':
         {
             "percent": 0.18,
-            "factor": 0,
+            "factor": 0.003,
             "name": "雨后彩虹"
          }
 }
@@ -86,10 +86,13 @@ class xq_trade:
                 dif = -0.04
                 price = 14.74'''
                 volume = dif*asset
-                amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
+                factor = factor if dif > 0 else -factor
+                price = get_price_by_factor(trade["business_price"], (1+factor))
                 result = {}
+                amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
 
                 if dif > 0:
+
                     if amount >= 100:
                         result = self.yjb.buy(stock_code=code, price=price, amount=amount)
                         result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(amount)
@@ -113,7 +116,7 @@ class xq_trade:
             if(is_trade_time(TEST_STATE, self.trade_time)):
             # judge whether it is trade time
                 for k in portfolio_list.keys():
-                    # try:
+                    try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(5)
                         entrust = self.xq.get_xq_entrust_checked()
@@ -122,9 +125,9 @@ class xq_trade:
                         percent = portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    # except Exception, e:
-                    #     msg = "xq:" + str(e.message)
-                    #     record_msg(logger=self.logger, msg=msg)
+                    except Exception, e:
+                        msg = "xq:" + str(e.message)
+                        record_msg(logger=self.logger, msg=msg)
                     #
                     #     time.sleep(30)
                     #     self.xq.autologin()
