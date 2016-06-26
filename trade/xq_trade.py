@@ -44,7 +44,7 @@ class xq_trade:
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
-        # self.email = Email()
+        self.email = Email()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -92,7 +92,6 @@ class xq_trade:
                 amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
 
                 if dif > 0:
-
                     if amount >= 100:
                         result = self.yjb.buy(stock_code=code, price=price, amount=amount)
                         result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(amount)
@@ -118,7 +117,7 @@ class xq_trade:
                 for k in portfolio_list.keys():
                     try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(5)
+                        time.sleep(4)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]
@@ -127,7 +126,8 @@ class xq_trade:
 
                     except Exception, e:
                         msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg)
+                        record_msg(logger=self.logger, msg=msg, email=self.email)
+                        return -1
                     #
                     #     time.sleep(30)
                     #     self.xq.autologin()
@@ -138,8 +138,7 @@ if __name__ == '__main__':
         # try:
             xq = xq_trade()
             xq.main()
-            # a = 1/0
-
+            time.sleep(120)
         # except Exception, e:
         #     print e
         #     yjb.logger.info("outer: " + e.message)
