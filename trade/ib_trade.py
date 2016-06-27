@@ -24,9 +24,21 @@ portfolio_list ={
     #         "factor": 0,
     #         "name": "全天候灵活配置"
     #      },
+    'ZH847759':#黄金黄金
+       {
+            "percent": 0.2,
+            "factor": 0,
+            "name": "黄金黄金"
+        },
+    'ZH654591':#顺势止损
+       {
+            "percent": 0.4,
+            "factor": 0,
+            "name": "顺势止损"
+        },
     'ZH776826':
         {
-            "percent": 0.015,
+            "percent": 0.4,
             "factor": 0,
             "name": "2016商品抄底组合"
          },
@@ -118,7 +130,7 @@ class ib_trade:
                 for k in portfolio_list.keys():
                     # try:
                     self.xq.setattr("portfolio_code", k)
-                    time.sleep(3)
+                    time.sleep(4)
                     entrust = self.xq.get_xq_entrust_checked()
                     if entrust == None: break
 
