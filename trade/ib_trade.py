@@ -51,7 +51,7 @@ class ib_trade:
         self.xq.setattr("portfolio_code", "ZH776826")
         self.logger = get_logger(HISTORY_OPERATION_XQ)
         self.db_xq = MongoDB(XUEQIU_DB_NAME)
-        # self.db_ib = MongoDB(IB_DB_NAME)
+        self.db_ib = MongoDB(IB_DB_NAME)
         self.last_trade_time = get_trade_date_series("US")
         self.trade_time = get_date_now("US")
         self.callback = IBWrapper()

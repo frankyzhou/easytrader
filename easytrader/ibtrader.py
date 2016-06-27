@@ -6,6 +6,7 @@ from swigibpy import Order as IBOrder
 
 from easytrader.IButils import bs_resolve, action_ib_fill
 from trade.util import *
+import time
 
 MAX_WAIT_SECONDS=10
 MEANINGLESS_NUMBER=1729
