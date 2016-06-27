@@ -51,17 +51,17 @@ class ib_trade:
         self.xq.setattr("portfolio_code", "ZH776826")
         self.logger = get_logger(HISTORY_OPERATION_XQ)
         self.db_xq = MongoDB(XUEQIU_DB_NAME)
-        self.db_ib = MongoDB(IB_DB_NAME)
+        # self.db_ib = MongoDB(IB_DB_NAME)
         self.last_trade_time = get_trade_date_series("US")
         self.trade_time = get_date_now("US")
         self.callback = IBWrapper()
         self.ibcontract = IBcontract()
-        # self.ibcontract.secType = "STK"
+        self.ibcontract.secType = "STK"
         self.ibcontract.exchange="SMART"
         self.ibcontract.currency="USD"
         self.client = IBclient(self.callback)
         self.position_ib = PorfolioPosition(IB_DB_NAME, IB_POSITION)
-        self.email = Email()
+        # self.email = Email()
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -119,7 +119,7 @@ class ib_trade:
         #     record_msg(self.logger, e)
         # finally:
             if len(msg) !=0:
-                record_msg(logger=self.logger, email=self.email, msg=portfolio_list[k]["name"] + ": " + msg)
+                record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + msg)
                 self.position_ib.write_position(IB_POSITION)
                 self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
 
