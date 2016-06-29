@@ -13,21 +13,27 @@ COLLECTION = "history_operation"
 SLIP_POINT = 0.01
 
 portfolio_list ={
+    'ZH016097':
+        {
+            "percent": 0.15,
+            "factor": 0.01,
+            "name": "绝对模拟"
+        },
     'ZH000893':
         {
-            "percent": 1.3,
+            "percent": 1.0,
             "factor": 0.003,
             "name": "成长投资组合"
          },
     'ZH743053':
         {
-            "percent": 0.18,
+            "percent": 0.15,
             "factor": 0.003,
             "name": "我爱新能源"
          },
     'ZH226990':
         {
-            "percent": 0.18,
+            "percent": 0.15,
             "factor": 0.003,
             "name": "雨后彩虹"
          }
