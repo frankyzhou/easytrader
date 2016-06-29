@@ -583,32 +583,57 @@ class IBclient(object):
         return (account_value, portfolio_data)
 
     def get_position_by_stock(self, position_ib, stockcode, asset, p):
+        """
+        获取特定股票的比重，量，和组合剩余仓位比重
+        :param position_ib: 数据库暂存仓位信息
+        :param stockcode: 股票代码
+        :param asset:资产数
+        :param p: 组合代码
+        :return:股票的比重，量，组合剩余仓位比重
+        """
+        rest = 0  # 以防p不在列，但实际不可能
         if p in position_ib.position["portfolio"]:
             rest = position_ib.position["portfolio"][p]["percent_fixed"] - position_ib.position["portfolio"][p]["percent_now"]
             if stockcode in position_ib.position["portfolio"][p]["stock"].keys():
-                return position_ib.position["portfolio"][p]["stock"][stockcode]["percent"], rest
-        return 0, rest
+                return position_ib.position["portfolio"][p]["stock"][stockcode]["percent"], \
+                       position_ib.position["portfolio"][p]["stock"][stockcode]["volume"], \
+                       rest
+        return 0, 0, rest  # 新加入的股票无量和比重，但仍然要返回组合剩余仓位
 
     def update_portfolio(self, position_ib, position, asset, portfolio_list):
+        """
+        更新仓位数据库信息
+        :param position_ib:数据库暂存仓位信息
+        :param position:IB真实仓位
+        :param asset:总资产
+        :param portfolio_list:初始组合列表
+        :return:
+        """
+        # 组合原先全部空，初始化组合信息
         if "portfolio" not in position_ib.position.keys():
             position_ib.position["portfolio"] = {}
             for p in portfolio_list.keys():
-                position_ib.position["portfolio"][p] = {"stock":{}, "percent_now":0, "percent_fixed":0}
+                position_ib.position["portfolio"][p] = {"stock": {}, "percent_now": 0, "percent_fixed": 0}
+        # 对于新加的组合初始化
         for p in portfolio_list.keys():
             if p not in position_ib.position["portfolio"].keys():
-                position_ib.position["portfolio"][p] = {"stock":{}, "percent_now":0, "percent_fixed":0}
-        # update price
+                position_ib.position["portfolio"][p] = {"stock": {}, "percent_now": 0, "percent_fixed": 0}
+        # 更新时间，资产
+        position_ib.position["asset"] = asset #更新总资产
+        position_ib.position["date"] = datetime.datetime.now() #更新操作时间
+        # 转化股价成字典
+        position_dict = {}
         for e in position:
             code = e[0]
             price = round(e[3], 2)
-            position_ib.position["asset"] = asset
-            position_ib.position["date"] = datetime.datetime.now()
-            for p in position_ib.position["portfolio"]:
-                if code in position_ib.position["portfolio"][p]["stock"].keys():
-                    position_ib.position["portfolio"][p]["stock"][code]["price"] = price
-                else:
-                    position_ib.position["portfolio"][p]["stock"][code] = {"price":price, "volume":0, "percent":0}
-        #update percent
+            position_dict[code] = price
+
+        # 逐个组合更新价格
+        for p in position_ib.position["portfolio"]:
+            for code in position_ib.position["portfolio"][p]["stock"].keys():
+                position_ib.position["portfolio"][p]["stock"][code]["price"] = position_dict[code]
+
+        # 逐个组合更新比例
         for p in position_ib.position["portfolio"]:
             sum_percent = 0
             for code in position_ib.position["portfolio"][p]["stock"]:
@@ -620,11 +645,20 @@ class IBclient(object):
             position_ib.position["portfolio"][p]["percent_fixed"] = portfolio_list[p]["percent"]
 
     def update_operation(self, position_ib, p, code, volume):
-        if code in  position_ib.position["portfolio"][p]["stock"].keys():
+        """
+        根据下单，更新仓位数据库信息
+        :param position_ib:数据库仓位数据信息
+        :param p:组合名
+        :param code:股票代码
+        :param volume:交易量
+        :return:
+        """
+        # 股票若在则交易量相加， 不再则直接使用该交易量，并初始化其仓位信息
+        if code in position_ib.position["portfolio"][p]["stock"].keys():
             volume_before = position_ib.position["portfolio"][p]["stock"][code]["volume"]
             volume_now = volume_before + volume
         else:
             volume_now = volume
-            position_ib.position["portfolio"][p]["stock"][code] = {"volume":0, "price":0, "percent":0}
+            position_ib.position["portfolio"][p]["stock"][code] = {"volume": 0, "price": 0, "percent": 0}
 
         position_ib.position["portfolio"][p]["stock"][code]["volume"] = volume_now

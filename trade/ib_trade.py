@@ -85,27 +85,30 @@ class ib_trade:
                 record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!")
 
                 code = str(trade["stock_code"])
-                price = get_price_by_factor(trade["business_price"], (1+factor))
+                # price = get_price_by_factor(trade["business_price"], (1+factor))
+                price = trade["business_price"]
 
                 target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
-                # before_percent has two version.
-                # 1.the position is caled by ib
-                # 2,the position is caled by xq
-                #已经有比例，故其他需要对应
-                before_percent_xq = trade["prev_weight"] * percent /100 if trade["prev_weight"] > 2.0 else 0.0
-                before_percent_ib, rest = self.client.get_position_by_stock(self.position_ib, code, asset, k)
 
+                '''before_percent has two version.
+                1.the position is caled by ib
+                2,the position is caled by xq
+                已经有比例，故其他需要对应'''
+                before_percent_xq = trade["prev_weight"] * percent /100 if trade["prev_weight"] > 2.0 else 0.0
+                before_percent_ib, volume_ib, rest = self.client.get_position_by_stock(self.position_ib, code, asset, k)
+
+                '''如果dif_xq为正，
+                    选择空余金额与需要金额中较小的，防止组合规模溢出。但也要防止出现负值。
+                当dif_xq为负，
+                    若dif_ib为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
+                    若dif_ib为负，择dif_ib，将该组合下所有标的清仓'''
                 dif_xq = target_percent - before_percent_xq
                 dif_ib = target_percent - before_percent_ib
                 dif = max(min(dif_xq, rest), 0) if dif_xq > 0 else min(dif_ib, 0)
-                # 如果dif_xq为正，
-                    # 选择空余金额与需要金额中较小的，防止组合规模溢出。但也要防止出现负值。
-                # 当dif_xq为负，
-                    # 若dif_ib为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
-                    # 若dif_ib为负，择dif_ib，将该组合下所有标的清仓
                 turn_volume = dif*asset
+
                 if dif != 0:
-                    volume = int(turn_volume/price)
+                    volume = int(turn_volume/price) if target_percent != 0 else -volume_ib
                     if abs(volume) >= 1:
                         self.ibcontract.symbol = code
                         orderid = self.client.place_new_IB_order(self.ibcontract, volume, price, "MKT", orderid=None)
@@ -118,7 +121,7 @@ class ib_trade:
         # except Exception, e:
         #     record_msg(self.logger, e)
         # finally:
-            if len(msg) !=0:
+            if len(msg) != 0:
                 record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + msg)
                 self.position_ib.write_position(IB_POSITION)
                 self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
