@@ -33,9 +33,10 @@ def get_date_now(country):
 
     elif country == "US":
         offsize = 0 if now_time.hour < 4 else 1
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize-1, 21, 25, 0)
-        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize, 4, 05, 0)
-        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day)+offsize, 0, 0, 0)
+        base_time = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day))
+        trade_begin_am = base_time + datetime.timedelta(days=offsize-1, hours=21, minutes=25)
+        trade_end_pm = base_time + datetime.timedelta(days=offsize, hours=4, minutes=5)
+        trade_end_am = base_time + datetime.timedelta(days=offsize)
         trade_begin_pm = trade_end_am
 
 
