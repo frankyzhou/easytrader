@@ -7,7 +7,7 @@ from trade.util import *
 import time
 
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0.01
@@ -54,10 +54,10 @@ class xq_trade:
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
-            if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-                break
-            # if self.db.get_doc(COLLECTION, trade):
-            #     pass
+            # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+            #     break
+            if self.db.get_doc(COLLECTION, trade):
+                pass
             else:
                 """only if entrust is today or not finished by no trade time"""
                 position_yjb = self.yjb.get_position()

@@ -84,6 +84,8 @@ def get_logger(COLLECTION):
     return logger
 
 def record_msg(logger, msg, email=None):
+    if type(msg).__name__ != "unicode":
+        msg = unicode(msg, "utf-8")
     logger.info(msg)
     print msg
     if email != None:

@@ -60,7 +60,8 @@ class catch_strategy:
                     for info in info_list:
                         if not self.db.get_doc(COLLECTION, info) and type(info) != types.StringType:
                             for item in info:
-                                print item + " @" + info[item]["price"] + " :" + info[item]["reason"]
+                                msg = item + " @" + info[item]["price"] + " :" + info[item]["reason"]
+                                record_msg(logger=self.logger, msg=msg)
                             self.db.insert_doc(COLLECTION, info)
 
                 # except Exception, e:
