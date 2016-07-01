@@ -631,18 +631,29 @@ class IBclient(object):
         # 逐个组合更新价格
         for p in position_ib.position["portfolio"]:
             for code in position_ib.position["portfolio"][p]["stock"].keys():
-                position_ib.position["portfolio"][p]["stock"][code]["price"] = position_dict[code]
+                if position_ib.position["portfolio"][p]["stock"][code]["volume"] == 0:
+                    position_ib.position["portfolio"][p]["stock"].pop(code)
+                else:
+                    position_ib.position["portfolio"][p]["stock"][code]["price"] = position_dict[code] if code in position_dict else 0
 
         # 逐个组合更新比例
+        need_delete = []
         for p in position_ib.position["portfolio"]:
-            sum_percent = 0
-            for code in position_ib.position["portfolio"][p]["stock"]:
-                price = position_ib.position["portfolio"][p]["stock"][code]["price"]
-                volume = position_ib.position["portfolio"][p]["stock"][code]["volume"]
-                position_ib.position["portfolio"][p]["stock"][code]["percent"] = price * volume / asset
-                sum_percent += position_ib.position["portfolio"][p]["stock"][code]["percent"]
-            position_ib.position["portfolio"][p]["percent_now"] = sum_percent
-            position_ib.position["portfolio"][p]["percent_fixed"] = portfolio_list[p]["percent"]
+            if p in portfolio_list.keys(): #没有删除的组合
+                sum_percent = 0
+                for code in position_ib.position["portfolio"][p]["stock"]:
+                    price = position_ib.position["portfolio"][p]["stock"][code]["price"]
+                    volume = position_ib.position["portfolio"][p]["stock"][code]["volume"]
+                    position_ib.position["portfolio"][p]["stock"][code]["percent"] = price * volume / asset
+                    sum_percent += position_ib.position["portfolio"][p]["stock"][code]["percent"]
+                position_ib.position["portfolio"][p]["percent_now"] = sum_percent
+                position_ib.position["portfolio"][p]["percent_fixed"] = portfolio_list[p]["percent"]
+            else: #没有的组合进行数据库删除
+                need_delete.append(p)
+
+        if len(need_delete):
+            for p in need_delete:
+                position_ib.position["portfolio"].pop(p)
 
     def update_operation(self, position_ib, p, code, volume):
         """
