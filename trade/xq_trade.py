@@ -15,7 +15,7 @@ SLIP_POINT = 0.01
 portfolio_list ={
     'ZH016097':
         {
-            "percent": 0.15,
+            "percent": 0.25,
             "factor": 0.01,
             "name": "绝对模拟"
         },
