@@ -10,13 +10,13 @@ import time
 TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
-SLIP_POINT = 0.01
+SLIP_POINT = 0
 
 portfolio_list ={
     'ZH016097':
         {
-            "percent": 0.25,
-            "factor": 0.01,
+            "percent": 0.3,
+            "factor": 0.02,
             "name": "绝对模拟"
         },
     'ZH000893':
@@ -69,7 +69,6 @@ class xq_trade:
             record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!")
 
             code = str(trade["stock_code"][2:])
-            price = get_price_by_factor(trade["business_price"], (1+factor))
             target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
 
             '''before_percent has two version.  1.the position is caled by yjb;  2,the position is caled by xq; 已经有比例，故其他需要对应'''
@@ -124,7 +123,7 @@ class xq_trade:
                 for k in portfolio_list.keys():
                     try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(4)
+                        time.sleep(1)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]
