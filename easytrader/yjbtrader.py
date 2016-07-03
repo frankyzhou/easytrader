@@ -237,8 +237,8 @@ class YJBTrader(WebTrader):
     def get_position_by_stock(self, stockcode, position_yjb, asset):
         for e in position_yjb:
             if e["stock_code"] == stockcode:
-                return e["market_value"]/asset
-        return 0
+                return e["market_value"]/asset, e["enable_amount"]
+        return 0, 0
 
 if __name__ == '__main__':
     YJBTrader.main()

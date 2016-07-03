@@ -72,7 +72,7 @@ class xq_trade:
             target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
 
             '''before_percent has two version.  1.the position is caled by yjb;  2,the position is caled by xq; 已经有比例，故其他需要对应'''
-            before_percent_yjb = self.yjb.get_position_by_stock(code, position_yjb, asset)
+            before_percent_yjb, enable_amount = self.yjb.get_position_by_stock(code, position_yjb, asset)
             before_percent_xq = trade["prev_weight"] * percent /100 if trade["prev_weight"] > 2.0 else 0.0
             dif_xq = target_percent - before_percent_xq
             dif_yjb = target_percent - before_percent_yjb
@@ -105,6 +105,7 @@ class xq_trade:
                     result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
             elif dif < 0:
                 if amount >= 100:
+                    amount = min(enable_amount, amount)  #防止超出可用股数
                     result = self.yjb.sell(stock_code=code, price=price, amount=amount)
                     result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
                 else:
