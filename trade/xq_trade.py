@@ -15,28 +15,28 @@ SLIP_POINT = 0
 portfolio_list ={
     'ZH016097':
         {
-            "percent": 0.3,
+            "percent": 0.4,
             "factor": 0.02,
             "name": "绝对模拟"
         },
     'ZH000893':
         {
-            "percent": 1.0,
+            "percent": 1.2,
             "factor": 0.005,
             "name": "成长投资组合"
          },
-    'ZH743053':
-        {
-            "percent": 0.15,
-            "factor": 0.005,
-            "name": "我爱新能源"
-         },
-    'ZH226990':
-        {
-            "percent": 0.15,
-            "factor": 0.005,
-            "name": "雨后彩虹"
-         }
+    # 'ZH743053':
+    #     {
+    #         "percent": 0.15,
+    #         "factor": 0.005,
+    #         "name": "我爱新能源"
+    #      },
+    # 'ZH226990':
+    #     {
+    #         "percent": 0.15,
+    #         "factor": 0.005,
+    #         "name": "雨后彩虹"
+    #      }
 }
 
 class xq_trade:
@@ -51,6 +51,8 @@ class xq_trade:
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
         self.email = Email()
+        self.is_update_stocks = False
+        self.all_stocks_data = None
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -93,7 +95,7 @@ class xq_trade:
             price = 14.74'''
             volume = dif*asset
             factor = abs(factor) if dif > 0.0 else -abs(factor)
-            price = get_price_by_factor(trade["business_price"], (1+factor))
+            price = get_price_by_factor(self.all_stocks_data, code, trade["business_price"], (1+factor))
             result = {}
             amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
 
@@ -120,9 +122,9 @@ class xq_trade:
     def main(self):
         while(1):
             if(is_trade_time(TEST_STATE, self.trade_time)):
-            # judge whether it is trade time
+                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks, self.all_stocks_data)
                 for k in portfolio_list.keys():
-                    try:
+                    # try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(1)
                         entrust = self.xq.get_xq_entrust_checked()
@@ -131,10 +133,10 @@ class xq_trade:
                         percent = portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    except Exception, e:
-                        msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-                        return -1
+                    # except Exception, e:
+                    #     msg = "xq:" + str(e.message)
+                    #     record_msg(logger=self.logger, msg=msg, email=self.email)
+                    #     return -1
                     #
                     #     time.sleep(30)
                     #     self.xq.autologin()

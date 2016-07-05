@@ -11,6 +11,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
 import socket, traceback
+from decimal import Decimal
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
@@ -20,8 +21,22 @@ def is_today(report_time, last_trade_time):
     else:
         return False
 
-def get_price_by_factor(price, factor):
-    return round(price*factor, 2)
+def get_price_by_factor(all_stocks_data, code, price, factor):
+    price = get_four_five(price*factor, 2)
+    stock = all_stocks_data[all_stocks_data.code == code]
+    close_last = float(stock.settlement.values)
+    point = 0.1
+    high_stop = get_four_five(close_last * (1+point), 2)
+    low_stop  = get_four_five(close_last * (1-point), 2)
+    if factor > 0:
+        price = min(price, high_stop)
+    else:
+        price = max(price, low_stop)
+    return price
+
+def get_four_five(num, pre):
+    p = '{:.' + str(pre) + 'f}'
+    return float(p.format(Decimal(num)))
 
 def get_date_now(country):
     now_time = datetime.datetime.now()
@@ -104,6 +119,17 @@ def get_server():
 
     # Step3: 绑定到某一个端口
     s.bind((host, port))
+
+def update_stocks_data(state, all_stocks):
+    if not state:
+        try:
+            all_stocks = ts.get_today_all()
+            state = True
+        except Exception, e:
+            print e
+            all_stocks = None
+            state = False
+    return state, all_stocks
 
 class MyHTMLParser(HTMLParser):
     def __init__(self):
