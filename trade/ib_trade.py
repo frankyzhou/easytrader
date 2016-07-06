@@ -26,22 +26,28 @@ portfolio_list ={
     #      },
     'ZH847759':#黄金黄金
        {
-            "percent": 0.4,
+            "percent": 0.25,
             "factor": 0,
             "name": "黄金黄金"
         },
+    # 'ZH793025':#全天候
+    #    {
+    #         "percent": 0.2,
+    #         "factor": 0.008,
+    #         "name": "全天候"
+    #     },
     # 'ZH654591':#顺势止损
     #    {
     #         "percent": 0.4,
     #         "factor": 0,
     #         "name": "顺势止损"
     #     },
-    # 'ZH776826':
-    #     {
-    #         "percent": 0.3,
-    #         "factor": 0,
-    #         "name": "2016商品抄底组合"
-    #      },
+    'ZH776826':
+        {
+            "percent": 0.25,
+            "factor": 0,
+            "name": "2016商品抄底组合"
+         },
 }
 
 class ib_trade:
