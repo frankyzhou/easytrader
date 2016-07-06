@@ -133,10 +133,10 @@ class ib_trade:
     # except Exception, e:
     #     record_msg(self.logger, e)
     # finally:
-        if len(msg) != 0:
-            record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + msg)
-            self.position_ib.write_position(IB_POSITION)
-            self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
+            if len(msg) != 0:
+                record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + msg)
+                self.position_ib.write_position(IB_POSITION)
+                self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
 
     def main(self):
         while(1):
