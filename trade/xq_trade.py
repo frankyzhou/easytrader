@@ -15,15 +15,21 @@ SLIP_POINT = 0
 portfolio_list ={
     'ZH016097':
         {
-            "percent": 0.4,
+            "percent": 0.25,
             "factor": 0.02,
             "name": "绝对模拟"
         },
     'ZH000893':
         {
-            "percent": 1.2,
+            "percent": 1.3,
             "factor": 0.005,
             "name": "成长投资组合"
+         },
+    'ZH866987':
+        {
+            "percent": 0.35,
+            "factor": 0.005,
+            "name": "老高-再次翱翔"
          },
     # 'ZH743053':
     #     {
@@ -124,7 +130,7 @@ class xq_trade:
             if(is_trade_time(TEST_STATE, self.trade_time)):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks, self.all_stocks_data)
                 for k in portfolio_list.keys():
-                    # try:
+                    try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(1)
                         entrust = self.xq.get_xq_entrust_checked()
@@ -133,10 +139,10 @@ class xq_trade:
                         percent = portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    # except Exception, e:
-                    #     msg = "xq:" + str(e.message)
-                    #     record_msg(logger=self.logger, msg=msg, email=self.email)
-                    #     return -1
+                    except Exception, e:
+                        msg = "xq:" + str(e.message)
+                        record_msg(logger=self.logger, msg=msg, email=self.email)
+                        return -1
                     #
                     #     time.sleep(30)
                     #     self.xq.autologin()
