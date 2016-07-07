@@ -24,14 +24,18 @@ def is_today(report_time, last_trade_time):
 def get_price_by_factor(all_stocks_data, code, price, factor):
     price = get_four_five(price*factor, 2)
     stock = all_stocks_data[all_stocks_data.code == code]
-    close_last = float(stock.settlement.values)
-    point = 0.1
-    high_stop = get_four_five(close_last * (1+point), 2)
-    low_stop  = get_four_five(close_last * (1-point), 2)
-    if factor > 0:
-        price = min(price, high_stop)
-    else:
-        price = max(price, low_stop)
+    try:
+        close_last = float(stock.settlement.values)
+        point = 0.1
+        high_stop = get_four_five(close_last * (1+point), 2)
+        low_stop  = get_four_five(close_last * (1-point), 2)
+        if factor > 1:
+            price = min(price, high_stop)
+        else:
+            price = max(price, low_stop)
+    except Exception, e:
+        print e + " close_last gets error!"
+
     return price
 
 def get_four_five(num, pre):
