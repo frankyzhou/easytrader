@@ -67,7 +67,7 @@ class xq_trade:
                     break
             else:
                 if self.db.get_doc(COLLECTION, trade):
-                    break
+                    continue
             """only if entrust is today or not finished by no trade time"""
             position_yjb = self.yjb.get_position()
             balance = self.yjb.get_balance()[0]
@@ -92,13 +92,16 @@ class xq_trade:
                 dif = dif_yjb
             else:
                 dif = min(max(dif_xq, dif_yjb), 0)
+
             '''如果dif_xq为正，那幅度选择dif_xq，避免过高成本建仓；
             当dif_xq为负，
             若dif_yjb为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
             若dif_yib为负，择最大的变化，避免持有证券数量不够
-            code = "600037"
-            dif = -0.04
-            price = 14.74'''
+            '''
+            # code = "600037"
+            # dif = -0.04
+            # price = 14.74
+
             volume = dif*asset
             factor = abs(factor) if dif > 0.0 else -abs(factor)
             price = get_price_by_factor(self.all_stocks_data, code, trade["business_price"], (1+factor))
@@ -132,7 +135,7 @@ class xq_trade:
                 for k in portfolio_list.keys():
                     try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(1)
+                        time.sleep(3)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]

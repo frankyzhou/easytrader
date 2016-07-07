@@ -80,7 +80,7 @@ class ib_trade:
                     break
             else:
                 if self.db_xq.get_doc(HISTORY_OPERATION_XQ, trade):
-                    break
+                    continue
 
             #  only if entrust is today or not finished by no trade time
             del account_data[:]
@@ -90,7 +90,7 @@ class ib_trade:
             self.client.update_portfolio(self.position_ib, position_ib, asset, portfolio_list)
 
             trade["portfolio"] = k
-            record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!")
+            record_msg(logger=self.logger, msg="-"*50 + "\n" + portfolio_list[k]["name"] + " updates new operation!")
 
             code = str(trade["stock_code"])
             price = trade["business_price"]
@@ -134,7 +134,7 @@ class ib_trade:
     #     record_msg(self.logger, e)
     # finally:
             if len(msg) != 0:
-                record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + msg)
+                record_msg(logger=self.logger, msg=msg + " @ " + trade["report_time"])
                 self.position_ib.write_position(IB_POSITION)
                 self.db_xq.insert_doc(HISTORY_OPERATION_XQ, trade)
 
