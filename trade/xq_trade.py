@@ -13,17 +13,23 @@ COLLECTION = "history_operation"
 SLIP_POINT = 0
 
 portfolio_list ={
-    'ZH016097':
-        {
-            "percent": 0.25,
-            "factor": 0.02,
-            "name": "绝对模拟"
-        },
+    # 'ZH016097':
+        # {
+            # "percent": 0.25,
+            # "factor": 0.02,
+            # "name": "绝对模拟"
+        # },
     'ZH000893':
         {
-            "percent": 1.3,
+            "percent": 1.5,
             "factor": 0.005,
             "name": "成长投资组合"
+         },
+    'ZH891105':
+        {
+            "percent": 0.25,
+            "factor": 0.005,
+            "name": "大A黄金搬砖"
          },
     'ZH866987':
         {
@@ -135,7 +141,7 @@ class xq_trade:
                 for k in portfolio_list.keys():
                     # try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(3)
+                        time.sleep(4)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]

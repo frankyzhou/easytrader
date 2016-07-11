@@ -144,10 +144,10 @@ class get_alpha:
             print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp) + " volatility:" + str(volatility)
 
     def main(self):
-        for no in range(13728+1, 999999):
+        for no in range(629232+1, 999999):
             p_name = "ZH" + '{:0>6}'.format(no)
             self.xq.setattr("portfolio_code", p_name)
-            time.sleep(1)
+            time.sleep(5)
             p, b = self.xq.get_profit_daily()
             if p != None and b !=None:
                 p, b = self.analyse_profit(p), self.analyse_profit(b)
@@ -163,6 +163,6 @@ class get_alpha:
 
 if __name__ == '__main__':
     a = get_alpha()
-    # a.main()
-    for p in portfolio_list:
-        a.get_para_by_portfolio(p)
+    a.main()
+    # for p in portfolio_list:
+        # a.get_para_by_portfolio(p)
