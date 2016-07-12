@@ -35,9 +35,9 @@ def get_price_by_factor(all_stocks_data, code, price, factor):
         else:
             price = max(price, low_stop)
     except Exception, e:
-        print e + " close_last gets error!"
+        print e
         print values
-        print "length of values is " + len(values)
+        print len(values)
 
     return price
 
