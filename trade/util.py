@@ -2,8 +2,7 @@
 __author__ = 'frankyzhou'
 
 import tushare as ts
-import logging
-import logging.handlers
+import logging, logging.handlers
 from HTMLParser import HTMLParser
 from easytrader.MongoDB import *
 from yahoo_finance import Share
@@ -12,6 +11,7 @@ from email.mime.text import MIMEText
 from email.header import Header
 import socket, traceback
 from decimal import Decimal
+import ast
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
@@ -114,18 +114,16 @@ def record_msg(logger, msg, email=None):
     if email != None:
         email.send_email(msg)
 
-def get_server():
-    host = '' # Bind to all interfaces
-    port = 51500
-
+def get_server(host='', port=51500):
+    # host = '' # Bind to all interfaces
+    # port = 51500
     # Step1: 创建socket对象
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
     # Step2: 设置socket选项(可选)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
     # Step3: 绑定到某一个端口
     s.bind((host, port))
+    return s
 
 def update_stocks_data(state, all_stocks):
     if not state:
@@ -137,6 +135,34 @@ def update_stocks_data(state, all_stocks):
             all_stocks = None
             state = False
     return state, all_stocks
+
+def str_to_dict(string):
+    return ast.literal_eval(string)
+
+class client():
+    def __init__(self):
+        self.client = self.get_client()
+
+    def get_client(self, host='127.0.0.1', textport=51500):
+        # Step1: 输入host和port信息
+        # host = "127.0.0.1"
+        # textport = 51500
+        # Step2: 创建socket对象
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            port = int(textport)
+        except ValueError:
+            port = socket.getservbyname(textport, 'udp')
+        # Step3: 打开socket连接
+        s.connect((host, port))
+        return s
+
+    def exec_order(self, order):
+        self.client.sendall(order)
+        print "Looking for replies; press Ctrl-C or Ctrl-Break to stop"
+        buf = self.client.recv(2048)
+        if not len(buf): return "No data"
+        return str(buf)
 
 class MyHTMLParser(HTMLParser):
     def __init__(self):

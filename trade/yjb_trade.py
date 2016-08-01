@@ -33,10 +33,11 @@ class yjb_trade:
         return "Nothing."
 
     def get_position_by_stock(self, code):
+
         position_yjb = self.yjb.get_position()
         balance = self.yjb.get_balance()[0]
         asset = balance["asset_balance"]
-        return self.yjb.get_position_by_stock(code, position_yjb, asset)
+        return self.yjb.get_position_by_stock(code, position_yjb, asset), asset
 
     def main(self):
         while(1):

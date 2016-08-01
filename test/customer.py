@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'frankyzhou'
-import socket, sys
+import socket, sys, re
+
 
 # Step1: 输入host和port信息
 host = "127.0.0.1"
@@ -28,4 +29,5 @@ while 1:
     buf = s.recv(2048)
     if not len(buf): break
     sys.stdout.write(buf)
+
     print "\n"
