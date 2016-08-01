@@ -9,7 +9,9 @@ from trade.util import *
 TEST_STATE = True
 GET_POSITION = "get_position"
 BUY = "buy"
+SELL = "sell"
 READ_SIZE = 8192
+a = 1
 
 class yjb_trade:
     def __init__(self):
@@ -19,12 +21,17 @@ class yjb_trade:
 
     def judge_opera(self, msg):
         msg = msg.split()
-        type = msg[0]
+        type, code = msg[0], msg[1]
         if type == GET_POSITION:
-            return self.get_position_by_stock(msg[1])
-        elif type == BUY:
-            code, price, amount = msg[1], msg[2], msg[3]
-            result = self.yjb.buy(stock_code=code, price=price, amount=amount)
+            return self.get_position_by_stock(code)
+
+        price, amount = msg[2], msg[3]
+        if type == BUY:
+            return self.yjb.buy(stock_code=code, price=price, amount=amount)
+        elif type == SELL:
+            return self.yjb.sell(stock_code=code, price=price, amount=amount)
+
+        return "Nothing."
 
     def get_position_by_stock(self, code):
         position_yjb = self.yjb.get_position()
@@ -34,19 +41,15 @@ class yjb_trade:
 
     def main(self):
         while(1):
-            try:
-                message, address = self.server.recvfrom(READ_SIZE)
+            #try:
+                request, address = self.server.recvfrom(READ_SIZE)
                 print "Got data from ", address
 
-                self.server.sendto("Data is received succeefully.", address)
-                print message
+                response = self.judge_opera(request)
+                self.server.sendto(str(response), address)
 
-            except (KeyboardInterrupt, SystemExit):
-                print "raise"
-                raise
-            except :
-                print "traceback"
-                traceback.print_exc()
+            #except Exception, e:
+            #    print e
 
 if __name__ == '__main__':
     yjb = yjb_trade()
