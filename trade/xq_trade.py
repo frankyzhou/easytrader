@@ -11,44 +11,63 @@ TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
+aaa =1
 
 portfolio_list ={
-    # 'ZH016097':
-        # {
-            # "percent": 0.25,
-            # "factor": 0.02,
-            # "name": "绝对模拟"
-        # },
     'ZH000893':
         {
-            "percent": 1.5,
+            "percent": 1,
             "factor": 0.005,
             "name": "成长投资组合"
          },
-    'ZH891105':
-        {
-            "percent": 0.25,
-            "factor": 0.005,
-            "name": "大A黄金搬砖"
-         },
     'ZH866987':
         {
-            "percent": 0.35,
+            "percent": 0.3,
             "factor": 0.005,
             "name": "老高-再次翱翔"
          },
-    # 'ZH743053':
-    #     {
-    #         "percent": 0.15,
-    #         "factor": 0.005,
-    #         "name": "我爱新能源"
-    #      },
-    # 'ZH226990':
-    #     {
-    #         "percent": 0.15,
-    #         "factor": 0.005,
-    #         "name": "雨后彩虹"
-    #      }
+    # 'ZH831789':
+        # {
+            # "percent": 0.15,
+            # "factor": 0.01,
+            # "name": "金羽人绝对实盘"
+         # },	
+    'ZH006428':
+        {
+            "percent": 0.15,
+            "factor": 0.005,
+            "name": "跟票输光光"
+         },	
+    # 'ZH182820':
+        # {
+            # "percent": 0.3,
+            # "factor": 0.005,
+            # "name": "晶核之王"
+         # },			 
+    'ZH743053':
+        {
+            "percent": 0.3,
+            "factor": 0.005,
+            "name": "我爱新能源"
+         },
+    'ZH226990':
+        {
+            "percent": 0.15,
+            "factor": 0.005,
+            "name": "雨后彩虹"
+         },
+	# 'ZH891105':
+	# {
+		# "percent": 0.2,
+		# "factor": 0.005,
+		# "name": "大A黄金搬砖"
+	 # },
+    'ZH016097':
+        {
+            "percent": 0.2,
+            "factor": 0.02,
+            "name": "绝对模拟"
+        },
 }
 
 class xq_trade:
@@ -139,19 +158,19 @@ class xq_trade:
             if(is_trade_time(TEST_STATE, self.trade_time)):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks, self.all_stocks_data)
                 for k in portfolio_list.keys():
-                    # try:
+                    try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(5)
+                        time.sleep(7)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = portfolio_list[k]["factor"]
                         percent = portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    # except Exception, e:
-                    #     msg = "xq:" + str(e.message)
-                    #     record_msg(logger=self.logger, msg=msg, email=self.email)
-                    #     return -1
+                    except Exception, e:
+                        msg = "xq:" + str(e.message)
+                        record_msg(logger=self.logger, msg=msg, email=self.email)
+                        return -1
                     #
                     #     time.sleep(30)
                     #     self.xq.autologin()
@@ -162,7 +181,7 @@ if __name__ == '__main__':
         # try:
             xq = xq_trade()
             xq.main()
-            time.sleep(120)
+            time.sleep(60)
         # except Exception, e:
         #     print e
         #     yjb.logger.info("outer: " + e.message)
