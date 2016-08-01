@@ -15,7 +15,7 @@ SLIP_POINT = 0
 portfolio_list ={
     'ZH000893':
         {
-            "percent": 1,
+            "percent": 0.8,
             "factor": 0.005,
             "name": "成长投资组合"
          },
@@ -25,12 +25,6 @@ portfolio_list ={
             "factor": 0.005,
             "name": "老高-再次翱翔"
          },
-    # 'ZH831789':
-        # {
-            # "percent": 0.15,
-            # "factor": 0.01,
-            # "name": "金羽人绝对实盘"
-         # },	
     'ZH006428':
         {
             "percent": 0.15,
@@ -55,12 +49,6 @@ portfolio_list ={
             "factor": 0.005,
             "name": "雨后彩虹"
          },
-	# 'ZH891105':
-	# {
-		# "percent": 0.2,
-		# "factor": 0.005,
-		# "name": "大A黄金搬砖"
-	 # },
     'ZH016097':
         {
             "percent": 0.2,
