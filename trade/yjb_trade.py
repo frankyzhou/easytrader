@@ -11,7 +11,6 @@ GET_POSITION = "get_position"
 BUY = "buy"
 SELL = "sell"
 READ_SIZE = 8192
-a = 1
 
 class yjb_trade:
     def __init__(self):
