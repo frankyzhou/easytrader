@@ -11,7 +11,6 @@ TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
-aaa =1
 
 portfolio_list ={
     'ZH000893':
