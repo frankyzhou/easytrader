@@ -39,7 +39,8 @@ class xq_trade:
                     continue
 
             trade["portfolio"] = k
-            record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!")
+            record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
+                                               " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
             target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
             """
@@ -53,7 +54,7 @@ class xq_trade:
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade)
 
             result = self.trade(dif, code, price,amount, enable_amount)
-            record_msg(logger=self.logger, msg=self.portfolio_list[k]["name"] + ": " + result)
+            record_msg(logger=self.logger, msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(COLLECTION, trade)
 
     def trade(self, dif, code, price, amount, enable_amount):
@@ -134,6 +135,7 @@ class xq_trade:
 if __name__ == '__main__':
     if len(sys.argv) !=2:
         print "usage: python xq_trade.py profilio_num[1,2,....n]"
+        exit(-1)
     while(1):
         xq = xq_trade(sys.argv[1])
         xq.main()

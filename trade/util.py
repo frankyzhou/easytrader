@@ -139,9 +139,14 @@ def update_stocks_data(state, all_stocks):
 def str_to_dict(string):
     return ast.literal_eval(string)
 
+def cal_time_cost(begin):
+    dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M:%S")
+    return str((datetime.datetime.now() - dt_begin).seconds)
+
+
 class client():
-    def __init__(self):
-        self.client = self.get_client()
+    def __init__(self, host):
+        self.client = self.get_client(host=host)
 
     def get_client(self, host='127.0.0.1', textport=51500):
         # Step1: 输入host和port信息
@@ -159,7 +164,7 @@ class client():
 
     def exec_order(self, order):
         self.client.sendall(order)
-        print "Looking for replies; press Ctrl-C or Ctrl-Break to stop"
+        # print "Looking for replies; press Ctrl-C or Ctrl-Break to stop"
         buf = self.client.recv(2048)
         if not len(buf): return "No data"
         return str(buf)
