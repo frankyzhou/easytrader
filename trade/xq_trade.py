@@ -4,7 +4,7 @@ __author__ = 'frankyzhou'
 
 import easytrader
 from trade.util import *
-import time, re
+import time, re, sys
 
 # declare basic vars
 TEST_STATE = True
@@ -12,58 +12,11 @@ XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
 
-portfolio_list ={
-    # 'ZH000893':
-    #     {
-    #         "percent": 0.8,
-    #         "factor": 0.005,
-    #         "name": "成长投资组合"
-    #      },
-    # 'ZH866987':
-    #     {
-    #         "percent": 0.3,
-    #         "factor": 0.005,
-    #         "name": "老高-再次翱翔"
-    #      },
-    # 'ZH006428':
-    #     {
-    #         "percent": 0.15,
-    #         "factor": 0.005,
-    #         "name": "跟票输光光"
-    #      },
-    # 'ZH182820':
-    #     {
-    #         "percent": 0.3,
-    #         "factor": 0.005,
-    #         "name": "晶核之王"
-    #      },
-    # 'ZH743053':
-    #     {
-    #         "percent": 0.3,
-    #         "factor": 0.005,
-    #         "name": "我爱新能源"
-    #      },
-    # 'ZH226990':
-    #     {
-    #         "percent": 0.15,
-    #         "factor": 0.005,
-    #         "name": "雨后彩虹"
-    #      },
-    'ZH016097':
-        {
-            "percent": 0.2,
-            "factor": 0.02,
-            "name": "绝对模拟"
-        },
-}
-
 class xq_trade:
-    def __init__(self):
+    def __init__(self, p):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('config/xq.json')
+        self.xq.prepare('config/xq'+p+'.json')
         self.xq.setattr("portfolio_code", "ZH776826")
-        # self.yjb = easytrader.use('yjb')
-        # self.yjb.prepare('config/yjb.json')
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.last_trade_time = get_trade_date_series("CN")
@@ -71,7 +24,9 @@ class xq_trade:
         self.email = Email()
         self.is_update_stocks = False
         self.all_stocks_data = None
-        self.client = client()
+        self.client = client(host="10.104.236.87")
+        self.p_path = os.path.dirname(__file__) + '/config/'+p+'.json'
+        self.portfolio_list = helpers.file2dict(self.p_path)
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         for trade in entrust:
@@ -98,7 +53,7 @@ class xq_trade:
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade)
 
             result = self.trade(dif, code, price,amount, enable_amount)
-            record_msg(logger=self.logger, msg=portfolio_list[k]["name"] + ": " + result)
+            record_msg(logger=self.logger, msg=self.portfolio_list[k]["name"] + ": " + result)
             self.db.insert_doc(COLLECTION, trade)
 
     def trade(self, dif, code, price, amount, enable_amount):
@@ -161,14 +116,14 @@ class xq_trade:
         while(1):
             if(is_trade_time(TEST_STATE, self.trade_time)):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks, self.all_stocks_data)
-                for k in portfolio_list.keys():
+                for k in self.portfolio_list.keys():
                     #try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(7)
                         entrust = self.xq.get_xq_entrust_checked()
 
-                        factor = portfolio_list[k]["factor"]
-                        percent = portfolio_list[k]["percent"]
+                        factor = self.portfolio_list[k]["factor"]
+                        percent = self.portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
                     # except Exception, e:
@@ -177,8 +132,9 @@ class xq_trade:
                     #     return -1
 
 if __name__ == '__main__':
-    xq = None
+    if len(sys.argv) !=2:
+        print "usage: python xq_trade.py profilio_num[1,2,....n]"
     while(1):
-        xq = xq_trade()
+        xq = xq_trade(sys.argv[1])
         xq.main()
         time.sleep(60)

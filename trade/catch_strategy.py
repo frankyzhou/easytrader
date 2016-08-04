@@ -73,5 +73,5 @@ class catch_strategy:
 
 if __name__ == "__main__":
     e = catch_strategy()
-    # e.main()
-    e.update_name()
+    e.main()
+    # e.update_name()
