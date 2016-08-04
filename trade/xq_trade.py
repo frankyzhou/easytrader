@@ -25,7 +25,7 @@ class xq_trade:
         self.is_update_stocks = False
         self.all_stocks_data = None
         self.client = client(host="10.104.236.87")
-        self.p_path = os.path.dirname(__file__) + '/config/'+p+'.json'
+        self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
         self.portfolio_list = helpers.file2dict(self.p_path)
 
     def trade_by_entrust(self, entrust, k, factor, percent):
