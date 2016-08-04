@@ -6,7 +6,6 @@ import easytrader
 from trade.util import *
 
 # declare basic vars
-TEST_STATE = True
 GET_POSITION = "get_position"
 BUY = "buy"
 SELL = "sell"
