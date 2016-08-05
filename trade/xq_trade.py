@@ -11,7 +11,7 @@ TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
-
+test_1
 class xq_trade:
     def __init__(self, p):
         self.xq = easytrader.use('xq')
