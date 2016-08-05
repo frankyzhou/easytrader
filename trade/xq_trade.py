@@ -70,7 +70,7 @@ class xq_trade:
             if amount >= 100:
                 amount = min(enable_amount, amount)  #防止超出可用股数
                 # result = self.yjb.sell(stock_code=code, price=price, amount=amount)
-                result = str_to_dict(self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount)))
+                result = str_to_dict(self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount)))
                 result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
             else:
                 result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
