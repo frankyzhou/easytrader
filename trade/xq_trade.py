@@ -1,34 +1,43 @@
-# -*- coding: utf-8 -*-
-
-__author__ = 'frankyzhou'
-
+# -*- coding: utf-8 -*
 import easytrader
 from trade.util import *
-import time, re, sys
+import time, re, sys, datetime
 
+__author__ = 'frankyzhou'
 # declare basic vars
 TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
 
-class xq_trade:
+
+class XqTrade:
     def __init__(self, p):
+        # 固定部分
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
         self.xq.setattr("portfolio_code", "ZH776826")
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(XUEQIU_DB_NAME)
-        self.last_trade_time = get_trade_date_series("CN")
-        self.trade_time = get_date_now("CN")
         self.email = Email()
-        self.is_update_stocks = False
-        self.all_stocks_data = None
         self.client = client(host="10.104.236.87")
         self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
         self.portfolio_list = helpers.file2dict(self.p_path)
+        # 每日更新
+        self.last_trade_time = get_trade_date_series("CN")
+        self.trade_time = get_date_now("CN")
+        self.is_update_stocks = False
+        self.all_stocks_data = None
 
     def trade_by_entrust(self, entrust, k, factor, percent):
+        """
+        解析每个组合的交易记录
+        :param entrust:
+        :param k:
+        :param factor:
+        :param percent:
+        :return:
+        """
         for trade in entrust:
             # only if entrust is today or not finished by no trade time
             if not TEST_STATE:
@@ -49,15 +58,26 @@ class xq_trade:
             2,the position is caled by xq;
             已经有比例，故其他需要对应
             """
-            before_percent_yjb, enable_amount, asset = self.parse_digit(self.client.exec_order("get_position "+ code))
-            before_percent_xq = trade["prev_weight"] * percent /100 if trade["prev_weight"] > 2.0 else 0.0
-            dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade)
+            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
+            before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
+            dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
+                                                       before_percent_yjb, asset, factor, code, trade)
 
             result = self.trade(dif, code, price,amount, enable_amount)
-            record_msg(logger=self.logger, msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
+            record_msg(logger=self.logger,
+                       msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(COLLECTION, trade)
 
     def trade(self, dif, code, price, amount, enable_amount):
+        """
+         下单
+        :param dif:
+        :param code:
+        :param price:
+        :param amount:
+        :param enable_amount:
+        :return:
+        """
         result = {}
         if dif > 0:
                 if amount >= 100:
@@ -81,6 +101,17 @@ class xq_trade:
         return result
 
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
+        """
+        得到交易变化，价格，数量
+        :param target_percent:
+        :param before_percent_xq:
+        :param before_percent_yjb:
+        :param asset:
+        :param factor:
+        :param code:
+        :param trade:
+        :return:
+        """
         dif_xq = target_percent - before_percent_xq
         dif_yjb = target_percent - before_percent_yjb
 
@@ -108,35 +139,46 @@ class xq_trade:
 
         return dif, price, amount
 
-    def parse_digit(self, string):
-        p = re.compile(r"\d+\.*\d*")
-        m = p.findall(string)
-        return float(m[0]), float(m[1]), float(m[2])
+    def update_para(self):
+        """
+        当每天自动运行到固定时间更新，否则启动时候更新
+        :return:
+        """
+        now_time = datetime.datetime.now()
+        update_begin_1 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 15, 0)
+        update_begin_2 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 15, 5)
+        if update_begin_1 < now_time < update_begin_2:
+            self.last_trade_time = get_trade_date_series("CN")
+            self.trade_time = get_date_now("CN")
+            self.is_update_stocks = False
+            self.all_stocks_data = None
 
     def main(self):
-        while(1):
-            if(is_trade_time(TEST_STATE, self.trade_time)):
-                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks, self.all_stocks_data)
+        while 1:
+            self.update_para()
+            if is_trade_time(TEST_STATE, self.trade_time):
+                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
+                                                                                 self.all_stocks_data)
                 for k in self.portfolio_list.keys():
-                    #try:
+                    try:
                         self.xq.setattr("portfolio_code", k)
-                        time.sleep(7)
+                        time.sleep(8)
                         entrust = self.xq.get_xq_entrust_checked()
 
                         factor = self.portfolio_list[k]["factor"]
                         percent = self.portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    # except Exception, e:
-                    #     msg = "xq:" + str(e.message)
-                    #     record_msg(logger=self.logger, msg=msg, email=self.email)
-                    #     return -1
+                    except Exception, e:
+                        msg = "xq:" + str(e.message)
+                        record_msg(logger=self.logger, msg=msg, email=self.email)
+                        return -1
 
 if __name__ == '__main__':
-    if len(sys.argv) !=2:
+    if len(sys.argv) != 2:
         print "usage: python xq_trade.py profilio_num[1,2,....n]"
         exit(-1)
-    while(1):
-        xq = xq_trade(sys.argv[1])
+    while 1:
+        xq = XqTrade(sys.argv[1])
         xq.main()
         time.sleep(60)
