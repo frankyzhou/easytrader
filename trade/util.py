@@ -144,7 +144,7 @@ def cal_time_cost(begin):
     dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M:%S")
     return str((datetime.datetime.now() - dt_begin).seconds)
 
-def parse_digit(self, string):
+def parse_digit(string):
     p = re.compile(r"\d+\.*\d*")
     m = p.findall(string)
     return float(m[0]), float(m[1]), float(m[2])
