@@ -12,6 +12,7 @@ from email.header import Header
 import socket, traceback
 from decimal import Decimal
 import ast
+import re
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
@@ -143,6 +144,10 @@ def cal_time_cost(begin):
     dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M:%S")
     return str((datetime.datetime.now() - dt_begin).seconds)
 
+def parse_digit(self, string):
+    p = re.compile(r"\d+\.*\d*")
+    m = p.findall(string)
+    return float(m[0]), float(m[1]), float(m[2])
 
 class client():
     def __init__(self, host):
