@@ -160,7 +160,7 @@ class XqTrade:
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
                                                                                  self.all_stocks_data)
                 for k in self.portfolio_list.keys():
-                    try:
+                    # try:
                         self.xq.setattr("portfolio_code", k)
                         time.sleep(8)
                         entrust = self.xq.get_xq_entrust_checked()
@@ -169,10 +169,10 @@ class XqTrade:
                         percent = self.portfolio_list[k]["percent"]
                         self.trade_by_entrust(entrust, k, factor, percent)
 
-                    except Exception, e:
-                        msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-                        return -1
+                    # except Exception, e:
+                        # msg = "xq:" + str(e.message)
+                        # record_msg(logger=self.logger, msg=msg, email=self.email)
+                        # return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

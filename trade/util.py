@@ -117,7 +117,7 @@ def record_msg(logger, msg, email=None):
         msg = unicode(msg, "utf-8")
     logger.info(msg)
     print msg
-    if not email:
+    if email!=None:
         email.send_email(msg)
 
 
