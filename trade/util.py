@@ -136,6 +136,7 @@ def get_server(host='', port=51500):
 def update_stocks_data(state, all_stocks):
     if not state:
         try:
+            print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             all_stocks = ts.get_today_all()
             state = True
         except Exception, e:
