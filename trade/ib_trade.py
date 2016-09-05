@@ -24,27 +24,27 @@ portfolio_list ={
     #         "factor": 0,
     #         "name": "全天候灵活配置"
     #      },
-    'ZH847759':
-       {
-            "percent": 0.20,
-            "factor": 0,
-            "name": "黄金黄金"
-        },
+    # 'ZH847759':
+       # {
+            # "percent": 0.20,
+            # "factor": 0,
+            # "name": "黄金黄金"
+        # },
     # 'ZH793025':#全天候
     #    {
     #         "percent": 0.2,
     #         "factor": 0.008,
     #         "name": "全天候"
     #     },
-    'ZH654591':
-       {
-            "percent": 0.20,
-            "factor": 0,
-            "name": "顺势止损"
-        },
+    # 'ZH654591':
+       # {
+            # "percent": 0.20,
+            # "factor": 0,
+            # "name": "顺势止损"
+        # },
     'ZH776826':
         {
-            "percent": 0.20,
+            "percent": 0.10,
             "factor": 0,
             "name": "2016商品抄底组合"
          },
@@ -54,7 +54,7 @@ class ib_trade:
     def __init__(self):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq3.json')
-        self.xq.setattr("portfolio_code", "ZH776826")
+        self.xq.set_attr("portfolio_code", "ZH776826")
         self.logger = get_logger(HISTORY_OPERATION_XQ)
         self.db_xq = MongoDB(XUEQIU_DB_NAME)
         # self.db_ib = MongoDB(IB_DB_NAME)
@@ -144,8 +144,8 @@ class ib_trade:
             # judge whether it is trade time
                 for k in portfolio_list.keys():
                     # try:
-                    self.xq.setattr("portfolio_code", k)
-                    time.sleep(5)
+                    self.xq.set_attr("portfolio_code", k)
+                    time.sleep(10)
                     entrust = self.xq.get_xq_entrust_checked()
                     if entrust == None: break
 

@@ -11,7 +11,7 @@ import socket
 from decimal import Decimal
 import ast
 import re
-
+import json
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
@@ -51,10 +51,10 @@ def get_four_five(num, pre):
 def get_date_now(country):
     now_time = datetime.datetime.now()
     if country == "CN":
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 25, 0)
-        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 35, 0)
-        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 55, 0)
-        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 05, 0)
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
+        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 32, 0)
+        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 58, 0)
+        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 02, 0)
 
     elif country == "US":
         offsize = 0 if now_time.hour < 4 else 1
@@ -81,12 +81,14 @@ def is_trade_time(test, trade_time):
 def get_trade_date_series(country):
     # get the data of 000001 by tushare
     if country == "CN":
-        now = datetime.datetime.today()
-        before = now - datetime.timedelta(days=30)
-        start = before.strftime("%Y-%m-%d")
-        end = now.strftime("%Y-%m-%d")
-        df = ts.get_hist_data(code='sh', start=start, end=end)
-        date_cn = datetime.datetime.strptime(df.index.values[0],"%Y-%m-%d") + datetime.timedelta(hours=15, minutes=5)
+        # now = datetime.datetime.today()
+        # before = now - datetime.timedelta(days=30)
+        # start = before.strftime("%Y-%m-%d")
+        # end = now.strftime("%Y-%m-%d")
+        # df = ts.get_hist_data(code='sh', start=start, end=end)
+        # date_cn = datetime.datetime.strptime(df.index.values[0],"%Y-%m-%d") + datetime.timedelta(hours=15, minutes=5)
+        df = ts.get_realtime_quotes("sh")
+        date_cn = datetime.datetime.strptime(df["date"].values[0].encode("utf8"), "%Y-%m-%d") + datetime.timedelta(hours=9, minutes=25)
         return date_cn
 
     elif country == "US":
@@ -151,7 +153,10 @@ def str_to_dict(string):
 
 
 def cal_time_cost(begin):
-    dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M:%S")
+    try:
+        dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M:%S")
+    except:
+        dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M")
     return str((datetime.datetime.now() - dt_begin).seconds)
 
 
@@ -159,6 +164,11 @@ def parse_digit(string):
     p = re.compile(r"\d+\.*\d*")
     m = p.findall(string)
     return float(m[0]), float(m[1]), float(m[2])
+
+
+def is_trade_day(last_trade_time):
+    now = datetime.datetime.now()
+    return now.month == last_trade_time.month and now.day == last_trade_time.day
 
 
 class client():

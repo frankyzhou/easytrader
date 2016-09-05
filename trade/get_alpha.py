@@ -129,7 +129,7 @@ class get_alpha:
         return np.std(p) * np.sqrt(YEAR_TRADE_DAYS)
 
     def get_para_by_portfolio(self, p_name):
-        self.xq.setattr("portfolio_code", p_name)
+        self.xq.set_attr("portfolio_code", p_name)
         time.sleep(1)
         p, b = self.xq.get_profit_daily()
         if p != None and b !=None:
@@ -146,7 +146,7 @@ class get_alpha:
     def main(self):
         for no in range(489735+1, 999999):
             p_name = "ZH" + '{:0>6}'.format(no)
-            self.xq.setattr("portfolio_code", p_name)
+            self.xq.set_attr("portfolio_code", p_name)
             time.sleep(1)
             p, b = self.xq.get_profit_daily()
             if p != None and b !=None:

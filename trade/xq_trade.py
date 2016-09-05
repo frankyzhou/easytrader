@@ -2,21 +2,21 @@
 import easytrader
 from trade.util import *
 import time, re, sys, datetime
-
+from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
 TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
-SLIP_POINT = 0
+SLIP_POINT = 0.01
 
 
-class XqTrade:
+class XqTrade(CNTrade):
     def __init__(self, p):
         # 固定部分
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
-        self.xq.setattr("portfolio_code", "ZH776826")
+        self.xq.set_attr("portfolio_code", "ZH776826")
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.email = Email()
@@ -68,38 +68,6 @@ class XqTrade:
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(COLLECTION, trade)
 
-    def trade(self, dif, code, price, amount, enable_amount):
-        """
-         下单
-        :param dif:
-        :param code:
-        :param price:
-        :param amount:
-        :param enable_amount:
-        :return:
-        """
-        result = {}
-        if dif > 0:
-                if amount >= 100:
-                    # result = self.yjb.buy(stock_code=code, price=price, amount=amount)
-                    result = str_to_dict(self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount)))
-                    result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(amount)
-                else:
-                    result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
-        elif dif < 0:
-            if amount >= 100:
-                amount = min(enable_amount, amount)  #防止超出可用股数
-                # result = self.yjb.sell(stock_code=code, price=price, amount=amount)
-                result = str_to_dict(self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount)))
-                result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
-            else:
-                result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
-        elif dif == 0:
-            result["trade"] = code + " 数量为0，不动！"
-
-        result = result["error_info"] + result["trade"] if "error_info" in result else result["trade"]
-        return result
-
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
         """
         得到交易变化，价格，数量
@@ -139,20 +107,6 @@ class XqTrade:
 
         return dif, price, amount
 
-    def update_para(self):
-        """
-        当每天自动运行到固定时间更新，否则启动时候更新
-        :return:
-        """
-        now_time = datetime.datetime.now()
-        update_begin_1 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 15, 0)
-        update_begin_2 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 15, 5)
-        if update_begin_1 < now_time < update_begin_2:
-            self.last_trade_time = get_trade_date_series("CN")
-            self.trade_time = get_date_now("CN")
-            self.is_update_stocks = False
-            self.all_stocks_data = None
-
     def main(self):
         while 1:
             self.update_para()
@@ -161,7 +115,7 @@ class XqTrade:
                                                                                  self.all_stocks_data)
                 for k in self.portfolio_list.keys():
                     try:
-                        self.xq.setattr("portfolio_code", k)
+                        self.xq.set_attr("portfolio_code", k)
                         time.sleep(10)
                         entrust = self.xq.get_xq_entrust_checked()
 

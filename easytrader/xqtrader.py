@@ -35,9 +35,6 @@ class XueQiuTrader(WebTrader):
         self.account_config = None
         self.multiple = 1000000  # 资金换算倍数
 
-    def setattr(self, key, value):
-        self.account_config[key] = value
-
     def autologin(self):
         """
         重写自动登录方法
@@ -204,6 +201,7 @@ class XueQiuTrader(WebTrader):
             return time.strftime("%Y-%m-%d %H:%M:%S", ltime)
         except :
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
     def get_position(self):
         """
         获取持仓
