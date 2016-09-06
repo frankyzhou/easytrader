@@ -83,7 +83,6 @@ class CNTrade(object):
         更新仓位数据库信息
         :param position:券商真实仓位
         :param asset:总资产
-        :param self.portfolio_list:初始组合列表
         :return:
         """
         # 组合原先全部空，初始化组合信息

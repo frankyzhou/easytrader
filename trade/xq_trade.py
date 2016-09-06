@@ -49,6 +49,7 @@ class XqTrade(CNTrade):
                     continue
 
             trade["portfolio"] = k
+            position_yjb = []
             record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
@@ -59,7 +60,9 @@ class XqTrade(CNTrade):
             2,the position is caled by xq;
             已经有比例，故其他需要对应
             """
-            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
+            del position_yjb[:]
+            position_yjb = self.client.exec_order("get_position_all").replace('(', '[').replace(')', ']').replace('\'', '"')
+            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position_stock " + code))
             before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
                                                        before_percent_yjb, asset, factor, code, trade)
