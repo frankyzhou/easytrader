@@ -47,8 +47,8 @@ class CNTrade(object):
                 else:
                     result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
         elif dif < 0:
-            if amount >= 100 and enable_amount > 0:
-				if amount > enable_amount - 200:	amount = enable_amount
+		    amount = enable_amount if dif == -2 else min(enable_amount, amount)
+            if amount >= 100:
 				result = str_to_dict(self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount)))
 				result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
             else:

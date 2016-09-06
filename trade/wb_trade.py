@@ -7,7 +7,7 @@ from cn_trade import *
 TEST_STATE = False
 DB_NAME = "Weibo"
 COLLECTION = "history_operation"
-SLIP_POINT = 0.01
+SLIP_POINT = 0.02
 
 
 class WBTrade(CNTrade):

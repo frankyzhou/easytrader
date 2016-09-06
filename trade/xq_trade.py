@@ -8,7 +8,7 @@ __author__ = 'frankyzhou'
 TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
-SLIP_POINT = 0.01
+SLIP_POINT = 0
 
 
 class XqTrade(CNTrade):
@@ -87,7 +87,7 @@ class XqTrade(CNTrade):
         if dif_xq > 0:
             dif = dif_xq
         elif target_percent == 0:
-            dif = dif_yjb
+            dif = -2
         else:
             dif = min(max(dif_xq, dif_yjb), 0)
 
