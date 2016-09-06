@@ -6,10 +6,10 @@ from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
 TEST_STATE = False
-XUEQIU_DB_NAME = "Xueqiu"
+DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
-
+POSITION = "Position"
 
 class XqTrade(CNTrade):
     def __init__(self, p):
@@ -18,11 +18,12 @@ class XqTrade(CNTrade):
         self.xq.prepare('config/xq'+p+'.json')
         self.xq.set_attr("portfolio_code", "ZH776826")
         self.logger = get_logger(COLLECTION)
-        self.db = MongoDB(XUEQIU_DB_NAME)
+        self.db = MongoDB(DB_NAME)
         self.email = Email()
         self.client = client(host="10.104.236.87")
         self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
         self.portfolio_list = helpers.file2dict(self.p_path)
+        self.position_db = PorfolioPosition(DB_NAME, POSITION)
         # 每日更新
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
