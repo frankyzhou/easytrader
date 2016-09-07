@@ -61,13 +61,14 @@ class XqTrade(CNTrade):
             已经有比例，故其他需要对应
             """
             del position_yjb[:]
-            position_yjb = self.client.exec_order("get_position_all").replace('(', '[').replace(')', ']').replace('\'', '"')
+            position_yjb = byteify(eval(self.client.exec_order("get_position_all")))
+            self.update_portfolio(position=position_yjb)
             before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position_stock " + code))
             before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
                                                        before_percent_yjb, asset, factor, code, trade)
 
-            result = self.trade(dif, code, price,amount, enable_amount)
+            result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(COLLECTION, trade)
