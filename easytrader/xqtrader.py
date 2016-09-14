@@ -11,7 +11,8 @@ from .webtrader import NotLoginError
 from .webtrader import WebTrader
 from trade.util import *
 import time
-
+import helpers
+import os
 if six.PY2:
     import urllib2
 

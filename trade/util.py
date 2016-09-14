@@ -11,7 +11,6 @@ import socket
 from decimal import Decimal
 import ast
 import re
-import json
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
