@@ -1,23 +1,37 @@
-from TorCtl import TorCtl
-import urllib2
+__author__ = 'frankyzhou'
+import time
+import socket
+import socks
+import httplib
+import win_inet_pton
+from stem import Signal
+from stem.control import Controller
 
-user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
-headers={'User-Agent':user_agent}
+def connectTor():
+    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050, True)
+    socket.socket = socks.socksocket
 
-def request(url):
-    def _set_urlproxy():
-        proxy_support = urllib2.ProxyHandler({"http" : "127.0.0.1:8118"})
-        opener = urllib2.build_opener(proxy_support)
-        urllib2.install_opener(opener)
-    _set_urlproxy()
-    request=urllib2.Request(url, None, headers)
-    return urllib2.urlopen(request).read()
+def renew_tor():
+    with Controller.from_port(port = 9051) as controller:
+        controller.authenticate(password = 'zlj')
+        controller.signal(Signal.NEWNYM)
+        controller.close()
 
-def renew_connection():
-    conn = TorCtl.connect(controlAddr="127.0.0.1", controlPort=9051, passphrase="your_password")
-    conn.send_signal("NEWNYM")
-    conn.close()
+def showmyip():
+    connectTor()
+    print "connected to tor."
+    # r = requests.get('http://icanhazip.com/')
+    conn = httplib.HTTPConnection("icanhazip.com")
+    conn.request("GET", "/")
+    response = conn.getresponse()
+    # ip_address = r.text.strip()
+    print response.read()
+    # print(ip_address)
 
-for i in range(0, 10):
-    renew_connection()
-    print request("http://icanhazip.com/")
+
+for i in range(10):
+    # renew_tor()
+    # time.sleep(60)
+#     connectTor()
+    showmyip()
+    renew_tor()

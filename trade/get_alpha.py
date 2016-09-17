@@ -143,26 +143,34 @@ class get_alpha:
             sharp = (p_annua_profit - unrisk_rate) / volatility
             print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp) + " volatility:" + str(volatility)
 
-    def main(self):
-        for no in range(489735+1, 999999):
-            p_name = "ZH" + '{:0>6}'.format(no)
-            self.xq.set_attr("portfolio_code", p_name)
-            time.sleep(1)
-            p, b = self.xq.get_profit_daily()
-            if p != None and b !=None:
-                p, b = self.analyse_profit(p), self.analyse_profit(b)
-                p_annua_profit = self.get_annualized_returns(p)
-                b_annua_profit = self.get_annualized_returns(b)
-                cov = self.get_cov(p["daily"].values, b["daily"].values)
-                beta = cov / np.var(b["daily"].values)  #方差
-                alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
-                volatility = self.get_volatility(p["daily"].values)
-                sharp = (p_annua_profit - unrisk_rate) / volatility
-                if alpha > 0 and sharp > 0:
-                    record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp))
+    def main(self, i):
+        try:
+            for no in range(i+1, 999999):
+                p_name = "ZH" + '{:0>6}'.format(no)
+                self.xq.set_attr("portfolio_code", p_name)
+                # time.sleep(1)
+                p, b = self.xq.get_profit_daily()
+                if p != None and b != None:
+                    if len(p)>0 and len(b) >0:
+                        p, b = self.analyse_profit(p), self.analyse_profit(b)
+                        p_annua_profit = self.get_annualized_returns(p)
+                        b_annua_profit = self.get_annualized_returns(b)
+                        cov = self.get_cov(p["daily"].values, b["daily"].values)
+                        beta = cov / np.var(b["daily"].values)  #方差
+                        alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
+                        volatility = self.get_volatility(p["daily"].values)
+                        sharp = (p_annua_profit - unrisk_rate) / volatility
+                        if alpha > 0 and sharp > 0:
+                            record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp))
+        except Exception, e:
+            print e
+            return no - 1
 
 if __name__ == '__main__':
-    a = get_alpha()
-    a.main()
+    b = 900000
+    while 1:
+        a = get_alpha()
+        b = a.main(b)
+        time.sleep(600)
     # for p in portfolio_list:
         # a.get_para_by_portfolio(p)
