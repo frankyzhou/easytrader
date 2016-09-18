@@ -97,7 +97,7 @@ class get_alpha:
                             record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp))
         except Exception, e:
             print e
-            return tmp - 1
+            return tmp
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
