@@ -77,7 +77,7 @@ class get_alpha:
         end = int(end)
         tmp = start
         try:
-            for no in range(start+1, end):
+            for no in range(start, end):
                 tmp = no
                 p_name = "ZH" + '{:0>6}'.format(no)
                 self.xq.set_attr("portfolio_code", p_name)
