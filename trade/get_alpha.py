@@ -72,9 +72,13 @@ class get_alpha:
             print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp) + " volatility:" + str(volatility)
 
     def main(self, start, end):
-        self.logger = get_logger(COLLECTION, name=start+"->"+end)
+        self.logger = get_logger(COLLECTION, name=str(start+"-"+end))
+        start = int(start)
+        end = int(end)
+        tmp = start
         try:
             for no in range(start+1, end):
+                tmp = no
                 p_name = "ZH" + '{:0>6}'.format(no)
                 self.xq.set_attr("portfolio_code", p_name)
                 # time.sleep(1)
@@ -93,19 +97,22 @@ class get_alpha:
                             record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp))
         except Exception, e:
             print e
-            return no - 1
+            return tmp - 1
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print "usage: python get_alpha.py startNo endNo"
         exit(-1)
 
-    end = sys.argv[1]
-    start = sys.argv[0]
+    end = sys.argv[2]
+    start = sys.argv[1]
 
     while 1:
-        a = get_alpha()
-        start = a.main(start, end)
-        time.sleep(600)
+        if start:
+            a = get_alpha()
+            start = a.main(start, end)
+            time.sleep(60*10)
+        else:
+            break
     # for p in portfolio_list:
         # a.get_para_by_portfolio(p)
