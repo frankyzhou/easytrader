@@ -7,95 +7,23 @@ import datetime
 import numpy as np
 import time
 from util import *
+import sys
 
 YEAR_TRADE_DAYS = 252
 unrisk_rate = 0.025
 COLLECTION = "seek_alpha"
 portfolio_list ={
-    # 'ZH226990':
-    #     {
-    #         "percent": 0.4,
-    #         "factor": 0,
-    #         "name": "雨后彩虹"
-    #      },
-    # 'ZH000893':
-    #     {
-    #         "percent": 0.4,
-    #         "factor": 0,
-    #         "name": "成长投资组合"
-    #      },
-    # 'ZH278165':
-    #     {
-    #         "percent": 0.33,
-    #         "factor": 0,
-    #         "name": "次新股副班长"
-    #      },
-    # 'ZH743053':
-    #     {
-    #         "percent": 0.34,
-    #         "factor": 0,
-    #         "name": "我爱新能源"
-    #      },
-    # 'ZH016097':#绝对模拟
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "绝对模拟"
-    #     },
-    # 'ZH401833':#叫板瑞鹤仙
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "叫板瑞鹤仙"
-    #     },
-    # 'ZH793025':#全天候
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "全天候"
-    #     },
-    # 'ZH017122':#战胜华尔街
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "战胜华尔街"
-    #     },
     'ZH847759':#黄金黄金
        {
             "percent": 0.2,
             "factor": 0.008,
             "name": "黄金黄金"
-        },
-    # 'ZH796463':#试一试
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "试一试"
-    #     },
-    # 'ZH776826':#2016商品抄底组合
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "2016商品抄底组合"
-    #     },
-    # 'ZH654591':#顺势止损
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "顺势止损"
-    #     },
-    # 'ZH793193':#全天候灵活配置
-    #    {
-    #         "percent": 0.2,
-    #         "factor": 0.008,
-    #         "name": "全天候灵活配置"
-    #     },
+        }
 }
 class get_alpha:
     def __init__(self):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq2.json')
-        self.logger = get_logger(COLLECTION)
 
     def get_annualized_returns(self, profit_list):
         """计算收益的年化值"""
@@ -143,9 +71,10 @@ class get_alpha:
             sharp = (p_annua_profit - unrisk_rate) / volatility
             print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + " sharp:" + str(sharp) + " volatility:" + str(volatility)
 
-    def main(self, i):
+    def main(self, start, end):
+        self.logger = get_logger(COLLECTION, name=start+"->"+end)
         try:
-            for no in range(i+1, 999999):
+            for no in range(start+1, end):
                 p_name = "ZH" + '{:0>6}'.format(no)
                 self.xq.set_attr("portfolio_code", p_name)
                 # time.sleep(1)
@@ -167,10 +96,16 @@ class get_alpha:
             return no - 1
 
 if __name__ == '__main__':
-    b = 900000
+    if len(sys.argv) != 3:
+        print "usage: python get_alpha.py startNo endNo"
+        exit(-1)
+
+    end = sys.argv[1]
+    start = sys.argv[0]
+
     while 1:
         a = get_alpha()
-        b = a.main(b)
+        start = a.main(start, end)
         time.sleep(600)
     # for p in portfolio_list:
         # a.get_para_by_portfolio(p)

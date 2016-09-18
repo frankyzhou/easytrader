@@ -97,9 +97,10 @@ def get_trade_date_series(country):
         return date_us
 
 
-def get_logger(COLLECTION):
+def get_logger(COLLECTION, name=None):
     TIME = datetime.datetime.now().strftime("%Y-%m-%d")
-    LOG_FILE = '../logs/' + COLLECTION + "/" + TIME + "-" + COLLECTION + '.log'
+    NAME = "-" + name if name else ""
+    LOG_FILE = '../logs/' + COLLECTION + "/" + TIME + NAME + '.log'
     handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024*1024, backupCount=5) # 实例化handler
 
     fmt = '%(asctime)s %(levelname)s %(message)s'
