@@ -25,7 +25,7 @@ def get_annualized_returns(profit_list):
     :param profit_list:
     :return:
     """
-    total_profit = profit_list[-1:]["value"].values[0] -1
+    total_profit = profit_list[-1:]["value"].values[0] - 1
     annua_profit = total_profit / profit_list.index.size * YEAR_TRADE_DAYS
     return annua_profit
 
