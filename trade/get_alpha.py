@@ -3,9 +3,12 @@ import easytrader
 import pandas as pd
 import numpy as np
 import time
+
+from trade.cn_trade import CNTrade
 from util import *
 import sys
 
+TEST_STATE = False
 YEAR_TRADE_DAYS = 252
 unrisk_rate = 0.025
 COLLECTION = "seek_alpha"
@@ -67,10 +70,11 @@ def get_volatility(p):
     return np.std(p) * np.sqrt(YEAR_TRADE_DAYS)
 
 
-class GetAlpha:
+class GetAlpha(CNTrade):
     def __init__(self):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq2.json')
+        self.trade_time = get_date_now("CN")
 
     def get_para_by_portfolio(self, p_name):
         self.xq.set_attr("portfolio_code", p_name)
@@ -95,6 +99,9 @@ class GetAlpha:
         tmp = s
         try:
             for no in range(s, e):
+                self.update_para()
+                while is_trade_time(TEST_STATE, self.trade_time):
+                    time.sleep(60 * 10)
                 tmp = no
                 p_name = "ZH" + '{:0>6}'.format(no)
                 self.xq.set_attr("portfolio_code", p_name)
