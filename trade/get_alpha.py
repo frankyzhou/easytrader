@@ -105,7 +105,10 @@ class GetAlpha(CNTrade):
                 tmp = no
                 p_name = "ZH" + '{:0>6}'.format(no)
                 self.xq.set_attr("portfolio_code", p_name)
-                p, b = self.xq.get_profit_daily()
+                r = self.xq.get_profit_daily()
+                p, b = r[0]["list"], r[1]["list"]
+                market = r[1]["symbol"][:2]
+                start_date = p[0]["date"]
                 if p and b:
                     if len(p) > 0 and len(b) > 0:
                         p, b = analyse_profit(p), analyse_profit(b)
@@ -118,7 +121,7 @@ class GetAlpha(CNTrade):
                         sharp = (p_annua_profit - unrisk_rate) / volatility
                         if alpha > 0 and sharp > 0:
                             record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) +\
-                                       " sharp:" + str(sharp) + " volatility:" + str(volatility))
+                                       " sharp:" + str(sharp) + " volatility:" + str(volatility) + " " + market)
         except Exception, e:
             print e
             return tmp - 1

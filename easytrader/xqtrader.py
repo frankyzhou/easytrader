@@ -460,14 +460,17 @@ class XueQiuTrader(WebTrader):
         hp.close()
         return data
 
-    # frankyzhou add @ 2016/5/28
     def get_xq_entrust_checked(self):
+        """
+        得到确认好的交易记录
+        frankyzhou add @ 2016/5/28
+        :return:
+        """
         entrust = None
-
-        while(not entrust):
+        while not entrust:
             entrust = self.get_entrust()
             i = 0
-            while(i < len(entrust)):
+            while i < len(entrust):
                 trade = entrust[i]
                 for e in trade.keys():
                     if trade[e] is None:
@@ -477,8 +480,12 @@ class XueQiuTrader(WebTrader):
                 i += 1
         return entrust
 
-    # frankyzhou add @ 2016/06/01
     def get_cookies(self):
+        """
+        获取cookies
+        frankyzhou add @ 2016/06/01
+        :return:
+        """
         str_cookies = ""
         for item in self.cookies.items():
             str_cookies = str_cookies + item[0] + "=" + item[1] + "; "
@@ -493,7 +500,7 @@ class XueQiuTrader(WebTrader):
             print r.status_code
             return  None, None
         r = json.loads(r.text)
-        return r[0]['list'], r[1]['list']
+        return r
 
 if __name__ == '__main__':
     XueQiuTrader.main()
