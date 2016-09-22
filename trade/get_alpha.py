@@ -93,7 +93,7 @@ class GetAlpha(CNTrade):
                   " sharp:" + str(sharp) + " volatility:" + str(volatility)
 
     def main(self, s, e):
-        self.logger = get_logger(COLLECTION, name=str(s+"-"+e))
+        self.logger = get_logger(COLLECTION, name=str(s)+"-"+str(e))
         s = int(s)
         e = int(e)
         tmp = s
@@ -109,8 +109,8 @@ class GetAlpha(CNTrade):
                 if r:
                     p, b = r[0]["list"], r[1]["list"]
                     market = r[1]["symbol"][:2]
-                    start_date = p[0]["date"]
                     if len(p) > 0 and len(b) > 0:
+                        start_date = p[0]["date"]
                         p, b = analyse_profit(p), analyse_profit(b)
                         p_annua_profit = get_annualized_returns(p)
                         b_annua_profit = get_annualized_returns(b)
