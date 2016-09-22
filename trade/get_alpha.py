@@ -119,8 +119,9 @@ class GetAlpha(CNTrade):
                         alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
                         volatility = get_volatility(p["daily"].values)
                         sharp = (p_annua_profit - unrisk_rate) / volatility
-                        viewer = self.xq.get_viewer(p_name)
+                        
                         if alpha > 0 and sharp > 0:
+                            viewer = self.xq.get_viewer(p_name)
                             record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
                                        " s:" + str(get_four_five(sharp)) + " v:" + str(get_four_five(volatility)) + " " + str(market) +\
                                        " " + str(start_date) + " " + str(viewer))
