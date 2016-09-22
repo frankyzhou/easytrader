@@ -511,7 +511,7 @@ class XueQiuTrader(WebTrader):
         r = self.requests.get(self.config['profit_daily'], headers=self.headers, cookies=self.cookies, params=data)
         if r.status_code != 200:
             print r.status_code
-            return  None, None
+            return None
         r = json.loads(r.text)
         return r
 
