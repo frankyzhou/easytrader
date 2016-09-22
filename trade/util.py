@@ -42,7 +42,7 @@ def get_price_by_factor(all_stocks_data, code, price, factor):
     return price
 
 
-def get_four_five(num, pre):
+def get_four_five(num, pre=3):
     p = '{:.' + str(pre) + 'f}'
     return float(p.format(Decimal(num)))
 

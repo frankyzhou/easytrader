@@ -161,8 +161,21 @@ class XueQiuTrader(WebTrader):
         pos_start = html.find('SNB.cubeInfo = ') + 15
         pos_end = html.find('SNB.cubePieData')
         json_data = html[pos_start:pos_end]
-        portfolio_info = json.loads(json_data)
+        portfolio_info = json.loads(json.dumps(json_data))
         return portfolio_info
+
+    def __get_portfolio_html(self, portfolio_code):
+        """
+        获取组合信息
+        :return: 字典
+        """
+        html = ""
+        try:
+            url = self.config['portfolio_url'] + portfolio_code
+            html = self.__get_html(url)
+        except Exception, e:
+            print e
+        return html
 
     def get_balance(self):
         """
@@ -501,6 +514,15 @@ class XueQiuTrader(WebTrader):
             return  None, None
         r = json.loads(r.text)
         return r
+
+    def get_viewer(self, portfolio_code):
+        html = self.__get_portfolio_html(portfolio_code)
+        viewer = 0
+        if len(html) > 0:
+            start = html.find("\"num\"") + 6
+            end = html.find("\n人关注")
+            viewer = int(html[start: end])
+        return viewer
 
 if __name__ == '__main__':
     XueQiuTrader.main()

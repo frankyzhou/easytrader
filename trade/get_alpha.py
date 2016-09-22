@@ -8,7 +8,7 @@ from trade.cn_trade import CNTrade
 from util import *
 import sys
 
-TEST_STATE = False
+TEST_STATE = True
 YEAR_TRADE_DAYS = 252
 unrisk_rate = 0.025
 COLLECTION = "seek_alpha"
@@ -97,34 +97,38 @@ class GetAlpha(CNTrade):
         s = int(s)
         e = int(e)
         tmp = s
-        try:
-            for no in range(s, e):
-                self.update_para()
-                while is_trade_time(TEST_STATE, self.trade_time):
-                    time.sleep(60 * 10)
-                tmp = no
-                p_name = "ZH" + '{:0>6}'.format(no)
-                self.xq.set_attr("portfolio_code", p_name)
-                r = self.xq.get_profit_daily()
-                p, b = r[0]["list"], r[1]["list"]
-                market = r[1]["symbol"][:2]
-                start_date = p[0]["date"]
-                if p and b:
-                    if len(p) > 0 and len(b) > 0:
-                        p, b = analyse_profit(p), analyse_profit(b)
-                        p_annua_profit = get_annualized_returns(p)
-                        b_annua_profit = get_annualized_returns(b)
-                        cov = get_cov(p["daily"].values, b["daily"].values)
-                        beta = cov / np.var(b["daily"].values)  #方差
-                        alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
-                        volatility = get_volatility(p["daily"].values)
-                        sharp = (p_annua_profit - unrisk_rate) / volatility
-                        if alpha > 0 and sharp > 0:
-                            record_msg(self.logger, p_name + ": alpha:" + str(alpha) + " beta:" + str(beta) +\
-                                       " sharp:" + str(sharp) + " volatility:" + str(volatility) + " " + market)
-        except Exception, e:
-            print e
-            return tmp - 1
+        # self.xq.get_position()
+        # try:
+        for no in range(s, e):
+            self.update_para()
+            # while is_trade_time(TEST_STATE, self.trade_time):
+            #     time.sleep(60 * 10)
+            tmp = no
+            p_name = unicode("ZH" + '{:0>6}'.format(no))
+            # viewer = self.xq.get_viewer(p_name)
+            self.xq.set_attr("portfolio_code", p_name)
+            r = self.xq.get_profit_daily()
+            p, b = r[0]["list"], r[1]["list"]
+            market = r[1]["symbol"][:2]
+            start_date = p[0]["date"]
+            if p and b:
+                if len(p) > 0 and len(b) > 0:
+                    p, b = analyse_profit(p), analyse_profit(b)
+                    p_annua_profit = get_annualized_returns(p)
+                    b_annua_profit = get_annualized_returns(b)
+                    cov = get_cov(p["daily"].values, b["daily"].values)
+                    beta = cov / np.var(b["daily"].values)  #方差
+                    alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
+                    volatility = get_volatility(p["daily"].values)
+                    sharp = (p_annua_profit - unrisk_rate) / volatility
+                    viewer = self.xq.get_viewer(p_name)
+                    if alpha > 0 and sharp > 0:
+                        record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
+                                   " s:" + str(get_four_five(sharp)) + " v:" + str(get_four_five(volatility)) + " " + str(market) +\
+                                   " " + str(start_date) + " " + str(viewer))
+    # except Exception, e:
+        #     print e
+        #     return tmp - 1
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
