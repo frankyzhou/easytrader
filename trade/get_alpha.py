@@ -8,7 +8,7 @@ from trade.cn_trade import CNTrade
 from util import *
 import sys
 
-TEST_STATE = True
+TEST_STATE = False
 YEAR_TRADE_DAYS = 252
 unrisk_rate = 0.025
 COLLECTION = "seek_alpha"
