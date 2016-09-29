@@ -4,7 +4,7 @@ __author__ = 'frankyzhou'
 
 import easytrader
 from trade.util import *
-
+from cn_trade import *
 # declare basic vars
 COLLECTION = "yjb_operation"
 GET_POSITION = "get_position"
@@ -12,7 +12,8 @@ BUY = "buy"
 SELL = "sell"
 READ_SIZE = 8192
 
-class yjb_trade:
+
+class YjbTrade(CNTrade):
     def __init__(self):
         self.yjb = easytrader.use('yjb')
         self.yjb.prepare('config/yjb.json')
@@ -56,5 +57,5 @@ class yjb_trade:
             #    print e
 
 if __name__ == '__main__':
-    yjb = yjb_trade()
+    yjb = YjbTrade()
     yjb.main()
