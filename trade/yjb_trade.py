@@ -11,6 +11,7 @@ COLLECTION = "yjb_operation"
 GET_POSITION = "get_position"
 BUY = "buy"
 SELL = "sell"
+STOP = "stop"
 READ_SIZE = 8192
 
 class yjb_trade:
@@ -22,7 +23,12 @@ class yjb_trade:
 
     def judge_opera(self, msg):
         msg = msg.split()
-        type, code = msg[0], msg[1]
+        type= msg[0]
+
+        if type == STOP:
+            return STOP
+
+        code = msg[1]
         if type == GET_POSITION:
             record_msg(logger=self.logger, msg="查询仓位：" + code)
             return self.get_position_by_stock(code)
@@ -56,7 +62,7 @@ class yjb_trade:
 
                 response = self.judge_opera(request)
                 self.server.sendto(str(response), address)
-
+                if str(response) == STOP: break
             #except Exception, e:
             #    print e
 
