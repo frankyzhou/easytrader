@@ -4,6 +4,7 @@ __author__ = 'frankyzhou'
 
 import easytrader
 from trade.util import *
+import time
 
 # declare basic vars
 COLLECTION = "yjb_operation"
@@ -37,8 +38,12 @@ class yjb_trade:
         return "Nothing."
 
     def get_position_by_stock(self, code):
-
         position_yjb = self.yjb.get_position()
+        while not isinstance(position_yjb, list):
+            self.yjb.autologin()
+            time.sleep(5)
+            record_msg(logger=self.logger, msg="获取持仓失败，重连中")
+            position_yjb = self.yjb.get_position()
         balance = self.yjb.get_balance()[0]
         asset = balance["asset_balance"]
         return self.yjb.get_position_by_stock(code, position_yjb, asset), asset
