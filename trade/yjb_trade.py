@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-
-__author__ = 'frankyzhou'
-
+from easytrader import helpers
 import easytrader
 from trade.util import *
 from cn_trade import *
 import time
+
+__author__ = 'frankyzhou'
 
 # declare basic vars
 COLLECTION = "yjb_operation"
@@ -18,10 +18,14 @@ READ_SIZE = 8192
 
 class YjbTrade(CNTrade):
     def __init__(self):
+        # 固定部分
         self.yjb = easytrader.use('yjb')
         self.yjb.prepare('config/yjb.json')
         self.server = get_server()
         self.logger = get_logger(COLLECTION)
+        # 每日更新
+        self.last_trade_time = get_trade_date_series("CN")
+        self.trade_time = get_date_now("CN")
 
     def judge_opera(self, msg):
         msg = msg.split()
@@ -57,14 +61,15 @@ class YjbTrade(CNTrade):
         return self.yjb.get_position_by_stock(code, position_yjb, asset), asset
 
     def main(self):
-        while(1):
+        while 1:
             #try:
                 request, address = self.server.recvfrom(READ_SIZE)
                 print "Got data from ", address
 
                 response = self.judge_opera(request)
                 self.server.sendto(str(response), address)
-                if str(response) == STOP: break
+                if str(response) == STOP:
+                    break
             #except Exception, e:
             #    print e
 
