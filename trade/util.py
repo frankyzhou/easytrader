@@ -175,7 +175,7 @@ class client():
     def __init__(self, host):
         self.client = self.get_client(host=host)
 
-    def get_client(self, host='127.0.0.1', textport=51500):
+    def get_client(self, host='127.0.0.1', textport=51500, timeout=15):
         # Step1: 输入host和port信息
         # host = "127.0.0.1"
         # textport = 51500
@@ -187,6 +187,7 @@ class client():
             port = socket.getservbyname(textport, 'udp')
         # Step3: 打开socket连接
         s.connect((host, port))
+        s.settimeout(timeout)
         return s
 
     def exec_order(self, order):
