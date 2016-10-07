@@ -177,6 +177,9 @@ class XueQiuTrader(WebTrader):
             print e
         return html
 
+    def get_portfolio_html(self, portfolio_code):
+        self.html = self.__get_portfolio_html(portfolio_code)
+
     def get_balance(self):
         """
         获取账户资金状况
@@ -515,14 +518,29 @@ class XueQiuTrader(WebTrader):
         r = json.loads(r.text)
         return r
 
-    def get_viewer(self, portfolio_code):
-        html = self.__get_portfolio_html(portfolio_code)
+    def get_viewer(self):
         viewer = 0
-        if len(html) > 0:
-            start = html.find("\"num\"") + 6
-            end = html.find("\n人关注")
-            viewer = int(html[start: end])
+        if len(self.html) > 0:
+            start = self.html.find("\"num\"") + 6
+            end = self.html.find("\n人关注")
+            viewer = int(self.html[start: end])
         return viewer
+
+    def is_stop(self):
+        is_stop = False
+        if len(self.html) > 0:
+            start = self.html.find("关停时间")
+            is_stop = True if start > -1 else False
+        return is_stop
+
+    def get_tradetimes(self):
+        trade_times = 0
+        if len(self.html) > 0:
+            start = self.html.find("最近三个月调仓")
+            end = self.html.find("</span> 次")
+            if start > -1 :
+                trade_times = int(self.html[start + 41: end])
+        return trade_times
 
 if __name__ == '__main__':
     XueQiuTrader.main()
