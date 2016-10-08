@@ -11,7 +11,8 @@ from .webtrader import NotLoginError
 from .webtrader import WebTrader
 from trade.util import *
 import time
-
+import helpers
+import os
 if six.PY2:
     import urllib2
 
@@ -34,9 +35,6 @@ class XueQiuTrader(WebTrader):
         self.requests = requests
         self.account_config = None
         self.multiple = 1000000  # 资金换算倍数
-
-    def setattr(self, key, value):
-        self.account_config[key] = value
 
     def autologin(self):
         """
@@ -163,8 +161,24 @@ class XueQiuTrader(WebTrader):
         pos_start = html.find('SNB.cubeInfo = ') + 15
         pos_end = html.find('SNB.cubePieData')
         json_data = html[pos_start:pos_end]
-        portfolio_info = json.loads(json_data)
+        portfolio_info = json.loads(json.dumps(json_data))
         return portfolio_info
+
+    def __get_portfolio_html(self, portfolio_code):
+        """
+        获取组合信息
+        :return: 字典
+        """
+        html = ""
+        try:
+            url = self.config['portfolio_url'] + portfolio_code
+            html = self.__get_html(url)
+        except Exception, e:
+            print e
+        return html
+
+    def get_portfolio_html(self, portfolio_code):
+        self.html = self.__get_portfolio_html(portfolio_code)
 
     def get_balance(self):
         """
@@ -204,6 +218,7 @@ class XueQiuTrader(WebTrader):
             return time.strftime("%Y-%m-%d %H:%M:%S", ltime)
         except :
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
     def get_position(self):
         """
         获取持仓
@@ -461,14 +476,17 @@ class XueQiuTrader(WebTrader):
         hp.close()
         return data
 
-    # frankyzhou add @ 2016/5/28
     def get_xq_entrust_checked(self):
+        """
+        得到确认好的交易记录
+        frankyzhou add @ 2016/5/28
+        :return:
+        """
         entrust = None
-
-        while(not entrust):
+        while not entrust:
             entrust = self.get_entrust()
             i = 0
-            while(i < len(entrust)):
+            while i < len(entrust):
                 trade = entrust[i]
                 for e in trade.keys():
                     if trade[e] is None:
@@ -478,8 +496,12 @@ class XueQiuTrader(WebTrader):
                 i += 1
         return entrust
 
-    # frankyzhou add @ 2016/06/01
     def get_cookies(self):
+        """
+        获取cookies
+        frankyzhou add @ 2016/06/01
+        :return:
+        """
         str_cookies = ""
         for item in self.cookies.items():
             str_cookies = str_cookies + item[0] + "=" + item[1] + "; "
@@ -492,9 +514,33 @@ class XueQiuTrader(WebTrader):
         r = self.requests.get(self.config['profit_daily'], headers=self.headers, cookies=self.cookies, params=data)
         if r.status_code != 200:
             print r.status_code
-            return  None, None
+            return None
         r = json.loads(r.text)
-        return r[0]['list'], r[1]['list']
+        return r
+
+    def get_viewer(self):
+        viewer = 0
+        if len(self.html) > 0:
+            start = self.html.find("\"num\"") + 6
+            end = self.html.find("\n人关注")
+            viewer = int(self.html[start: end])
+        return viewer
+
+    def is_stop(self):
+        is_stop = False
+        if len(self.html) > 0:
+            start = self.html.find("关停时间")
+            is_stop = True if start > -1 else False
+        return is_stop
+
+    def get_tradetimes(self):
+        trade_times = 0
+        if len(self.html) > 0:
+            start = self.html.find("最近三个月调仓")
+            end = self.html.find("</span> 次")
+            if start > -1 :
+                trade_times = int(self.html[start + 41: end])
+        return trade_times
 
 if __name__ == '__main__':
     XueQiuTrader.main()

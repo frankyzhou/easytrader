@@ -5,7 +5,7 @@ from .httrader import HTTrader
 from .xqtrader import XueQiuTrader
 from .yhtrader import YHTrader
 from .yjbtrader import YJBTrader
-
+from .wbtrader import WBTrader
 
 def use(broker, debug=True, **kwargs):
     """用于生成特定的券商对象
@@ -32,3 +32,5 @@ def use(broker, debug=True, **kwargs):
         return XueQiuTrader()
     if broker.lower() in ['gf', 'GF', '广发']:
         return GFTrader()
+    if broker.lower() in ['wb', "WB"]:
+        return WBTrader()
