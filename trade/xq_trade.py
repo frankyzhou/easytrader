@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*
 import easytrader
-from trade.util import *
-import time, re, sys, datetime
+import time, sys
 from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
@@ -26,8 +25,8 @@ class XqTrade(CNTrade):
         # 每日更新
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
-        self.is_update_stocks = False
-        self.all_stocks_data = None
+        self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
+
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         """
@@ -107,26 +106,28 @@ class XqTrade(CNTrade):
 
         return dif, price, amount
 
+    def trade(self):
+        for k in self.portfolio_list.keys():
+            try:
+                self.xq.set_attr("portfolio_code", k)
+                time.sleep(10)
+                entrust = self.xq.get_xq_entrust_checked()
+
+                factor = self.portfolio_list[k]["factor"]
+                percent = self.portfolio_list[k]["percent"]
+                self.trade_by_entrust(entrust, k, factor, percent)
+
+            except Exception, e:
+                msg = "xq:" + str(e.message)
+                record_msg(logger=self.logger, msg=msg, email=self.email)
+                return -1
+
     def main(self):
         while 1:
             self.update_para()
-            if is_trade_time(TEST_STATE, self.trade_time):
-                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
-                                                                                 self.all_stocks_data)
-                for k in self.portfolio_list.keys():
-                    try:
-                        self.xq.set_attr("portfolio_code", k)
-                        time.sleep(10)
-                        entrust = self.xq.get_xq_entrust_checked()
+            # while is_trade_time(TEST_STATE, self.trade_time):
+            #     self.trade()
 
-                        factor = self.portfolio_list[k]["factor"]
-                        percent = self.portfolio_list[k]["percent"]
-                        self.trade_by_entrust(entrust, k, factor, percent)
-
-                    except Exception, e:
-                        msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-                        return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

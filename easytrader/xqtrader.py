@@ -25,7 +25,7 @@ class XueQiuTrader(WebTrader):
 
     def __init__(self):
         super(XueQiuTrader, self).__init__()
-        headers = {
+        self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0',
             'Host': 'xueqiu.com',
             'Pragma': 'no-cache',
@@ -38,8 +38,10 @@ class XueQiuTrader(WebTrader):
             'Accept-Language': 'zh-CN,zh;q=0.8'
         }
         self.session = requests.Session()
-        self.session.headers.update(headers)
+        self.session.headers.update(self.headers)
         self.account_config = None
+        self.requests = requests
+        self.cookies = ""
         self.multiple = 1000000  # 资金换算倍数
 
     def autologin(self, **kwargs):
@@ -96,7 +98,7 @@ class XueQiuTrader(WebTrader):
             'Accept-Language':  'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Accept-Charset': 'GBK,utf-8;q=0.7,*;q=0.3',
-            'Cookie': self.str_cookies
+            'Cookie': self.cookies
         }
 
         if six.PY2:
@@ -328,6 +330,7 @@ class XueQiuTrader(WebTrader):
             if position['stock_id'] == stock['stock_id']:
                 position['proactive'] = True
                 position['weight'] = weight
+                break
 
         if weight != 0 and stock['stock_id'] not in [k['stock_id'] for k in position_list]:
             position_list.append({
