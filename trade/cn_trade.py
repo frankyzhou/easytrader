@@ -6,7 +6,8 @@ import datetime
 class CNTrade(object):
     def __init__(self):
         self.email = Email()
-        self.client = client(host="10.104.236.87")
+        # self.client = client(host="10.104.236.87")
+        self.client = client(host="127.0.0.1")
         # 每日更新
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")

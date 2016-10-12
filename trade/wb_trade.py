@@ -42,7 +42,7 @@ class WBTrade(CNTrade):
             record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"])
-            capital /= percent
+            capital_tmp = capital / percent
             """
             before_percent has two version.
             1.the position is caled by yjb;
@@ -50,7 +50,7 @@ class WBTrade(CNTrade):
             已经有比例，故其他需要对应
             """
             before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
-            dif, price, amount = self.get_trade_detail(asset, factor, code, trade, capital)
+            dif, price, amount = self.get_trade_detail(asset, factor, code, trade, capital_tmp)
 
             result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
@@ -91,7 +91,7 @@ class WBTrade(CNTrade):
                 # self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
                                                                                 # self.portfolio_list)
                 for k in self.portfolio_list.keys():
-                    try:
+                    # try:
                         self.wb.set_attr("portfolio_code", k)
                         time.sleep(10)
                         # entrust = self.xq.get_xq_entrust_checked()
@@ -103,10 +103,10 @@ class WBTrade(CNTrade):
                         entrust = self.wb.get_entrust()
                         self.trade_by_entrust(entrust, k, factor, percent, capital)
 
-                    except Exception, e:
-                        msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-                        return -1
+                    # except Exception, e:
+                    #     msg = "xq:" + str(e.message)
+                    #     record_msg(logger=self.logger, msg=msg, email=self.email)
+                    #     return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
