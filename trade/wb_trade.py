@@ -91,7 +91,7 @@ class WBTrade(CNTrade):
                 # self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
                                                                                 # self.portfolio_list)
                 for k in self.portfolio_list.keys():
-                    # try:
+                    try:
                         self.wb.set_attr("portfolio_code", k)
                         time.sleep(10)
                         # entrust = self.xq.get_xq_entrust_checked()
@@ -103,10 +103,10 @@ class WBTrade(CNTrade):
                         entrust = self.wb.get_entrust()
                         self.trade_by_entrust(entrust, k, factor, percent, capital)
 
-                    # except Exception, e:
-                    #     msg = "xq:" + str(e.message)
-                    #     record_msg(logger=self.logger, msg=msg, email=self.email)
-                    #     return -1
+                    except Exception, e:
+                        msg = "xq:" + str(e.message)
+                        record_msg(logger=self.logger, msg=msg, email=self.email)
+                        return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
