@@ -6,7 +6,7 @@ import time
 from trade.cn_trade import CNTrade
 from util import *
 import sys
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 TEST_STATE = False
 YEAR_TRADE_DAYS = 252

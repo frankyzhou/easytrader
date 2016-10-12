@@ -17,6 +17,7 @@ import binascii
 import requests
 import re
 import random
+from seleniumrequests import PhantomJS
 try:
     from PIL import Image
 except:
@@ -39,13 +40,15 @@ headers = {
 }
 
 session = requests.session()
-
+webdriver = PhantomJS()
 # 访问 初始页面带上 cookie
 index_url = "http://weibo.com/login.php"
 try:
     session.get(index_url, headers=headers, timeout=2)
+    webdriver.request('GET', index_url, headers=headers, timeout=2)
 except:
     session.get(index_url, headers=headers)
+    webdriver.request('GET', index_url, headers=headers)
 try:
     input = raw_input
 except:
@@ -136,14 +139,16 @@ def login(username, password):
         'url': 'http://weibo.com/ajaxlogin.php?framelogin=1&callback=parent.sinaSSOController.feedBackUrlCallBack',
         'returntype': 'META'
         }
-    login_url = 'http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.18)'
+    login_url = 'https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)'
     if showpin == 0:
         login_page = session.post(login_url, data=postdata, headers=headers)
+        # login_page = webdriver.request('POST', login_url, data=postdata, headers=headers)
     else:
         pcid = sever_data["pcid"]
         get_cha(pcid)
         postdata['door'] = input(u"请输入验证码")
         login_page = session.post(login_url, data=postdata, headers=headers)
+        # login_page = webdriver.request('POST', login_url, data=postdata, headers=headers)
     login_loop = (login_page.content.decode("GBK"))
     # print(login_loop)
     pa = r'location\.replace\([\'"](.*?)[\'"]\)'
@@ -151,6 +156,7 @@ def login(username, password):
     # print(loop_url)
     # 此出还可以加上一个是否登录成功的判断，下次改进的时候写上
     login_index = session.get(loop_url, headers=headers)
+    # login_index = webdriver.request('GET', loop_url, headers=headers)
     uuid = login_index.text
     uuid_pa = r'"uniqueid":"(.*?)"'
     uuid_res = re.findall(uuid_pa, uuid, re.S)[0]

@@ -1,6 +1,6 @@
 # coding: utf-8
 from .webtrader import WebTrader
-from selenium import webdriver
+from seleniumrequests import PhantomJS
 import time
 import os
 from bs4 import BeautifulSoup
@@ -40,57 +40,13 @@ class WBTrader(WebTrader):
 
     def __init__(self):
         super(WBTrader, self).__init__()
-        self.driver = webdriver.PhantomJS()
+        self.driver = PhantomJS()
         self.portfolio = ""
 
         self.account_config = {}
         self.request = requests
         self.multiple = 1000000
         self.home_list = []
-        self.login()
-        self.cookies = self.get_cookies()
-
-    def login(self):
-        myWeiBo = [{'no': '752649673@qq.com', 'psw': 'zljabhbhwan37'},]
-        cookies = []
-        loginURL = r'https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)'
-        for elem in myWeiBo:
-            account = elem['no']
-            password = elem['psw']
-            username = base64.b64encode(account.encode('utf-8')).decode('utf-8')
-            postData = {
-                "entry": "sso",
-                "gateway": "1",
-                "from": "null",
-                "savestate": "30",
-                "useticket": "0",
-                "pagerefer": "",
-                "vsnf": "1",
-                "su": username,
-                "service": "sso",
-                "sp": password,
-                "sr": "1440*900",
-                "encoding": "UTF-8",
-                "cdult": "3",
-                "domain": "sina.com.cn",
-                "prelt": "0",
-                "returntype": "TEXT",
-            }
-            self.driver.request('POST', loginURL, data=postData)
-
-            session = requests.Session()
-            r = session.post(loginURL, data=postData)
-            self.driver.add_cookie(r.cookies)
-            session.get("http://m.weibo.cn/container/getIndex?containerid=231072_-_HistoryIncome_-_1022%3A231048zh208140")
-            jsonStr = r.content.decode('gbk')
-            info = json.loads(jsonStr)
-            if info["retcode"] == "0":
-                print "Get Cookie Success!( Account:%s )" % account
-                cookie = session.cookies.get_dict()
-                cookies.append(cookie)
-            else:
-                print "Failed!( Reason:%s )" % info['reason']
-            self.cookies = cookies[0]
 
     def update_driver(self, url, sec=10):
         self.driver.get(url)

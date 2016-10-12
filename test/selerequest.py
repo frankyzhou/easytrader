@@ -1,5 +1,5 @@
-from seleniumrequests import Phantomjs
+from seleniumrequests import PhantomJS
 
-webdriver = Phantomjs()
-response = webdriver.request('POST', 'url here', data={"param1": "value1"})
+webdriver = PhantomJS()
+response = webdriver.request('GET', 'http://m.weibo.cn/container/getIndex?containerid=231048zh200217')
 print response
