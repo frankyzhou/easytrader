@@ -496,17 +496,6 @@ class XueQiuTrader(WebTrader):
                 i += 1
         return entrust
 
-    def get_cookies(self):
-        """
-        获取cookies
-        frankyzhou add @ 2016/06/01
-        :return:
-        """
-        str_cookies = ""
-        for item in self.cookies.items():
-            str_cookies = str_cookies + item[0] + "=" + item[1] + "; "
-        return str_cookies
-
     def get_profit_daily(self):
         data = {
             "cube_symbol": str(self.account_config['portfolio_code'])

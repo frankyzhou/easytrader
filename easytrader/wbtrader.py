@@ -40,13 +40,15 @@ class WBTrader(WebTrader):
 
     def __init__(self):
         super(WBTrader, self).__init__()
-        # self.driver = webdriver.PhantomJS()
+        self.driver = webdriver.PhantomJS()
         self.portfolio = ""
+
         self.account_config = {}
         self.request = requests
         self.multiple = 1000000
         self.home_list = []
         self.login()
+        self.cookies = self.get_cookies()
 
     def login(self):
         myWeiBo = [{'no': '752649673@qq.com', 'psw': 'zljabhbhwan37'},]
@@ -74,8 +76,12 @@ class WBTrader(WebTrader):
                 "prelt": "0",
                 "returntype": "TEXT",
             }
+            self.driver.request('POST', loginURL, data=postData)
+
             session = requests.Session()
             r = session.post(loginURL, data=postData)
+            self.driver.add_cookie(r.cookies)
+            session.get("http://m.weibo.cn/container/getIndex?containerid=231072_-_HistoryIncome_-_1022%3A231048zh208140")
             jsonStr = r.content.decode('gbk')
             info = json.loads(jsonStr)
             if info["retcode"] == "0":
@@ -84,16 +90,18 @@ class WBTrader(WebTrader):
                 cookies.append(cookie)
             else:
                 print "Failed!( Reason:%s )" % info['reason']
-        return cookies
+            self.cookies = cookies[0]
 
     def update_driver(self, url, sec=10):
         self.driver.get(url)
         time.sleep(sec)
 
     def get_home(self):
+        # self.driver.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
         response = self.request.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
-        bsObj = BeautifulSoup(self.driver.page_source, "lxml")
-        self.home_list = bsObj.findAll("div", {"class": "card card11 ctype-1"})
+        # bsObj = BeautifulSoup(self.driver.page_source, "lxml")
+        # self.home_list = bsObj.findAll("div", {"class": "card card11 ctype-1"})
+        self.history_json = json.loads(response.text)
 
     def get_capital(self):
         self.get_home()
