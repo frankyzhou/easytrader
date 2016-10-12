@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import re
+import base64
+
 
 def json_load_byteified(file_handle):
     return _byteify(json.load(file_handle, object_hook=_byteify), ignore_dicts=True)
@@ -44,6 +46,45 @@ class WBTrader(WebTrader):
         self.request = requests
         self.multiple = 1000000
         self.home_list = []
+        self.login()
+
+    def login(self):
+        myWeiBo = [{'no': '752649673@qq.com', 'psw': 'zljabhbhwan37'},]
+        cookies = []
+        loginURL = r'https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)'
+        for elem in myWeiBo:
+            account = elem['no']
+            password = elem['psw']
+            username = base64.b64encode(account.encode('utf-8')).decode('utf-8')
+            postData = {
+                "entry": "sso",
+                "gateway": "1",
+                "from": "null",
+                "savestate": "30",
+                "useticket": "0",
+                "pagerefer": "",
+                "vsnf": "1",
+                "su": username,
+                "service": "sso",
+                "sp": password,
+                "sr": "1440*900",
+                "encoding": "UTF-8",
+                "cdult": "3",
+                "domain": "sina.com.cn",
+                "prelt": "0",
+                "returntype": "TEXT",
+            }
+            session = requests.Session()
+            r = session.post(loginURL, data=postData)
+            jsonStr = r.content.decode('gbk')
+            info = json.loads(jsonStr)
+            if info["retcode"] == "0":
+                print "Get Cookie Success!( Account:%s )" % account
+                cookie = session.cookies.get_dict()
+                cookies.append(cookie)
+            else:
+                print "Failed!( Reason:%s )" % info['reason']
+        return cookies
 
     def update_driver(self, url, sec=10):
         self.driver.get(url)

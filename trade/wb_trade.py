@@ -93,16 +93,16 @@ class WBTrade(CNTrade):
                                                                                 self.portfolio_list)
                 for k in self.portfolio_list.keys():
                     try:
-						self.wb.set_attr("portfolio_code", k)
-						time.sleep(10)
-						# entrust = self.xq.get_xq_entrust_checked()
+                        self.wb.set_attr("portfolio_code", k)
+                        time.sleep(10)
+                        # entrust = self.xq.get_xq_entrust_checked()
 
-						factor = self.portfolio_list[k]["factor"]
-						percent = self.portfolio_list[k]["percent"]
-						capital = self.portfolio_list[k]["capital"]
-						# self.wb.get_position()
-						entrust = self.wb.get_entrust()
-						self.trade_by_entrust(entrust, k, factor, percent, capital)
+                        factor = self.portfolio_list[k]["factor"]
+                        percent = self.portfolio_list[k]["percent"]
+                        capital = self.portfolio_list[k]["capital"]
+                        # self.wb.get_position()
+                        entrust = self.wb.get_entrust()
+                        self.trade_by_entrust(entrust, k, factor, percent, capital)
 
                     except Exception, e:
                         msg = "xq:" + str(e.message)
