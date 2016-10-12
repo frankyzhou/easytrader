@@ -40,7 +40,7 @@ class WBTrader(WebTrader):
 
     def __init__(self):
         super(WBTrader, self).__init__()
-        self.driver = webdriver.PhantomJS()
+        # self.driver = webdriver.PhantomJS()
         self.portfolio = ""
         self.account_config = {}
         self.request = requests
@@ -91,7 +91,7 @@ class WBTrader(WebTrader):
         time.sleep(sec)
 
     def get_home(self):
-        self.update_driver(self.config["portfolio"] + self.get_attr("portfolio_code"))
+        response = self.request.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
         bsObj = BeautifulSoup(self.driver.page_source, "lxml")
         self.home_list = bsObj.findAll("div", {"class": "card card11 ctype-1"})
 
