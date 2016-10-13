@@ -138,6 +138,7 @@ class GetAlpha(CNTrade):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq3.json')
         self.trade_time = get_date_now("CN")
+        self.email = Email()
 
     def get_para_by_portfolio(self, p_name):
         self.xq.set_attr("portfolio_code", p_name)
@@ -200,7 +201,8 @@ class GetAlpha(CNTrade):
                                        " sh:" + str(get_four_five(sharp)) + " d:" +str(get_four_five(maxdown)) + " so:" +\
                                        str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
         except Exception, e:
-                print e
+                msg = "get_alpha " + str(e) 
+                record_msg(self.logger, msg=msg, email=self.email)
                 return tmp - 1
 
 if __name__ == '__main__':
