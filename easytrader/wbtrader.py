@@ -1,6 +1,5 @@
 # coding: utf-8
 from .webtrader import WebTrader
-from seleniumrequests import PhantomJS
 import time
 import os
 from bs4 import BeautifulSoup
