@@ -136,7 +136,7 @@ def align_series(p, b):
 class GetAlpha(CNTrade):
     def __init__(self):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('config/xq2.json')
+        self.xq.prepare('config/xq3.json')
         self.trade_time = get_date_now("CN")
 
     def get_para_by_portfolio(self, p_name):
