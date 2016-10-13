@@ -42,7 +42,7 @@ class WBTrade(CNTrade):
             record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"])
-            capital /= percent
+            capital_tmp = capital / percent
             """
             before_percent has two version.
             1.the position is caled by yjb;
@@ -50,8 +50,7 @@ class WBTrade(CNTrade):
             已经有比例，故其他需要对应
             """
             before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
-            # before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
-            dif, price, amount = self.get_trade_detail(asset, factor, code, trade, capital)
+            dif, price, amount = self.get_trade_detail(asset, factor, code, trade, capital_tmp)
 
             result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
@@ -89,20 +88,20 @@ class WBTrade(CNTrade):
             if is_trade_time(TEST_STATE, self.trade_time):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
                                                                                  self.all_stocks_data)
-                self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
-                                                                                self.portfolio_list)
+                # self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
+                                                                                # self.portfolio_list)
                 for k in self.portfolio_list.keys():
                     try:
-						self.wb.set_attr("portfolio_code", k)
-						time.sleep(10)
-						# entrust = self.xq.get_xq_entrust_checked()
+                        self.wb.set_attr("portfolio_code", k)
+                        time.sleep(10)
+                        # entrust = self.xq.get_xq_entrust_checked()
 
-						factor = self.portfolio_list[k]["factor"]
-						percent = self.portfolio_list[k]["percent"]
-						capital = self.portfolio_list[k]["capital"]
-						# self.wb.get_position()
-						entrust = self.wb.get_entrust()
-						self.trade_by_entrust(entrust, k, factor, percent, capital)
+                        factor = self.portfolio_list[k]["factor"]
+                        percent = self.portfolio_list[k]["percent"]
+                        capital = self.portfolio_list[k]["capital"]
+
+                        entrust = self.wb.get_entrust()
+                        self.trade_by_entrust(entrust, k, factor, percent, capital)
 
                     except Exception, e:
                         msg = "xq:" + str(e.message)
@@ -115,6 +114,5 @@ if __name__ == '__main__':
         exit(-1)
     while 1:
         wb = WBTrade(sys.argv[1])
-        # wb = WBTrade("wb1")
         wb.main()
         time.sleep(60)

@@ -1,12 +1,14 @@
 # coding: utf-8
 from .webtrader import WebTrader
-from selenium import webdriver
+from seleniumrequests import PhantomJS
 import time
 import os
 from bs4 import BeautifulSoup
 import requests
 import json
 import re
+import base64
+
 
 def json_load_byteified(file_handle):
     return _byteify(json.load(file_handle, object_hook=_byteify), ignore_dicts=True)
@@ -38,8 +40,9 @@ class WBTrader(WebTrader):
 
     def __init__(self):
         super(WBTrader, self).__init__()
-        self.driver = webdriver.PhantomJS()
+        self.driver = PhantomJS()
         self.portfolio = ""
+
         self.account_config = {}
         self.request = requests
         self.multiple = 1000000
@@ -50,9 +53,11 @@ class WBTrader(WebTrader):
         time.sleep(sec)
 
     def get_home(self):
-        self.update_driver(self.config["portfolio"] + self.get_attr("portfolio_code"))
-        bsObj = BeautifulSoup(self.driver.page_source, "lxml")
-        self.home_list = bsObj.findAll("div", {"class": "card card11 ctype-1"})
+        # self.driver.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
+        response = self.request.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
+        # bsObj = BeautifulSoup(self.driver.page_source, "lxml")
+        # self.home_list = bsObj.findAll("div", {"class": "card card11 ctype-1"})
+        self.history_json = json.loads(response.text)
 
     def get_capital(self):
         self.get_home()

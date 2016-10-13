@@ -228,3 +228,14 @@ class WebTrader(object):
 
     def check_login_status(self, return_data):
         pass
+
+    def get_cookies(self):
+        """
+        获取cookies
+        frankyzhou add @ 2016/06/01
+        :return:
+        """
+        str_cookies = ""
+        for item in self.cookies.items():
+            str_cookies = str_cookies + item[0] + "=" + item[1] + "; "
+        return str_cookies
