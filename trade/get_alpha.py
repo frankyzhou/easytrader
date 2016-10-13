@@ -136,7 +136,7 @@ def align_series(p, b):
 class GetAlpha(CNTrade):
     def __init__(self):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('config/xq2.json')
+        self.xq.prepare('config/xq3.json')
         self.trade_time = get_date_now("CN")
 
     def get_para_by_portfolio(self, p_name):
@@ -163,45 +163,45 @@ class GetAlpha(CNTrade):
         s = int(s)
         e = int(e)
         tmp = s
-        try:
-            for no in range(s, e):
-                self.update_para()
-                while is_trade_time(TEST_STATE, self.trade_time):
-                    time.sleep(60 * 10)
-                tmp = no
-                p_name = unicode("ZH" + '{:0>6}'.format(no))
-                self.xq.set_attr("portfolio_code", p_name)
-                r = self.xq.get_profit_daily()
-                if r:
-                    p, b = r[0]["list"], r[1]["list"]
-                    market = r[1]["symbol"][:2]
-                    if len(p) > 0 and len(b) > 0:
-                        start_date = p[0]["date"]
-                        p, b = analyse_profit(p), analyse_profit(b)
-                        p, b = align_series(p, b)
-                        p_value, b_value = p["daily"].values, b["daily"].values
-                        p_annua_profit   = get_annualized_returns(p)
-                        b_annua_profit   = get_annualized_returns(b)
+        # try:
+        for no in range(s, e):
+            self.update_para()
+            while is_trade_time(TEST_STATE, self.trade_time):
+                time.sleep(60 * 10)
+            tmp = no
+            p_name = unicode("ZH" + '{:0>6}'.format(no))
+            self.xq.set_attr("portfolio_code", p_name)
+            r = self.xq.get_profit_daily()
+            if r:
+                p, b = r[0]["list"], r[1]["list"]
+                market = r[1]["symbol"][:2]
+                if len(p) > 0 and len(b) > 0:
+                    start_date = p[0]["date"]
+                    p, b = analyse_profit(p), analyse_profit(b)
+                    p, b = align_series(p, b)
+                    p_value, b_value = p["daily"].values, b["daily"].values
+                    p_annua_profit   = get_annualized_returns(p)
+                    b_annua_profit   = get_annualized_returns(b)
 
-                        beta       = cal_beta(p_value, b_value)
-                        alpha      = cal_alpha(p_annua_profit, b_annua_profit, unrisk_rate, beta)
-                        volatility = cal_volatility(p_value)
-                        sharp      = cal_sharp(p_annua_profit, unrisk_rate, volatility)
-                        maxdown    = cal_max_drawdown(p["value"])
-                        downside   = cal_downside_risk(p["daily"], b["daily"])
-                        sortino    = cal_sortino(p_annua_profit, unrisk_rate, downside)
-                        if alpha > 0 and sharp > 0:
-                            self.xq.get_portfolio_html(p_name)
-                            viewer = self.xq.get_viewer()
-                            is_stop = self.xq.is_stop()
-                            trade_times =self.xq.get_tradetimes()
-                            state = "stop" if is_stop else "run"
-                            record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
-                                       " sh:" + str(get_four_five(sharp)) + " d:" +str(get_four_five(maxdown)) + " so:" +\
-                                       str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
-        except Exception, e:
-                print e
-                return tmp - 1
+                    beta       = cal_beta(p_value, b_value)
+                    alpha      = cal_alpha(p_annua_profit, b_annua_profit, unrisk_rate, beta)
+                    volatility = cal_volatility(p_value)
+                    sharp      = cal_sharp(p_annua_profit, unrisk_rate, volatility)
+                    maxdown    = cal_max_drawdown(p["value"])
+                    downside   = cal_downside_risk(p["daily"], b["daily"])
+                    sortino    = cal_sortino(p_annua_profit, unrisk_rate, downside)
+                    if alpha > 0 and sharp > 0:
+                        self.xq.get_portfolio_html(p_name)
+                        viewer = self.xq.get_viewer()
+                        is_stop = self.xq.is_stop()
+                        trade_times =self.xq.get_tradetimes()
+                        state = "stop" if is_stop else "run"
+                        record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
+                                   " sh:" + str(get_four_five(sharp)) + " d:" +str(get_four_five(maxdown)) + " so:" +\
+                                   str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
+    # except Exception, e:
+        #         print e
+        #         return tmp - 1
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
