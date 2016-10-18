@@ -101,7 +101,7 @@ def get_logger(COLLECTION, name=None):
     TIME = datetime.datetime.now().strftime("%Y-%m-%d")
     NAME = "-" + name if name else ""
     LOG_FILE = '../logs/' + COLLECTION + "/" + TIME + NAME + '.log'
-    handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024*1024, backupCount=5) # 实例化handler
+    handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024*1024*100, backupCount=5) # 实例化handler
 
     fmt = '%(asctime)s %(levelname)s %(message)s'
     formatter = logging.Formatter(fmt)   # 实例化formatter
