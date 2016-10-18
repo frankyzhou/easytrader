@@ -1,6 +1,5 @@
 # coding: utf-8
 from .webtrader import WebTrader
-from seleniumrequests import PhantomJS
 import time
 import os
 from bs4 import BeautifulSoup
@@ -40,9 +39,7 @@ class WBTrader(WebTrader):
 
     def __init__(self):
         super(WBTrader, self).__init__()
-        self.driver = PhantomJS()
         self.portfolio = ""
-
         self.account_config = {}
         self.request = requests
         self.multiple = 1000000
