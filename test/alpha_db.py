@@ -52,15 +52,16 @@ def parse(count, path):
 
 factor_dict = {}
 now = datetime.datetime.now()
+# parse(path=path, count=count)
 
 for i in db.db[COLLECTION].find():
-    # i["start_time"] = datetime.datetime.strptime(i["start_time"], "%Y-%M-%d")
-    # delta = now - i["start_time"]
-    # if i["market"] == "SH" and i["fans"] > 10 and i["status"] == 1 and\
-    #         int(i["trade_times"]) < 300 and i["drawdown"] < 0.7 and \
-    #         delta > datetime.timedelta(days=365):
+    i["start_time"] = datetime.datetime.strptime(i["start_time"], "%Y-%M-%d")
+    delta = now - i["start_time"]
+    if i["market"] == "SH" and i["fans"] > 10 and i["status"] == 1 and\
+            int(i["trade_times"]) < 300 and i["drawdown"] < 0.7 and \
+            delta > datetime.timedelta(days=365):
         grade = i["alpha"] + i["sharp"]
-        # factor_dict[i["code"]] = grade if abs(grade) < 100 else 0
+        factor_dict[i["code"]] = grade if abs(grade) < 50 else 0
 
 if len(factor_dict) > 0:
     sorted_list = sorted(factor_dict.iteritems(), key=lambda d: d[1], reverse = True)
