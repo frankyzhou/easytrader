@@ -531,5 +531,14 @@ class XueQiuTrader(WebTrader):
                 trade_times = int(self.html[start + 41: end])
         return trade_times
 
+    def get_pname(self):
+        name = ""
+        if len(self.html) > 0:
+            start = self.html.find("<span class=\"name\">")
+            end = self.html.find("</span><span class=\"symbol\">")
+            if start > -1:
+                name = str(self.html[start + 19: end])
+        return name
+
 if __name__ == '__main__':
     XueQiuTrader.main()
