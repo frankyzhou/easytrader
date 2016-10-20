@@ -50,10 +50,10 @@ def parse(count, path):
                     db.insert_doc(COLLECTION, report)
                     count += 1
 
-factor_dict = {}
+keys = ["code", "grade", "alpha", "beta", "sharp", "drawdown", "sortino", "trade_times", "market", "start_time", "fans", "time"]
+factor_dict = []
 now = datetime.datetime.now()
 # parse(path=path, count=count)
-
 for i in db.db[COLLECTION].find():
     i["start_time"] = datetime.datetime.strptime(i["start_time"], "%Y-%M-%d")
     delta = now - i["start_time"]
@@ -61,10 +61,17 @@ for i in db.db[COLLECTION].find():
             int(i["trade_times"]) < 300 and i["drawdown"] < 0.7 and \
             delta > datetime.timedelta(days=365):
         grade = i["alpha"] + i["sharp"]
-        factor_dict[i["code"]] = grade if abs(grade) < 50 else 0
+        if abs(grade) < 50:
+            i["grade"] = grade
+            factor_dict.append(i)
 
 if len(factor_dict) > 0:
-    sorted_list = sorted(factor_dict.iteritems(), key=lambda d: d[1], reverse = True)
-    for i in sorted_list:
-         result_file.write(str(i) + "\n")
+    # sorted_list = sorted(factor_dict.iteritems(), key=lambda d: d[1], reverse = True)
+    for i in factor_dict:
+        str_out = ""
+        del i["_id"]
+        i["start_time"] = i["start_time"].strftime("%Y-%M-%d")
+        for key in keys:
+            str_out = str_out + str(i[key]) + "\t"
+        result_file.write(str_out + "\n")
 result_file.close()
