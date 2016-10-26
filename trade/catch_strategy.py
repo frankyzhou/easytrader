@@ -6,6 +6,7 @@ from trade.util import *
 from easytrader.MongoDB import *
 import time
 import types
+import traceback
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "strategy"
@@ -49,7 +50,8 @@ class catch_strategy:
                 print info_list[0]
                 time.sleep(5)
             except Exception, e:
-                print e
+                # print e
+                traceback.print_exc()
 
     def main(self):
         while(1):

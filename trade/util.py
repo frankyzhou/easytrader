@@ -12,6 +12,7 @@ from decimal import Decimal
 import ast
 import re
 
+
 # after the last trade day
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
@@ -50,10 +51,10 @@ def get_four_five(num, pre=3):
 def get_date_now(country):
     now_time = datetime.datetime.now()
     if country == "CN":
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
-        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 32, 0)
-        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 58, 0)
-        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 02, 0)
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 30, 0)
+        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 30, 0)
+        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 13, 00, 0)
+        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 00, 0)
 
     elif country == "US":
         offsize = 0 if now_time.hour < 4 else 1
@@ -97,20 +98,27 @@ def get_trade_date_series(country):
         return date_us
 
 
-def get_logger(COLLECTION, name=None):
-    TIME = datetime.datetime.now().strftime("%Y-%m-%d")
-    NAME = "-" + name if name else ""
-    LOG_FILE = '../logs/' + COLLECTION + "/" + TIME + NAME + '.log'
-    handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024*1024*100, backupCount=5) # 实例化handler
+def get_logger(collection, name=None):
+    time = datetime.datetime.now().strftime("%Y-%m-%d")
+    name = "-" + name if name else ""
+    logfile = '../logs/' + collection + "/" + time + name + '.log'
 
-    fmt = '%(asctime)s %(levelname)s %(message)s'
-    formatter = logging.Formatter(fmt)   # 实例化formatter
-    handler.setFormatter(formatter)      # 为handler添加formatter
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M',
+                        filename=logfile,
+                        filemode='w')
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(filename)s %(lineno)s: %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
 
-    logger = logging.getLogger('tst')    # 获取名为tst的logger
-    logger.addHandler(handler)           # 为logger添加handler
-    logger.setLevel(logging.DEBUG)
-
+    logger = logging.getLogger(collection)
     return logger
 
 
@@ -175,7 +183,7 @@ class client():
     def __init__(self, host):
         self.client = self.get_client(host=host)
 
-    def get_client(self, host='127.0.0.1', textport=51500, timeout=15):
+    def get_client(self, host='127.0.0.1', textport=51500):
         # Step1: 输入host和port信息
         # host = "127.0.0.1"
         # textport = 51500
@@ -187,7 +195,6 @@ class client():
             port = socket.getservbyname(textport, 'udp')
         # Step3: 打开socket连接
         s.connect((host, port))
-        s.settimeout(timeout)
         return s
 
     def exec_order(self, order):
