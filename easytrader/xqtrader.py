@@ -3,7 +3,7 @@
 import json
 import urllib
 import zlib
-
+import traceback
 import requests
 import six
 
@@ -40,7 +40,7 @@ class XueQiuTrader(WebTrader):
         self.session = requests.Session()
         self.session.headers.update(self.headers)
         self.account_config = None
-        self.requests = requests
+        # self.requests = requests
         self.cookies = ""
         self.multiple = 1000000  # 资金换算倍数
 
@@ -72,8 +72,7 @@ class XueQiuTrader(WebTrader):
             'remember_me': '0',
             'password': self.account_config['password']
         }
-        login_response = self.requests.post(self.config['login_api'], cookies=self.cookies, data=login_post_data,
-                                            headers=self.headers)
+        login_response = self.session.post(self.config['login_api'], cookies=self.cookies, data=login_post_data)
         self.cookies = login_response.cookies
         login_status = json.loads(login_response.text)
         if 'error_description' in login_status:
@@ -128,7 +127,7 @@ class XueQiuTrader(WebTrader):
             'key': '47bce5c74f',
             'market': self.account_config['portfolio_market'],
         }
-        r = self.requests.get(self.config['search_stock_url'], headers=self.headers, cookies=self.cookies, params=data)
+        r = self.session.get(self.config['search_stock_url'], params=data)
         stocks = json.loads(r.text)
         stocks = stocks['stocks']
         stock = None
@@ -162,7 +161,7 @@ class XueQiuTrader(WebTrader):
             url = self.config['portfolio_url'] + portfolio_code
             html = self.__get_html(url)
         except Exception, e:
-            print e
+            traceback.print_exc()
         return html
 
     def get_balance(self):
