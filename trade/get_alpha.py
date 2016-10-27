@@ -198,7 +198,8 @@ class GetAlpha(CNTrade):
                             is_stop = self.xq.is_stop()
                             trade_times =self.xq.get_tradetimes()
                             state = "stop" if is_stop else "run"
-                            record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
+                            name = self.xq.get_pname()
+                            record_msg(self.logger, p_name + " " + name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
                                        " sh:" + str(get_four_five(sharp)) + " d:" +str(get_four_five(maxdown)) + " so:" +\
                                        str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
         except Exception, e:
