@@ -4,7 +4,7 @@ import time, sys
 from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
@@ -25,6 +25,7 @@ class XqTrade(CNTrade):
         # 每日更新
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
+        self.all_stocks_data = None
         self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
 
 
@@ -108,7 +109,7 @@ class XqTrade(CNTrade):
 
     def trade(self):
         for k in self.portfolio_list.keys():
-            try:
+            # try:
                 self.xq.set_attr("portfolio_code", k)
                 time.sleep(10)
                 entrust = self.xq.get_xq_entrust_checked()
@@ -117,16 +118,16 @@ class XqTrade(CNTrade):
                 percent = self.portfolio_list[k]["percent"]
                 self.trade_by_entrust(entrust, k, factor, percent)
 
-            except Exception, e:
-                msg = "xq:" + str(e.message)
-                record_msg(logger=self.logger, msg=msg, email=self.email)
-                return -1
+            # except Exception, e:
+            #     msg = "xq:" + str(e.message)
+            #     record_msg(logger=self.logger, msg=msg, email=self.email)
+            #     return -1
 
     def main(self):
         while 1:
             self.update_para()
-            # while is_trade_time(TEST_STATE, self.trade_time):
-            #     self.trade()
+            while is_trade_time(TEST_STATE, self.trade_time):
+                self.trade()
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import json
 import urllib
 import zlib
 import traceback
-import requests
+# import requests
 import six
 
 import requests
@@ -243,7 +243,7 @@ class XueQiuTrader(WebTrader):
             'count': 5,
             'page': 1
         }
-        r = self.requests.get(self.config['history_url'], headers=self.headers, cookies=self.cookies, params=data)
+        r = self.session.get(self.config['history_url'], headers=self.headers, cookies=self.cookies, params=data)
         r = json.loads(r.text)
         return r['list']
 
