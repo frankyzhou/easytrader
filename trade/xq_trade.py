@@ -5,7 +5,7 @@ import time, re, sys, datetime
 from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
@@ -63,7 +63,10 @@ class XqTrade(CNTrade):
             del position_yjb[:]
             position_yjb = byteify(eval(self.client.exec_order("get_position_all")))
             self.update_portfolio(position=position_yjb)
+
+            amount_db = self.position_db.get_position_by_stock(portfolio=k, code=code)  # 获得策略组合中股票仓位
             before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position_stock " + code))
+            enable_amount = min(amount_db, enable_amount)  # 防止操作别的组合额度
             before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
                                                        before_percent_yjb, asset, factor, code, trade)
@@ -71,6 +74,8 @@ class XqTrade(CNTrade):
             result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
+            self.update_operation(p=k, code=code, volume=amount * (dif / abs(dif)) if dif != 0 else 0)
+            self.position_db.write_position(coll=POSITION)  # 写回数据库，防止丢失
             self.db.insert_doc(COLLECTION, trade)
 
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):

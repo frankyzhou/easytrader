@@ -130,3 +130,4 @@ class CNTrade(object):
         if len(need_delete):
             for p in need_delete:
                 self.position_db.position["portfolio"].pop(p)
+
