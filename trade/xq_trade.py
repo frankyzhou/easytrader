@@ -51,7 +51,10 @@ class XqTrade(CNTrade):
             record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
-            target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
+            # target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
+            target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
+                else trade["target_weight"] * percent /100
+            # 防止进入仓位1%，认为是卖出
             """
             before_percent has two version.
             1.the position is caled by yjb;
