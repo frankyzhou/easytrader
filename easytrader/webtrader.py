@@ -7,14 +7,12 @@ from threading import Thread
 import six
 
 from . import helpers
-
+from .log import log
 if six.PY2:
     import sys
 
     reload(sys)
     sys.setdefaultencoding('utf8')
-
-log = helpers.get_logger(__file__)
 
 
 class NotLoginError(Exception):
@@ -32,11 +30,8 @@ class WebTrader(object):
         self.trade_prefix = self.config['prefix']
         self.account_config = ''
         self.heart_active = True
-        if six.PY2:
-            self.heart_thread = Thread(target=self.send_heartbeat)
-            self.heart_thread.setDaemon(True)
-        else:
-            self.heart_thread = Thread(target=self.send_heartbeat, daemon=True)
+        self.heart_thread = Thread(target=self.send_heartbeat)
+        self.heart_thread.setDaemon(True)
 
     def set_attr(self, key, value):
         self.account_config[key] = value
@@ -58,7 +53,6 @@ class WebTrader(object):
         :param need_data 登录所需数据
         """
         self.read_config(need_data)
-
         self.autologin()
 
     def autologin(self, limit=3):
@@ -180,7 +174,11 @@ class WebTrader(object):
         request_params = self.create_basic_params()
         request_params.update(params)
         response_data = self.request(request_params)
-        format_json_data = self.format_response_data(response_data)
+        try:
+            format_json_data = self.format_response_data(response_data)
+        except:
+            # Caused by server force logged out
+            return None
         return_data = self.fix_error_data(format_json_data)
         try:
             self.check_login_status(return_data)

@@ -1,0 +1,9 @@
+requests
+demjson
+anyjson
+dill
+click
+six
+flask
+Pillow
+pytesseract

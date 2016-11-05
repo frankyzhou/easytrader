@@ -49,9 +49,8 @@ class catch_strategy:
                 info_list = self.xq.get_xq_strategy(key)
                 print info_list[0]
                 time.sleep(5)
-            except:
-                traceback.print_exc()
-
+            except Exception, e:
+                print e
 
     def main(self):
         while(1):

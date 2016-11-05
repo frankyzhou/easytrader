@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from setuptools import setup
 
 import easytrader
@@ -90,7 +89,6 @@ setup(
         install_requires=[
             'demjson',
             'requests',
-            'logbook',
             'anyjson',
             'six'
         ],
