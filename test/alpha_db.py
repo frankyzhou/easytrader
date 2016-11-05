@@ -6,7 +6,7 @@ DB_NAME = "seek_alpha"
 COLLECTION = "xueqiu"
 db = MongoDB(DB_NAME)
 path = os.getcwd()
-result_file = open("Result.csv", "w")
+result_file = open("logs/ALL_1.csv", "w")
 count = 0
 
 
@@ -60,11 +60,13 @@ for i in db.db[COLLECTION].find():
     start_time = datetime.datetime.strptime(i["start_time"], "%Y-%M-%d")
     delta = now - start_time
     del i["_id"]
-    if i["market"] == "SH" and i["fans"] > 10 and i["status"] == 1 and\
+    # if i["market"] == "SH, SP, HK"
+    if i["fans"] > 0 and i["status"] == 1 and\
             int(i["trade_times"]) < 300 and i["drawdown"] < 0.7 and \
             delta > datetime.timedelta(days=365):
         grade = i["alpha"] + i["sharp"]
-        if abs(grade) < 50 and i["code"] not in factor_id_set:
+        if 2 < abs(grade) < 50 and i["code"] not in factor_id_set:
+            # if i["code"] not in factor_id_set:
             i["grade"] = grade
             factor_dict.append(i)
             factor_id_set.add(i["code"])

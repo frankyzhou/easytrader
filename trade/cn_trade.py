@@ -29,6 +29,7 @@ class CNTrade(object):
                 self.trade_time = get_date_now("CN")
                 self.is_update_stocks = False
                 self.all_stocks_data = None
+                self.is_update_ports = False
 
     def trade(self, dif, code, price, amount, enable_amount):
         """

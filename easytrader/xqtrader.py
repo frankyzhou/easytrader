@@ -13,6 +13,8 @@ from trade.util import *
 import time
 import helpers
 import os
+import traceback
+
 if six.PY2:
     import urllib2
 
@@ -173,8 +175,8 @@ class XueQiuTrader(WebTrader):
         try:
             url = self.config['portfolio_url'] + portfolio_code
             html = self.__get_html(url)
-        except Exception, e:
-            print e
+        except:
+            traceback.print_exc()
         return html
 
     def get_portfolio_html(self, portfolio_code):
@@ -216,7 +218,8 @@ class XueQiuTrader(WebTrader):
         try:
             ltime = time.localtime(time_stamp/1000)
             return time.strftime("%Y-%m-%d %H:%M:%S", ltime)
-        except :
+        except:
+            traceback.print_exc()
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     def get_position(self):

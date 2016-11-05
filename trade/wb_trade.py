@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*
 import easytrader
-from trade.util import *
-import time, re, sys, datetime
+import time, sys
 from cn_trade import *
+import traceback
 # declare basic vars
 TEST_STATE = False
 DB_NAME = "Weibo"
@@ -15,6 +15,7 @@ class WBTrade(CNTrade):
         super(WBTrade, self).__init__()
         # 固定部分
         self.wb = easytrader.use('wb')
+        self.wb.prepare("config/wb.json")
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(DB_NAME)
         self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
@@ -79,6 +80,7 @@ class WBTrade(CNTrade):
             for key in list.keys():
                 self.wb.set_attr("portfolio_code", key)
                 list[key]["capital"] = self.wb.get_capital()
+                time.sleep(5)
             state = True
         return state, list
 
@@ -88,13 +90,12 @@ class WBTrade(CNTrade):
             if is_trade_time(TEST_STATE, self.trade_time):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
                                                                                  self.all_stocks_data)
-                # self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
-                                                                                # self.portfolio_list)
+                self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
+                                                                                self.portfolio_list)
                 for k in self.portfolio_list.keys():
                     try:
                         self.wb.set_attr("portfolio_code", k)
-                        time.sleep(10)
-                        # entrust = self.xq.get_xq_entrust_checked()
+                        time.sleep(5) # 5 + get_json 5 = 10
 
                         factor = self.portfolio_list[k]["factor"]
                         percent = self.portfolio_list[k]["percent"]
@@ -104,6 +105,7 @@ class WBTrade(CNTrade):
                         self.trade_by_entrust(entrust, k, factor, percent, capital)
 
                     except Exception, e:
+                        traceback.print_exc()
                         msg = "xq:" + str(e.message)
                         record_msg(logger=self.logger, msg=msg, email=self.email)
                         return -1

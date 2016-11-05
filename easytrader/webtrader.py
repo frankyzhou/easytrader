@@ -58,9 +58,10 @@ class WebTrader(object):
         :param need_data 登录所需数据
         """
         self.read_config(need_data)
+
         self.autologin()
 
-    def autologin(self, limit=10):
+    def autologin(self, limit=3):
         """实现自动登录
         :param limit: 登录次数限制
         """
