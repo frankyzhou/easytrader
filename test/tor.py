@@ -3,7 +3,7 @@ import time
 import socket
 import socks
 import httplib
-import win_inet_pton
+# import win_inet_pton
 from stem import Signal
 from stem.control import Controller
 

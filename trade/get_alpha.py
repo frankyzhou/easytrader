@@ -51,30 +51,94 @@ def analyse_profit(profit_list):
     return a
 
 
-def get_cov(a, b):
-    """
-    获取a,b的协方差，取（0，1）或者（1，0）
-    :param a:
-    :param b:
-    :return:
-    """
-    size = min(a.size, b.size)
-    r = np.cov(a[-size:], b[-size:])
-    r = r[0][1]
-    return r
-
-
-def get_volatility(p):
+def cal_volatility(p):
     """对中国股票市场而言，月标准差为日标准差乘以根号20；
     年标准差为日标准差乘以根号240.按照实际交易日来计算而不是日历时间来计算"""
     return np.std(p) * np.sqrt(YEAR_TRADE_DAYS)
 
 
+def cal_max_drawdown(p_series):
+    # fig = plt.figure()
+    # p_series.plot()
+
+    p = p_series.values
+    cur_md = 0
+    cur_mx = 0
+    position = [0, 0]
+    for i in range(len(p)):
+        cur_mx = p[i] if p[i] > cur_mx else cur_mx
+        # if p[i] > cur_mx:
+        #     cur_mx = p[i]
+        #     position[0] = i
+        md = float(p[i] - cur_mx) / cur_mx
+        cur_md = md if md < cur_md else cur_md
+        # if md < cur_md:
+        #     cur_md = md
+        #     position[1] = i
+    # plt.scatter(position[0], p[position[0]], edgecolors="red")
+    # plt.scatter(position[1], p[position[1]], edgecolors="red")
+    # fig.savefig("../logs/pic/" + p_name + ".jpg")
+    return -cur_md
+
+
+def cal_beta(p, b):
+    if len(p) <= 1:
+        return 0.
+    cov = np.cov(np.vstack([p, b]), ddof=1)
+    beta = cov[0][1] / cov[1][1]
+
+    return beta
+
+
+def cal_alpha(p_annua_profit, b_annua_profit, unrisk_rate, beta):
+
+    return p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
+
+
+def cal_sharp(p_annua_profit, unrisk_rate, volatility):
+
+    return (p_annua_profit - unrisk_rate) / volatility
+
+
+def cal_downside_risk(p, b):
+    mask = p < b
+    diff = p[mask] - b[mask]
+    if len(diff) <= 1:
+        return 0.
+
+    return (diff * diff).sum() / len(diff) ** 0.5 * YEAR_TRADE_DAYS ** 0.5
+
+
+def cal_sortino(p_annua_profit, unrisk_rate, downside_risk):
+
+    sortino = (p_annua_profit - unrisk_rate) / downside_risk
+    return sortino
+
+
+def align_series(p, b):
+    if len(p) != len(b):
+        while 1:
+            diff = p["date"] - b["date"]
+            diff_date = diff[diff != datetime.timedelta(days=0)]
+            if len(diff_date) > 0:
+                i = diff_date.index[0]
+                if diff_date.iloc[0] > datetime.timedelta(days=0):
+                    b.drop(b.index[i], inplace=True)
+                    b.index = range(len(b))
+                else:
+                    p.drop(p.index[i], inplace=True)
+                    p.index = range(len(p))
+            else:
+                break
+    return p, b
+
+
 class GetAlpha(CNTrade):
     def __init__(self):
         self.xq = easytrader.use('xq')
-        self.xq.prepare('config/xq2.json')
+        self.xq.prepare('config/xq3.json')
         self.trade_time = get_date_now("CN")
+        self.email = Email()
 
     def get_para_by_portfolio(self, p_name):
         self.xq.set_attr("portfolio_code", p_name)
@@ -82,21 +146,25 @@ class GetAlpha(CNTrade):
         p, b = self.xq.get_profit_daily()
         if p and b:
             p, b = analyse_profit(p), analyse_profit(b)
+            p, b = align_series(p, b)
             p_annua_profit = get_annualized_returns(p)
             b_annua_profit = get_annualized_returns(b)
-            cov = get_cov(p["daily"].values, b["daily"].values)
-            beta = cov / np.var(b["daily"].values)  #方差
-            alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
-            volatility = get_volatility(p["daily"].values)
-            sharp = (p_annua_profit - unrisk_rate) / volatility
+
+            beta = cal_beta(p["daily"].values, b["daily"].values)
+            alpha = cal_alpha(p_annua_profit, b_annua_profit, unrisk_rate, beta)
+            volatility = cal_volatility(p["daily"].values)
+            sharp = cal_sharp(p_annua_profit, unrisk_rate, volatility)
+            maxdown = cal_max_drawdown(p["daily"].values)
+
             print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + \
-                  " sharp:" + str(sharp) + " volatility:" + str(volatility)
+                  " sharp:" + str(sharp) + " volatility:" + str(volatility) + " maxdown:" + str(maxdown)
 
     def main(self, s, e):
         self.logger = get_logger(COLLECTION, name=str(s)+"-"+str(e))
         s = int(s)
         e = int(e)
         tmp = s
+
         try:
             for no in range(s, e):
                 self.update_para()
@@ -112,21 +180,30 @@ class GetAlpha(CNTrade):
                     if len(p) > 0 and len(b) > 0:
                         start_date = p[0]["date"]
                         p, b = analyse_profit(p), analyse_profit(b)
-                        p_annua_profit = get_annualized_returns(p)
-                        b_annua_profit = get_annualized_returns(b)
-                        cov = get_cov(p["daily"].values, b["daily"].values)
-                        beta = cov / np.var(b["daily"].values)  #方差
-                        alpha = p_annua_profit - (unrisk_rate + beta * (b_annua_profit - unrisk_rate))
-                        volatility = get_volatility(p["daily"].values)
-                        sharp = (p_annua_profit - unrisk_rate) / volatility
-                        
+                        p, b = align_series(p, b)
+                        p_value, b_value = p["daily"].values, b["daily"].values
+                        p_annua_profit   = get_annualized_returns(p)
+                        b_annua_profit   = get_annualized_returns(b)
+
+                        beta       = cal_beta(p_value, b_value)
+                        alpha      = cal_alpha(p_annua_profit, b_annua_profit, unrisk_rate, beta)
+                        volatility = cal_volatility(p_value)
+                        sharp      = cal_sharp(p_annua_profit, unrisk_rate, volatility)
+                        maxdown    = cal_max_drawdown(p["value"])
+                        downside   = cal_downside_risk(p["daily"], b["daily"])
+                        sortino    = cal_sortino(p_annua_profit, unrisk_rate, downside)
                         if alpha > 0 and sharp > 0:
-                            viewer = self.xq.get_viewer(p_name)
+                            self.xq.get_portfolio_html(p_name)
+                            viewer = self.xq.get_viewer()
+                            is_stop = self.xq.is_stop()
+                            trade_times =self.xq.get_tradetimes()
+                            state = "stop" if is_stop else "run"
                             record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
-                                       " s:" + str(get_four_five(sharp)) + " v:" + str(get_four_five(volatility)) + " " + str(market) +\
-                                       " " + str(start_date) + " " + str(viewer))
+                                       " sh:" + str(get_four_five(sharp)) + " d:" +str(get_four_five(maxdown)) + " so:" +\
+                                       str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
         except Exception, e:
-                print e
+                msg = "get_alpha " + str(e) 
+                record_msg(self.logger, msg=msg, email=self.email)
                 return tmp - 1
 
 if __name__ == '__main__':
@@ -144,5 +221,3 @@ if __name__ == '__main__':
             time.sleep(60*10)
         else:
             break
-    # for p in portfolio_list:
-        # a.get_para_by_portfolio(p)

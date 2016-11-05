@@ -51,10 +51,10 @@ def get_four_five(num, pre=3):
 def get_date_now(country):
     now_time = datetime.datetime.now()
     if country == "CN":
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
-        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 32, 0)
-        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 12, 58, 0)
-        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 02, 0)
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 30, 0)
+        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 30, 0)
+        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 13, 00, 0)
+        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 00, 0)
 
     elif country == "US":
         offsize = 0 if now_time.hour < 4 else 1
