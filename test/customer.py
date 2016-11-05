@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'frankyzhou'
-import socket, sys
+import socket, sys, re
+
 
 # Step1: 输入host和port信息
 host = "127.0.0.1"
@@ -24,8 +25,9 @@ while 1:
 
     # Step5: 接收服务器发过来的数据
     print "Looking for replies; press Ctrl-C or Ctrl-Break to stop"
-
+    s.settimeout(10)
     buf = s.recv(2048)
     if not len(buf): break
     sys.stdout.write(buf)
+
     print "\n"

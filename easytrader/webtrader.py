@@ -38,6 +38,12 @@ class WebTrader(object):
         else:
             self.heart_thread = Thread(target=self.send_heartbeat, daemon=True)
 
+    def set_attr(self, key, value):
+        self.account_config[key] = value
+
+    def get_attr(self, key):
+        return self.account_config[key]
+
     def read_config(self, path):
         try:
             self.account_config = helpers.file2dict(path)
