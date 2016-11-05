@@ -1,6 +1,6 @@
 # coding: utf-8
 from bs4 import BeautifulSoup
-
+import helpers
 from .webtrader import WebTrader
 import time
 import os
@@ -9,7 +9,7 @@ import json
 import re
 from selenium import webdriver
 import traceback
-
+log = helpers.get_logger(__file__)
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 
 
@@ -19,7 +19,7 @@ class WBTrader(WebTrader):
     def __init__(self):
         super(WBTrader, self).__init__()
         self.portfolio = ""
-        self.account_config = {}
+        # self.account_config = {}
         self.request = requests
         self.multiple = 1000000
         self.driver = webdriver.PhantomJS()
@@ -34,13 +34,13 @@ class WBTrader(WebTrader):
             
             name_field = self.driver.find_element_by_id('loginname')
             name_field.clear()
-            name_field.send_keys('752649673@qq.com')
+            name_field.send_keys(self.account_config['account'])
             password_field = self.driver.find_element_by_name('password')
             password_field.clear()
-            password_field.send_keys('zljabhbhwan37')
+            password_field.send_keys(self.account_config['password'])
             submit = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[6]/a")
             submit.click()
-            print "has login!"
+            log.info("weibo has login!")
             self.driver.get("http://m.weibo.cn")
             time.sleep(5)
             return True

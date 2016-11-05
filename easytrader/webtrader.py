@@ -143,7 +143,7 @@ class WebTrader(object):
         """获取当日委托列表"""
         # return self.do(self.config['current_deal'])
         # TODO 目前仅在 佣金宝子类 中实现
-        log.info('目前仅在 佣金宝/银河子类 中实现, 其余券商需要补充')
+        # log.info('目前仅在 佣金宝/银河子类 中实现, 其余券商需要补充')
 
     @property
     def exchangebill(self):
@@ -163,7 +163,7 @@ class WebTrader(object):
         :return:
         """
         # TODO 目前仅在 华泰子类 中实现
-        log.info('目前仅在 华泰子类 中实现, 其余券商需要补充')
+        # log.info('目前仅在 华泰子类 中实现, 其余券商需要补充')
 
     def ipo_enable_amount(self, stock_code):
         """
@@ -172,7 +172,7 @@ class WebTrader(object):
         :return:
         """
         # TODO 目前仅在 佣金宝 中实现
-        log.info('目前仅在 佣金宝子类 中实现, 其余券商需要补充')
+        # log.info('目前仅在 佣金宝子类 中实现, 其余券商需要补充')
 
     def do(self, params):
         """发起对 api 的请求并过滤返回结果
