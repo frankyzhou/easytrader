@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*
 import easytrader
-from trade.util import *
-import time, re, sys, datetime
+import time, sys
 from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
@@ -26,8 +25,9 @@ class XqTrade(CNTrade):
         # 每日更新
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
-        self.is_update_stocks = False
         self.all_stocks_data = None
+        self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
+
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         """
@@ -51,7 +51,10 @@ class XqTrade(CNTrade):
             record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
-            target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
+            # target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
+            target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
+                else trade["target_weight"] * percent /100
+            # 防止进入仓位1%，认为是卖出
             """
             before_percent has two version.
             1.the position is caled by yjb;
@@ -107,26 +110,28 @@ class XqTrade(CNTrade):
 
         return dif, price, amount
 
+    def trade(self):
+        for k in self.portfolio_list.keys():
+            # try:
+                self.xq.set_attr("portfolio_code", k)
+                time.sleep(10)
+                entrust = self.xq.get_xq_entrust_checked()
+
+                factor = self.portfolio_list[k]["factor"]
+                percent = self.portfolio_list[k]["percent"]
+                self.trade_by_entrust(entrust, k, factor, percent)
+
+            # except Exception, e:
+            #     msg = "xq:" + str(e.message)
+            #     record_msg(logger=self.logger, msg=msg, email=self.email)
+            #     return -1
+
     def main(self):
         while 1:
             self.update_para()
-            if is_trade_time(TEST_STATE, self.trade_time):
-                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
-                                                                                 self.all_stocks_data)
-                for k in self.portfolio_list.keys():
-                    try:
-                        self.xq.set_attr("portfolio_code", k)
-                        time.sleep(10)
-                        entrust = self.xq.get_xq_entrust_checked()
+            while is_trade_time(TEST_STATE, self.trade_time):
+                self.trade()
 
-                        factor = self.portfolio_list[k]["factor"]
-                        percent = self.portfolio_list[k]["percent"]
-                        self.trade_by_entrust(entrust, k, factor, percent)
-
-                    except Exception, e:
-                        msg = "xq:" + str(e.message)
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-                        return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

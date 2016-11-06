@@ -1,37 +1,16 @@
 # coding: utf-8
+from bs4 import BeautifulSoup
+import helpers
 from .webtrader import WebTrader
 import time
 import os
-from bs4 import BeautifulSoup
 import requests
 import json
 import re
-import base64
-
-
-def json_load_byteified(file_handle):
-    return _byteify(json.load(file_handle, object_hook=_byteify), ignore_dicts=True)
-
-
-def json_loads_byteified(json_text):
-    return _byteify(json.loads(json_text, object_hook=_byteify), ignore_dicts=True)
-
-
-def _byteify(data, ignore_dicts =False):
-    # if this is a unicode string, return its string representation
-    if isinstance(data, unicode):
-        return data.encode('utf-8')
-    # if this is a list of values, return list of byteified values
-    if isinstance(data, list):
-        return [_byteify(item, ignore_dicts=True) for item in data]
-    # if this is a dictionary, return dictionary of byteified keys and values
-    # but only if we haven't already byteified it
-    if isinstance(data, dict) and not ignore_dicts:
-        return {_byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-                for key, value in data.iteritems()
-                }
-    # if it's anything else, return it in its original form
-    return data
+from selenium import webdriver
+import traceback
+log = helpers.get_logger(__file__)
+chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 
 
 class WBTrader(WebTrader):
@@ -40,31 +19,54 @@ class WBTrader(WebTrader):
     def __init__(self):
         super(WBTrader, self).__init__()
         self.portfolio = ""
-        self.account_config = {}
+        # self.account_config = {}
         self.request = requests
         self.multiple = 1000000
+        self.driver = webdriver.PhantomJS()
         self.home_list = []
+
+    def login(self):
+        # self.driver = webdriver.Chrome(chromedriver)
+        try:
+            self.driver.get("http://weibo.com/u/1880546295")
+            time.sleep(10)
+            self.driver.maximize_window()
+            
+            name_field = self.driver.find_element_by_id('loginname')
+            name_field.clear()
+            name_field.send_keys(self.account_config['account'])
+            password_field = self.driver.find_element_by_name('password')
+            password_field.clear()
+            password_field.send_keys(self.account_config['password'])
+            submit = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[6]/a")
+            submit.click()
+            log.info("weibo has login!")
+            self.driver.get("http://m.weibo.cn")
+            time.sleep(5)
+            return True
+        except:
+            traceback.print_exc()
+            return False
 
     def update_driver(self, url, sec=10):
         self.driver.get(url)
         time.sleep(sec)
 
     def get_home(self):
-        # self.driver.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
-        response = self.request.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
+        self.driver.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
+        # response = self.request.get(self.config["portfolio"] + self.get_attr("portfolio_code"))
         # bsObj = BeautifulSoup(self.driver.page_source, "lxml")
         # self.home_list = bsObj.findAll("div", {"class": "card card11 ctype-1"})
-        self.history_json = json.loads(response.text)
+        # self.history_json = json.loads(response.text)
 
     def get_capital(self):
-        self.get_home()
-        p1 = re.compile(r"\d+\.\d+")
-        return float(p1.findall(self.home_list[1].text)[2]) * self.multiple
-
+        info_json = self.get_json(self.config["portfolio"] + self.get_attr("portfolio_code"))
+        # return float(p1.findall(self.home_list[1].text)[2]) * self.multiple
+        return (float(info_json["cards"][0]["card_group"][1]["group"][1]["item_title"]) + 1) * self.multiple
+    
     def get_entrust(self):
-        response = self.request.get(self.config["entrust_prefix"] + self.get_attr("portfolio_code") +
+        msg = self.get_json(self.config["entrust_prefix"] + self.get_attr("portfolio_code") +
                         self.config["entrust_fix"] + "1")
-        msg = json_loads_byteified(response.text)
         entrust = msg["cards"][0]["card_group"]
         p1 = re.compile(r"\d+\-\d+\-\d+")
         p2 = re.compile(r"\d+\:\d+")
@@ -85,8 +87,24 @@ class WBTrader(WebTrader):
                     del e[key]
 
         return entrust
-
-    #def get_capital(self):
+    
+    def get_json(self, url, limit=3):
+        times = 1
+        while times < limit:
+            self.driver.get(url)
+            time.sleep(5)
+            try:
+                bsObj = BeautifulSoup(self.driver.page_source, "lxml")
+                info_json = json.loads(bsObj.text)
+                return info_json
+            except:
+                traceback.print_exc()
+                self.login()
+                times += 1
+                time.sleep(10)
+                
+        return "wrong"
+            
 
 
 

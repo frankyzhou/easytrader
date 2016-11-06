@@ -80,12 +80,6 @@ def is_trade_time(test, trade_time):
 def get_trade_date_series(country):
     # get the data of 000001 by tushare
     if country == "CN":
-        # now = datetime.datetime.today()
-        # before = now - datetime.timedelta(days=30)
-        # start = before.strftime("%Y-%m-%d")
-        # end = now.strftime("%Y-%m-%d")
-        # df = ts.get_hist_data(code='sh', start=start, end=end)
-        # date_cn = datetime.datetime.strptime(df.index.values[0],"%Y-%m-%d") + datetime.timedelta(hours=15, minutes=5)
         df = ts.get_realtime_quotes("sh")
         date_cn = datetime.datetime.strptime(df["date"].values[0].encode("utf8"), "%Y-%m-%d") + datetime.timedelta(hours=9, minutes=25)
         return date_cn
@@ -97,20 +91,27 @@ def get_trade_date_series(country):
         return date_us
 
 
-def get_logger(COLLECTION, name=None):
-    TIME = datetime.datetime.now().strftime("%Y-%m-%d")
-    NAME = "-" + name if name else ""
-    LOG_FILE = '../logs/' + COLLECTION + "/" + TIME + NAME + '.log'
-    handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024*1024*100, backupCount=5) # 实例化handler
+def get_logger(collection, name=None):
+    time = datetime.datetime.now().strftime("%Y-%m-%d")
+    name = "-" + name if name else ""
+    logfile = '../logs/' + collection + "/" + time + name + '.log'
 
-    fmt = '%(asctime)s %(levelname)s %(message)s'
-    formatter = logging.Formatter(fmt)   # 实例化formatter
-    handler.setFormatter(formatter)      # 为handler添加formatter
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M',
+                        filename=logfile,
+                        filemode='w')
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(filename)s %(lineno)s: %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
 
-    logger = logging.getLogger('tst')    # 获取名为tst的logger
-    logger.addHandler(handler)           # 为logger添加handler
-    logger.setLevel(logging.DEBUG)
-
+    logger = logging.getLogger(collection)
     return logger
 
 
@@ -118,8 +119,7 @@ def record_msg(logger, msg, email=None):
     if type(msg).__name__ != "unicode":
         msg = unicode(msg, "utf-8")
     logger.info(msg)
-    print msg
-    if email!=None:
+    if email:
         email.send_email(msg)
 
 
@@ -171,30 +171,27 @@ def is_trade_day(last_trade_time):
     return now.month == last_trade_time.month and now.day == last_trade_time.day
 
 
-class client():
-    def __init__(self, host):
-        self.client = self.get_client(host=host)
+def get_client(host='127.0.0.1', textport=51500, timeout=15):
+    # 如果超时一般都是交易端有故障，抛出异常，邮件提示
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        port = int(textport)
+    except ValueError:
+        port = socket.getservbyname(textport, 'udp')
+    s.connect((host, port))
+    s.settimeout(timeout)
+    return s
 
-    def get_client(self, host='127.0.0.1', textport=51500, timeout=15):
-        # Step1: 输入host和port信息
-        # host = "127.0.0.1"
-        # textport = 51500
-        # Step2: 创建socket对象
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            port = int(textport)
-        except ValueError:
-            port = socket.getservbyname(textport, 'udp')
-        # Step3: 打开socket连接
-        s.connect((host, port))
-        s.settimeout(timeout)
-        return s
+
+class client:
+    def __init__(self, host):
+        self.client = get_client(host=host)
 
     def exec_order(self, order):
         self.client.sendall(order)
-        # print "Looking for replies; press Ctrl-C or Ctrl-Break to stop"
         buf = self.client.recv(2048)
-        if not len(buf): return "No data"
+        if not len(buf):
+            return "No data"
         return str(buf)
 
 

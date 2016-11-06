@@ -6,6 +6,7 @@ import time
 from trade.cn_trade import CNTrade
 from util import *
 import sys
+import traceback
 # import matplotlib.pyplot as plt
 
 TEST_STATE = False
@@ -198,12 +199,14 @@ class GetAlpha(CNTrade):
                             is_stop = self.xq.is_stop()
                             trade_times =self.xq.get_tradetimes()
                             state = "stop" if is_stop else "run"
-                            record_msg(self.logger, p_name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
+                            name = self.xq.get_pname()
+                            record_msg(self.logger, p_name + " " + name + ": a:" + str(get_four_five(alpha)) + " b:" + str(get_four_five(beta)) +\
                                        " sh:" + str(get_four_five(sharp)) + " d:" +str(get_four_five(maxdown)) + " so:" +\
                                        str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
-        except Exception, e:
+        except Exception as e:
                 msg = "get_alpha " + str(e) 
                 record_msg(self.logger, msg=msg, email=self.email)
+                traceback.print_exc()
                 return tmp - 1
 
 if __name__ == '__main__':

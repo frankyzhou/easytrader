@@ -6,6 +6,7 @@ from trade.util import *
 from easytrader.MongoDB import *
 import time
 import types
+import traceback
 
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "strategy"
@@ -54,7 +55,7 @@ class catch_strategy:
     def main(self):
         while(1):
             if is_trade_time(test=TEST_STATE, trade_time=self.trade_time):
-                # try:
+                try:
                     time.sleep(5)
                     info_list = self.xq.get_xq_strategy("9")
                     for info in info_list:
@@ -64,12 +65,12 @@ class catch_strategy:
                                 record_msg(logger=self.logger, msg=msg)
                             self.db.insert_doc(COLLECTION, info)
 
-                # except Exception, e:
-                #     msg = "catch: " + e.message
-                #     record_msg(logger=self.logger, msg=msg, email=self.email)
-                #
-                #     time.sleep(60)
-                #     self.xq.autologin()
+                except Exception, e:
+                    msg = "catch: " + e.message
+                    record_msg(logger=self.logger, msg=msg, email=self.email)
+                    traceback.print_exc()
+                    time.sleep(60)
+                    self.xq.autologin()
 
 if __name__ == "__main__":
     e = catch_strategy()
