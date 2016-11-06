@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 import helpers
 from .webtrader import WebTrader
+from .log import log
 import time
 import os
 import requests
@@ -9,7 +10,6 @@ import json
 import re
 from selenium import webdriver
 import traceback
-log = helpers.get_logger(__file__)
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 
 

@@ -11,7 +11,7 @@ import requests
 from six.moves.urllib.parse import urlencode
 
 from .log import log
-from .webtrader import NotLoginError, TradeError
+from .webtrader import NotLoginError
 from .webtrader import WebTrader
 from trade.util import *
 import time
