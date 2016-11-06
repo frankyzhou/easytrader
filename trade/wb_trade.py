@@ -104,7 +104,7 @@ class WBTrade(CNTrade):
                         self.trade_by_entrust(entrust, k, factor, percent, capital)
 
                     except Exception, e:
-                        msg = "xq:" + str(e.message)
+                        msg = "wb:" + str(e.message)
                         record_msg(logger=self.logger, msg=msg, email=self.email)
                         return -1
 
