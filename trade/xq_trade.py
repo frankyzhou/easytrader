@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*
 import easytrader
 import time, sys
+import traceback
 from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = True
+TEST_STATE = False
 XUEQIU_DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
@@ -112,7 +113,7 @@ class XqTrade(CNTrade):
 
     def trade(self):
         for k in self.portfolio_list.keys():
-            # try:
+            try:
                 self.xq.set_attr("portfolio_code", k)
                 time.sleep(10)
                 entrust = self.xq.get_xq_entrust_checked()
@@ -121,10 +122,11 @@ class XqTrade(CNTrade):
                 percent = self.portfolio_list[k]["percent"]
                 self.trade_by_entrust(entrust, k, factor, percent)
 
-            # except Exception, e:
-            #     msg = "xq:" + str(e.message)
-            #     record_msg(logger=self.logger, msg=msg, email=self.email)
-            #     return -1
+            except Exception, e:
+                msg = "xq:" + str(e.message)
+                traceback.print_exc()
+                record_msg(logger=self.logger, msg=msg, email=self.email)
+                return -1
 
     def main(self):
         while 1:
