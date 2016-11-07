@@ -8,10 +8,16 @@ import os
 import requests
 import json
 import re
+from PIL import Image
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import traceback
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
-
+# profile = "C:\Users\frankyzhou\AppData\Local\Google\Chrome\User Data\Profile 1"
+# options = webdriver.ChromeOptions()
+# options.add_argument("--user-data-dir=C:\Users\\frankyzhou\AppData\Local\Google\Chrome\User Data\Profile 1")
+# options.add_argument('--profile-directory=Default')
+# fp = webdriver.FirefoxProfile()
 
 class WBTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/wb.json'
@@ -22,11 +28,12 @@ class WBTrader(WebTrader):
         # self.account_config = {}
         self.request = requests
         self.multiple = 1000000
-        self.driver = webdriver.PhantomJS()
+        # self.driver = webdriver.PhantomJS()
         self.home_list = []
 
     def login(self):
-        self.driver = webdriver.Chrome(chromedriver)
+        self.driver = webdriver.Chrome(executable_path=chromedriver)
+        # self.driver = webdriver.Firefox(executable_path="C:\Program Files (x86)\Mozilla Firefox\\browser\geckodriver.exe", firefox_profile=fp)
         try:
             self.driver.get("http://weibo.com/u/1880546295")
             time.sleep(10)
@@ -38,15 +45,26 @@ class WBTrader(WebTrader):
             password_field = self.driver.find_element_by_name('password')
             password_field.clear()
             password_field.send_keys(self.account_config['password'])
-            try:
-                verify_pic = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[3]/a/img")
-                verify_pic.screenshot("vcode.jpg")
-            except:
-                log.warn("not verifycode in this page!")
-            submit = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[6]/a")
-
-            submit.click()
-            log.info("weibo has login!")
+            isLogged = False
+            while not isLogged:
+                try:
+                    verify_pic = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[3]/a/img")
+                    verify_pic.screenshot("login.png")
+                    location = verify_pic.location  # 获取验证码x,y轴坐标
+                    size = verify_pic.size  # 获取验证码的长宽
+                    rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
+                              int(location['y'] + size['height']))  # 写成我们需要截取的位置坐标
+                    i = Image.open("login.png")  # 打开截图
+                    frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取我们需要的区域
+                    frame4.save('vcode.jpg')
+                    code = raw_input("please input vcode: ")
+                except:
+                    log.info("not verifycode in this page!")
+                submit = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[6]/a")
+                submit.click()
+                if self.driver.title.find("我的首页") == 0:
+                    isLogged = True
+                    log.info("weibo has login!")
             self.driver.get("http://m.weibo.cn")
             time.sleep(5)
             return True

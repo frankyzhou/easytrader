@@ -12,7 +12,7 @@ import uuid
 import six
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
-
+import PIL
 from .log import log
 
 if six.PY2:
@@ -248,3 +248,12 @@ def get_today_ipo_data():
             })
 
     return today_ipo
+
+def open_img(image_name):
+    """打开图片
+    :param image_name: 图片的路径
+    :return:
+    """
+    im = Image.open(image_name)
+    im.show()
+    im.close()
