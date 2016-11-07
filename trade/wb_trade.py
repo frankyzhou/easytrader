@@ -88,8 +88,8 @@ class WBTrade(CNTrade):
         while 1:
             self.update_para()
             if is_trade_time(TEST_STATE, self.trade_time):
-                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
-                                                                                 self.all_stocks_data)
+                # self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
+                #                                                                  self.all_stocks_data)
                 self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
                                                                                 self.portfolio_list)
                 for k in self.portfolio_list.keys():
