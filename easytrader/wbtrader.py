@@ -26,7 +26,7 @@ class WBTrader(WebTrader):
         self.home_list = []
 
     def login(self):
-        # self.driver = webdriver.Chrome(chromedriver)
+        self.driver = webdriver.Chrome(chromedriver)
         try:
             self.driver.get("http://weibo.com/u/1880546295")
             time.sleep(10)
@@ -38,7 +38,13 @@ class WBTrader(WebTrader):
             password_field = self.driver.find_element_by_name('password')
             password_field.clear()
             password_field.send_keys(self.account_config['password'])
+            try:
+                verify_pic = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[3]/a/img")
+                verify_pic.screenshot("vcode.jpg")
+            except:
+                log.warn("not verifycode in this page!")
             submit = self.driver.find_element_by_xpath("//*[@id=\"pl_login_form\"]/div/div[3]/div[6]/a")
+
             submit.click()
             log.info("weibo has login!")
             self.driver.get("http://m.weibo.cn")
@@ -62,7 +68,7 @@ class WBTrader(WebTrader):
     def get_capital(self):
         info_json = self.get_json(self.config["portfolio"] + self.get_attr("portfolio_code"))
         # return float(p1.findall(self.home_list[1].text)[2]) * self.multiple
-        return (float(info_json["cards"][0]["card_group"][1]["group"][1]["item_title"]) + 1) * self.multiple
+        return float(info_json["cards"][0]["card_group"][1]["group"][1]["item_title"]) * self.multiple
     
     def get_entrust(self):
         msg = self.get_json(self.config["entrust_prefix"] + self.get_attr("portfolio_code") +

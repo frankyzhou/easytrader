@@ -4,7 +4,7 @@ import time, sys
 from cn_trade import *
 import traceback
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 DB_NAME = "Weibo"
 COLLECTION = "history_operation"
 SLIP_POINT = 0.02
