@@ -12,14 +12,12 @@ SLIP_POINT = 0.02
 
 class WBTrade(CNTrade):
     def __init__(self, p):
-        super(WBTrade, self).__init__()
+        super(WBTrade, self).__init__(p=p)
         # 固定部分
         self.wb = easytrader.use('wb')
         self.wb.prepare("config/wb.json")
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(DB_NAME)
-        self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
-        self.portfolio_list = helpers.file2dict(self.p_path)
 
     def trade_by_entrust(self, entrust, k, factor, percent, capital):
         """
@@ -40,7 +38,7 @@ class WBTrade(CNTrade):
                     continue
 
             trade["portfolio"] = k
-            record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
+            record_msg(logger=self.logger, msg=k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"])
             capital_tmp = capital / percent
