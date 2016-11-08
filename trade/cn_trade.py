@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*
 from util import *
 import datetime
-
+import time
 
 class CNTrade(object):
     def __init__(self):
@@ -22,7 +22,7 @@ class CNTrade(object):
         """
         now_time = datetime.datetime.now()
         update_begin_1 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 27, 30)
-        update_begin_2 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 27, 35)
+        update_begin_2 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 27, 40)
         if update_begin_1 < now_time < update_begin_2:
             self.last_trade_time = get_trade_date_series("CN")
             if is_trade_day(self.last_trade_time):
@@ -30,6 +30,7 @@ class CNTrade(object):
                 self.is_update_stocks = False
                 self.all_stocks_data = None
                 self.is_update_ports = False
+        time.sleep(6)
 
     def trade(self, dif, code, price, amount, enable_amount):
         """
