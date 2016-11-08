@@ -11,6 +11,7 @@ import socket
 from decimal import Decimal
 import ast
 import re
+from easytrader.log import log
 
 # after the last trade day
 def is_today(report_time, last_trade_time):
@@ -23,9 +24,9 @@ def is_today(report_time, last_trade_time):
 
 def get_price_by_factor(all_stocks_data, code, price, factor):
     price = get_four_five(price*factor, 2)
-    stock = all_stocks_data[all_stocks_data.code == code]
-    values = stock.settlement.values
     try:
+        stock = all_stocks_data[all_stocks_data.code == code]
+        values = stock.settlement.values
         close_last = float(values)
         point = 0.1
         high_stop = get_four_five(close_last * (1+point), 2)
@@ -138,9 +139,10 @@ def get_server(host='', port=51500):
 def update_stocks_data(state, all_stocks):
     if not state:
         try:
-            print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             all_stocks = ts.get_today_all()
             state = True
+            print "\n"
+            log.info("updates stock data!")
         except Exception, e:
             print e
             all_stocks = None

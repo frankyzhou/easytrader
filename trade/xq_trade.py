@@ -67,7 +67,7 @@ class XqTrade(CNTrade):
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
                                                        before_percent_yjb, asset, factor, code, trade)
 
-            result = self.trade(dif, code, price,amount, enable_amount)
+            result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(COLLECTION, trade)
@@ -111,7 +111,7 @@ class XqTrade(CNTrade):
 
         return dif, price, amount
 
-    def trade(self):
+    def trade_entrust(self):
         for k in self.portfolio_list.keys():
             try:
                 self.xq.set_attr("portfolio_code", k)
@@ -132,7 +132,9 @@ class XqTrade(CNTrade):
         while 1:
             self.update_para()
             while is_trade_time(TEST_STATE, self.trade_time):
-                self.trade()
+                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
+                                                                                 self.all_stocks_data)
+                self.trade_entrust()
 
 
 if __name__ == '__main__':
