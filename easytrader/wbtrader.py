@@ -1,6 +1,5 @@
 # coding: utf-8
 from bs4 import BeautifulSoup
-import helpers
 from .webtrader import WebTrader
 from .log import log
 import time
@@ -8,14 +7,12 @@ import os
 import requests
 import json
 import re
-from PIL import Image
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import traceback
+
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 options = webdriver.ChromeOptions()
 options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
-# fp = webdriver.FirefoxProfile()
 
 class WBTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/wb.json'
@@ -23,7 +20,6 @@ class WBTrader(WebTrader):
     def __init__(self):
         super(WBTrader, self).__init__()
         self.portfolio = ""
-        # self.account_config = {}
         self.request = requests
         self.multiple = 1000000
         # self.driver = webdriver.PhantomJS()

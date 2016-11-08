@@ -27,7 +27,7 @@ class XqTrade(CNTrade):
         self.last_trade_time = get_trade_date_series("CN")
         self.trade_time = get_date_now("CN")
         self.all_stocks_data = None
-        self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
+        # self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
 
 
     def trade_by_entrust(self, entrust, k, factor, percent):
