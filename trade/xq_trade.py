@@ -49,7 +49,7 @@ class XqTrade(CNTrade):
                     continue
 
             trade["portfolio"] = k
-            record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
+            record_msg(logger=self.logger, msg= k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
             # target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
