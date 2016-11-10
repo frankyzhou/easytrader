@@ -104,7 +104,6 @@ class WBTrade(CNTrade):
                 msg = "wb:" + str(e.message)
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
-                return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
