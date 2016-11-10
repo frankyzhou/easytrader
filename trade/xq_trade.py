@@ -6,7 +6,7 @@ from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
 TEST_STATE = False
-XUEQIU_DB_NAME = "Xueqiu"
+DB_NAME = "Xueqiu"
 COLLECTION = "history_operation"
 SLIP_POINT = 0
 
@@ -14,20 +14,19 @@ SLIP_POINT = 0
 class XqTrade(CNTrade):
     def __init__(self, p):
         # 固定部分
+        super(XqTrade, self).__init__(p=p)
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
         self.xq.set_attr("portfolio_code", "ZH776826")
         self.logger = get_logger(COLLECTION)
-        self.db = MongoDB(XUEQIU_DB_NAME)
-        self.email = Email()
-        self.client = client(host="10.104.236.87")
-        self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
-        self.portfolio_list = helpers.file2dict(self.p_path)
-        # 每日更新
-        self.last_trade_time = get_trade_date_series("CN")
-        self.trade_time = get_date_now("CN")
-        self.all_stocks_data = None
-        self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
+        self.db = MongoDB(DB_NAME)
+
+        # 每日更新 都在cn_trade里
+        # self.last_trade_time = get_trade_date_series("CN")
+        # self.trade_time = get_date_now("CN")
+        # self.all_stocks_data = None
+        # self.is_update_stocks = False
+        # self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
 
 
     def trade_by_entrust(self, entrust, k, factor, percent):

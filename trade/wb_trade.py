@@ -12,14 +12,12 @@ SLIP_POINT = 0.02
 
 class WBTrade(CNTrade):
     def __init__(self, p):
-        super(WBTrade, self).__init__()
+        super(WBTrade, self).__init__(p=p)
         # 固定部分
         self.wb = easytrader.use('wb')
         self.wb.prepare("config/wb.json")
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(DB_NAME)
-        self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
-        self.portfolio_list = helpers.file2dict(self.p_path)
 
     def trade_by_entrust(self, entrust, k, factor, percent, capital):
         """
@@ -40,7 +38,7 @@ class WBTrade(CNTrade):
                     continue
 
             trade["portfolio"] = k
-            record_msg(logger=self.logger, msg="-"*50 + "\n" + k + " updates new operation!" +
+            record_msg(logger=self.logger, msg=k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"])
             capital_tmp = capital / percent
@@ -86,29 +84,27 @@ class WBTrade(CNTrade):
 
     def main(self):
         while 1:
-            self.update_para()
-            if is_trade_time(TEST_STATE, self.trade_time):
-                self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
-                                                                                  self.all_stocks_data)
-                self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
-                                                                                self.portfolio_list)
-                for k in self.portfolio_list.keys():
-                    try:
-                        self.wb.set_attr("portfolio_code", k)
-                        time.sleep(5) # 5 + get_json 5 = 10
+            try:
+                self.update_para()
+                if is_trade_time(TEST_STATE, self.trade_time):
+                    self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
+                                                                                      self.all_stocks_data)
+                    self.is_update_ports, self.portfolio_list = self.update_port_capital(self.is_update_ports,
+                                                                                    self.portfolio_list)
+                    for k in self.portfolio_list.keys():
 
-                        factor = self.portfolio_list[k]["factor"]
-                        percent = self.portfolio_list[k]["percent"]
-                        capital = self.portfolio_list[k]["capital"]
-
-                        entrust = self.wb.get_entrust()
-                        self.trade_by_entrust(entrust, k, factor, percent, capital)
-
-                    except Exception, e:
-                        msg = "wb:" + str(e.message)
-                        traceback.print_exc()
-                        record_msg(logger=self.logger, msg=msg, email=self.email)
-                        return -1
+                            self.wb.set_attr("portfolio_code", k)
+                            time.sleep(5) # 5 + get_json 5 = 10
+                            factor = self.portfolio_list[k]["factor"]
+                            percent = self.portfolio_list[k]["percent"]
+                            capital = self.portfolio_list[k]["capital"]
+                            entrust = self.wb.get_entrust()
+                            self.trade_by_entrust(entrust, k, factor, percent, capital)
+            except Exception, e:
+                msg = "wb:" + str(e.message)
+                traceback.print_exc()
+                record_msg(logger=self.logger, msg=msg, email=self.email)
+                return -1
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

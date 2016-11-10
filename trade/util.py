@@ -141,7 +141,7 @@ def update_stocks_data(state, all_stocks):
         try:
             all_stocks = ts.get_today_all()
             state = True
-            print "\n"
+            print "\n" + "-" * 50
             log.info("updates stock data!")
         except Exception, e:
             print e

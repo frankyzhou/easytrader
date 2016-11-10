@@ -1,35 +1,28 @@
 # coding: utf-8
 from bs4 import BeautifulSoup
-import helpers
 from .webtrader import WebTrader
 from .log import log
 import time
 import os
-import requests
 import json
 import re
-from PIL import Image
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import traceback
+
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 options = webdriver.ChromeOptions()
 options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
-# fp = webdriver.FirefoxProfile()
+# options.add_argument("user-data-dir=C:\Users\\frankyzhou\AppData\Local\Google\Chrome\User Data")
 
 class WBTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/wb.json'
 
     def __init__(self):
         super(WBTrader, self).__init__()
-        self.portfolio = ""
-        # self.account_config = {}
-        self.request = requests
         self.multiple = 1000000
         # self.driver = webdriver.PhantomJS()
         self.driver = webdriver.Chrome(executable_path=chromedriver, chrome_options=options)
         # self.driver = webdriver.Firefox(executable_path="C:\Program Files (x86)\Mozilla Firefox\\browser\geckodriver.exe", firefox_profile=fp)
-        self.home_list = []
 
     def login(self):
         # isLogged = False
@@ -40,7 +33,6 @@ class WBTrader(WebTrader):
                 time.sleep(6)
                 self.driver.maximize_window()
                 if self.driver.title.find("我的首页") == 0:
-                    isLogged = True
                     log.info("weibo has login!")
                 else:
                     log.warn("need to login!")
