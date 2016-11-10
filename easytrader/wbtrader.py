@@ -127,7 +127,7 @@ class WBTrader(WebTrader):
                 traceback.print_exc()
                 log.warn("json not correct. try to relogin.")
                 self.driver.save_screenshot("error.jpg")
-                self.login()
+                self.driver.refresh()
                 times += 1
                 time.sleep(10)
                 

@@ -238,3 +238,10 @@ class YJBTrader(WebTrader):
     def check_account_live(self, response):
         if hasattr(response, 'get') and response.get('error_no') == '-1':
             self.heart_active = False
+
+    def get_position_by_stock(self, stockcode, position_yjb, asset):
+        for e in position_yjb:
+            if e["stock_code"] == stockcode:
+                return e["market_value"]/asset, e["enable_amount"]
+        return 0, 0
+
