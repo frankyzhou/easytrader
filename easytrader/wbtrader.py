@@ -120,13 +120,14 @@ class WBTrader(WebTrader):
             try:
                 bsObj = BeautifulSoup(self.driver.page_source, "lxml")
                 info_json = json.loads(bsObj.text)
-                if len(info_json) == 1:
+                if info_json["ok"] == 0:
                     raise Exception
                 return info_json
             except:
                 traceback.print_exc()
-                log.warn("json not correct. try to relogin.")
-                self.login()
+                log.warn("json not correct. try to refresh.")
+                # self.login()
+                self.driver.refresh()
                 times += 1
                 time.sleep(10)
                 
