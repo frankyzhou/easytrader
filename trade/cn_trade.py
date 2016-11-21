@@ -33,7 +33,7 @@ class CNTrade(object):
                 self.is_update_ports = False
         time.sleep(6)
 
-    def trade(self, dif, code, price, amount, enable_amount):
+    def trade_yjb(self, dif, code, price, amount, enable_amount):
         """
          下单
         :param dif:
@@ -63,7 +63,7 @@ class CNTrade(object):
         result = result["error_info"] + result["trade"] if "error_info" in result else result["trade"]
         return result
 
-    def trade_ths(self, dif, code, price, amount, enable_amount):
+    def trade(self, dif, code, price, amount, enable_amount):
         """
          下单
         :param dif:
@@ -77,14 +77,14 @@ class CNTrade(object):
         result["status"] = "OK"
         if dif > 0:
                 if amount >= 100:
-                    result["status"] = str_to_dict(self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount)))
+                    result["status"] = self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount))
                     result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(amount)
                 else:
                     result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
         elif dif < 0:
             amount = enable_amount if dif == -2 else min(enable_amount, amount)
             if amount >= 100:
-                result["status"] = str_to_dict(self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount)))
+                result["status"] = self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount))
                 result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
             else:
                 result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
