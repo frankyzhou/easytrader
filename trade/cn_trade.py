@@ -31,10 +31,7 @@ class CNTrade(object):
                 self.is_update_stocks = False
                 self.all_stocks_data = None
                 self.is_update_ports = False
-                try:
-                    self.client.exec_order("get_position 600110")
-                except Exception, e:
-                    print e
+                self.client.exec_order("get_position 600110", response=False)
         time.sleep(6)
 
     def trade_yjb(self, dif, code, price, amount, enable_amount):
