@@ -189,8 +189,10 @@ class client:
     def __init__(self, host):
         self.client = get_client(host=host)
 
-    def exec_order(self, order):
+    def exec_order(self, order, response=True):
         self.client.sendall(order)
+        if not response:
+            return
         buf = self.client.recv(2048)
         if not len(buf):
             return "No data"
