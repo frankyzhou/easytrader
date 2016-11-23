@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import division
 
+import math
 import os
 import random
 import re
@@ -41,10 +42,11 @@ class YHTrader(WebTrader):
     def login(self, throw=False):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+            'Referer': 'https://www.chinastock.com.cn/trade/webtrade/login.jsp'
         }
         if self.s is not None:
             self.s.get(self.config['logout_api'])
-        self.s = requests.session()
+        self.s = requests.Session()
         self.s.headers.update(headers)
         data = self.s.get(self.config['login_page'])
 
@@ -74,7 +76,7 @@ class YHTrader(WebTrader):
         """获取并识别返回的验证码
         :return:失败返回 False 成功返回 验证码"""
         # 获取验证码
-        verify_code_response = self.s.get(self.config['verify_code_api'], params=dict(randomStamp=random.random()))
+        verify_code_response = self.s.get(self.config['verify_code_api'], params=dict(updateverify=random.random()))
         # 保存验证码
         image_path = os.path.join(os.getcwd(), 'vcode')
         with open(image_path, 'wb') as f:
@@ -105,14 +107,77 @@ class YHTrader(WebTrader):
             return True, None
         return False, login_response.text
 
-    @property
-    def token(self):
-        return self.cookie['JSESSIONID']
+    def _prepare_account(self, user, password, **kwargs):
+        """
 
-    @token.setter
-    def token(self, token):
-        self.cookie = dict(JSESSIONID=token)
-        self.keepalive()
+        :param user:
+        :param password:
+        :param kwargs:
+        :return:
+        """
+        self.account_config = {
+            'inputaccount': user,
+            'trdpwd': password
+        }
+
+    def check_available_cancels(self, parsed=True):
+        """
+        @Contact: Emptyset <21324784@qq.com>
+        检查撤单列表
+        """
+        try:
+            response = self.s.get("https://www.chinastock.com.cn/trade/webtrade/stock/StockEntrustCancel.jsp",
+                                  cookies=self.cookie)
+            if response.status_code != 200:
+                return False
+            html = response.text.replace("\t", "").replace("\n", "").replace("\r", "")
+            if html.find("请重新登录") != -1:
+                return False
+            pattern = r'<tr\s(?:[a-zA-Z0-9\:\=\'\"\(\)\s]*)>(.+)</tr></TBODY>'
+            result1 = re.findall(pattern, html)[0]
+            pattern = r'<td\s(?:[a-zA-Z0-9=_\"\:]*)>([\S]+)</td>'
+            parsed_data = re.findall(pattern, result1)
+            cancel_list = slice_list(step=12, data_list=parsed_data)
+            # print(cancel_list)
+        except Exception as e:
+            return []
+        if parsed == True:
+            result = list()
+            for item in cancel_list:
+                if len(item) == 12:
+                    item_dict = {
+                        "time": item[0]
+                        , "code": item[1]
+                        , "name": item[2]
+                        , "status": item[3]
+                        , "iotype": item[4]
+                        , "price": float(item[5])
+                        , "volume": int(item[6])
+                        , "entrust_num": item[7]
+                        , "trans_vol": int(item[8])
+                        , "canceled_vol": int(item[9])
+                        , "investor_code": item[10]
+                        , "account": item[11]
+                    }
+                elif len(item) == 11:
+                    item_dict = {
+                        "time": item[0]
+                        , "code": item[1]
+                        , "name": item[2]
+                        , "status": item[3]
+                        , "iotype": ""
+                        , "price": float(item[4])
+                        , "volume": int(item[5])
+                        , "entrust_num": item[6]
+                        , "trans_vol": int(item[7])
+                        , "canceled_vol": int(item[8])
+                        , "investor_code": item[9]
+                        , "account": item[10]
+                    }
+                else:
+                    continue
+                result.append(item_dict)
+        return result
 
     def check_available_cancels(self, parsed=True):
         """

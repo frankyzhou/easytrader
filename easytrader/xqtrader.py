@@ -6,13 +6,23 @@ import zlib
 import traceback
 # import requests
 import six
+import os
+import re
+import time
+from numbers import Number
 
+import requests
+
+from .log import log
+from .webtrader import NotLoginError, TradeError
 import requests
 from six.moves.urllib.parse import urlencode
 
 from .log import log
 from .webtrader import NotLoginError
 from .webtrader import WebTrader
+
+
 from trade.util import *
 import time
 import helpers
@@ -23,8 +33,17 @@ if six.PY2:
 class XueQiuTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/xq.json'
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(XueQiuTrader, self).__init__()
+
+        # 资金换算倍数
+        self.multiple = kwargs['initial_assets'] if 'initial_assets' in kwargs else 1000000
+        if not isinstance(self.multiple, Number):
+            raise TypeError('initial assets must be number(int, float)')
+        if self.multiple < 1e3:
+            raise ValueError('雪球初始资产不能小于1000元，当前预设值 {}'.format(self.multiple))
+
+        headers = {
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0',
             'Host': 'xueqiu.com',
@@ -37,6 +56,24 @@ class XueQiuTrader(WebTrader):
             'X-Requested-With': 'XMLHttpRequest',
             'Accept-Language': 'zh-CN,zh;q=0.8'
         }
+        self.session = requests.Session()
+        self.session.headers.update(headers)
+        self.account_config = None
+
+    def autologin(self, **kwargs):
+        """
+        重写自动登录方法
+        避免重试导致的帐号封停
+        :return:
+        """
+        self.login()
+
+    def login(self, throw=False):
+        """
+        登录
+        :param throw:
+        :return:
+        """
         self.session = requests.Session()
         self.session.headers.update(self.headers)
         self.account_config = None
@@ -64,6 +101,30 @@ class XueQiuTrader(WebTrader):
         log.debug('login status: %s' % result)
         return login_status
 
+    def _prepare_account(self, user='', password='', **kwargs):
+        """
+        转换参数到登录所需的字典格式
+        :param user: 雪球邮箱(邮箱手机二选一)
+        :param password: 雪球密码
+        :param account: 雪球手机号(邮箱手机二选一)
+        :param portfolio_code: 组合代码
+        :param portfolio_market: 交易市场， 可选['cn', 'us', 'hk'] 默认 'cn'
+        :return:
+        """
+        if 'portfolio_code' not in kwargs:
+            raise TypeError('雪球登录需要设置 portfolio_code(组合代码) 参数')
+        if 'portfolio_market' not in kwargs:
+            kwargs['portfolio_market'] = 'cn'
+        if 'account' not in kwargs:
+            kwargs['account'] = ''
+        self.account_config = {
+            'username': user,
+            'account': kwargs['account'],
+            'password': password,
+            'portfolio_code': kwargs['portfolio_code'],
+            'portfolio_market': kwargs['portfolio_market']
+        }
+
     def post_login_data(self):
         login_post_data = {
             'username': self.account_config.get('username', ''),
@@ -72,9 +133,8 @@ class XueQiuTrader(WebTrader):
             'remember_me': '0',
             'password': self.account_config['password']
         }
-        login_response = self.session.post(self.config['login_api'], cookies=self.cookies, data=login_post_data)
-        self.cookies = login_response.cookies
-        login_status = json.loads(login_response.text)
+        login_response = self.session.post(self.config['login_api'], data=login_post_data)
+        login_status = login_response.json()
         if 'error_description' in login_status:
             return False, login_status['error_description']
         return True, "SUCCESS"
@@ -88,28 +148,7 @@ class XueQiuTrader(WebTrader):
         return virtual * self.multiple
 
     def __get_html(self, url):
-        send_headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.154 Safari/537.36 LBBROWSER',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Connection': 'keep-alive',
-            'Host': 'xueqiu.com',
-            'Accept-Encoding': 'gzip, deflate, sdch',
-            'Accept-Language':  'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Accept-Charset': 'GBK,utf-8;q=0.7,*;q=0.3',
-            'Cookie': self.cookies
-        }
-
-        if six.PY2:
-            req = urllib2.Request(url, headers=send_headers)
-            resp = urllib2.urlopen(req)
-        else:
-            req = urllib.request.Request(url, headers=send_headers)
-            resp = urllib.request.urlopen(req)
-        # html = resp.read().decode('UTF-8')
-        html = zlib.decompress(resp.read(), 16+zlib.MAX_WBITS)
-        return html
-
+        return self.session.get(url).text
 
     def __search_stock_info(self, code):
         """
@@ -243,9 +282,13 @@ class XueQiuTrader(WebTrader):
             'count': 5,
             'page': 1
         }
-        r = self.session.get(self.config['history_url'], headers=self.headers, cookies=self.cookies, params=data)
+        r = self.session.get(self.config['history_url'], params=data)
         r = json.loads(r.text)
         return r['list']
+
+    @property
+    def history(self):
+        return self.__get_xq_history()
 
     def get_entrust(self):
         """
@@ -287,7 +330,6 @@ class XueQiuTrader(WebTrader):
         """
         对未成交的调仓进行伪撤单
         :param entrust_no:
-        :param stock_code:
         :return:
         """
         xq_entrust_list = self.__get_xq_history()
@@ -332,7 +374,6 @@ class XueQiuTrader(WebTrader):
             if position['stock_id'] == stock['stock_id']:
                 position['proactive'] = True
                 position['weight'] = weight
-                break
 
         if weight != 0 and stock['stock_id'] not in [k['stock_id'] for k in position_list]:
             position_list.append({
@@ -360,16 +401,16 @@ class XueQiuTrader(WebTrader):
         remain_weight = 100 - sum(i.get('weight') for i in position_list)
         cash = round(remain_weight, 2)
         log.debug("调仓比例:%f, 剩余持仓 :%f" % (weight, remain_weight))
-        data = urlencode({
+        data = {
             "cash": cash,
             "holdings": str(json.dumps(position_list)),
             "cube_symbol": str(self.account_config['portfolio_code']),
             'segment': 'true',
             'comment': ""
-        })
+        }
 
         try:
-            rebalance_res = self.session.post(self.config['rebalance_url'], params=data)
+            rebalance_res = self.session.post(self.config['rebalance_url'], data=data)
         except Exception as e:
             log.warn('调仓失败: %s ' % e)
             return
@@ -427,6 +468,7 @@ class XueQiuTrader(WebTrader):
                         raise TradeError(u"操作数量大于实际可卖出数量")
                     else:
                         position['weight'] = old_weight - weight
+                position['weight'] = round(position['weight'], 2)
         if not is_have:
             if entrust_bs == 'buy':
                 position_list.append({
@@ -445,7 +487,7 @@ class XueQiuTrader(WebTrader):
                     "ind_color": stock['ind_color'],
                     "textname": stock['name'],
                     "segment_name": stock['ind_name'],
-                    "weight": weight,
+                    "weight": round(weight, 2),
                     "url": "/S/" + stock['code'],
                     "proactive": True,
                     "price": str(stock['current'])
@@ -460,18 +502,16 @@ class XueQiuTrader(WebTrader):
         cash = round(cash, 2)
         log.debug("weight:%f, cash:%f" % (weight, cash))
 
-        data = urlencode({
+        data = {
             "cash": cash,
             "holdings": str(json.dumps(position_list)),
             "cube_symbol": str(self.account_config['portfolio_code']),
             'segment': 1,
             'comment': ""
-        })
+        }
 
         try:
-            rebalance_res = self.requests.session().post(self.config['rebalance_url'], headers=self.headers,
-                                                         cookies=self.cookies,
-                                                         params=data)
+            rebalance_res = self.session.post(self.config['rebalance_url'], data=data)
         except Exception as e:
             log.warn('调仓失败: %s ' % e)
             return
@@ -513,7 +553,6 @@ class XueQiuTrader(WebTrader):
         :param amount: 卖出股数
         :param volume: 卖出总金额 由 volume / price 取整， 若指定 price 则此参数无效
         :param entrust_prop:
-        :return:
         """
         return self.__trade(stock_code, price, amount, volume, 'sell')
 

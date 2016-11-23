@@ -11,8 +11,8 @@ import requests
 import six
 
 from . import helpers
-from .webtrader import WebTrader
 from .log import log
+from .webtrader import WebTrader
 
 VERIFY_CODE_POS = 0
 TRADE_MARKET = 1
@@ -33,6 +33,12 @@ class GFTrader(WebTrader):
         self.exchange_stock_account = dict()
         self.sessionid = ''
         self.holdername = list()
+
+    def _prepare_account(self, user, password, **kwargs):
+        self.account_config = {
+            'username': user,
+            'password': password
+        }
 
     def __handle_recognize_code(self):
         """获取并识别返回的验证码
@@ -138,13 +144,12 @@ class GFTrader(WebTrader):
         jsholder = jslist[HOLDER_POS]
         jsholder = re.findall(r'\[(.*)\]', jsholder)
         jsholder = eval(jsholder[0])
-
-        if len(jsholder) < 3:
-            self.holdername.append(jsholder[0])
-            self.holdername.append(jsholder[1])
-            return
-        self.holdername.append(jsholder[1])
-        self.holdername.append(jsholder[2])
+        for jsholder_sh in jsholder:
+            if jsholder_sh['exchange_name'] == '上海':
+                self.holdername.append(jsholder_sh)
+        for jsholder_sz in jsholder:
+            if jsholder_sz['exchange_name'] == '深圳':
+                self.holdername.append(jsholder_sz)
 
     def __get_trade_need_info(self, stock_code):
         """获取股票对应的证券市场和帐号"""
@@ -437,7 +442,7 @@ class GFTrader(WebTrader):
             "end_date": end_date,
         })
         return self.do(params)
-        
+
     @property
     def today_ipo_list(self):
         '''
@@ -448,7 +453,6 @@ class GFTrader(WebTrader):
         params = self.config['today_ipo_list'].copy()
         return self.do(params)
 
-   
     def today_ipo_limit(self):
         '''
 
@@ -457,7 +461,7 @@ class GFTrader(WebTrader):
         '''
         params = self.config['today_ipo_limit'].copy()
         return self.do(params)
-    
+
     def login_rzrq(self):
         '''
 
@@ -508,7 +512,7 @@ class GFTrader(WebTrader):
             "end_date": end_date,
         })
         return self.do(params)
-    
+
     def do_job(self, request_type, **kwargs):
         '''
         直接输入请求类型，以及相关参数列表，返回执行结果
@@ -518,4 +522,39 @@ class GFTrader(WebTrader):
         '''
         params = self.config[request_type].copy()
         params.update(kwargs)
+        return self.do(params)
+
+    def capitalflow(self, start_date, end_date):
+        """
+        查询指定日期内的资金流水
+         :param start_date: 开始时间，例如：20160211
+         :param end_date: 技术时间，例如：20160211
+         :return: 指定时间段内的资金流水数据
+         """
+        params = self.config['capitalflow'].copy()
+        params.update({
+            "start_date": start_date,
+            "end_date": end_date,
+        })
+        return self.do(params)
+
+    def exit(self):
+        '''
+        退出系统
+        :return:
+        '''
+        params = self.config['exit'].copy()
+        log.debug(self.do(params))
+        self.heart_active = False
+
+    def get_entrust(self, action_in=0):
+        '''
+
+        :param action_in: 当值为0，返回全部委托；当值为1时，返回可撤委托
+        :return:
+        '''
+        params = self.config['entrust'].copy()
+        params.update({
+            "action_in": action_in,
+        })
         return self.do(params)

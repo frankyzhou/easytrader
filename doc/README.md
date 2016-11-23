@@ -2,9 +2,13 @@
 
 * 进行自动的程序化股票交易
 * 实现自动登录
+* 支持跟踪 `joinquant` 的模拟交易
+* 支持跟踪 雪球组合 调仓
 * 支持命令行调用，方便其他语言适配
 * 支持 Python3 / Python2, Linux / Win, 推荐使用 `Python3`
-* 有兴趣的可以加群 `549879767` 、`429011814`(已满) 一起讨论
+* 有兴趣的可以加群 `556050652` 、`549879767`(已满) 、`429011814`(已满) 一起讨论
+* 捐助: [支付宝](http://7xqo8v.com1.z0.glb.clouddn.com/zhifubao2.png)  [微信](http://7xqo8v.com1.z0.glb.clouddn.com/wx.png) 或者 银河开户可以加群找我
+
 
 **开发环境** : `Ubuntu 16.04` / `Python 3.5`
 
@@ -16,15 +20,12 @@
 
 [简单的股票量化交易框架 使用 easytrader 和 easyquotation](https://github.com/shidenggui/easyquant)
 
-捐助: [支付宝](http://7xqo8v.com1.z0.glb.clouddn.com/zhifubao2.png)  [微信](http://7xqo8v.com1.z0.glb.clouddn.com/wx.png)
 
 ### 支持券商
 
+* 银河 
+* 广发
 * 佣金宝
-* 华泰
-* 银河 by @[ruyiqf](https://github.com/ruyiqf)
-* 广发 by @[ruyiqf](https://github.com/ruyiqf)
-
 
 ### 模拟交易
 
@@ -34,10 +35,12 @@
 
 > pip install -r requirements.txt
 
-> 华泰 / 佣金宝 的自动登录需要安装以下二者之一， 银河的自动登录需要安装下列的 tesseract： 
+> 银河可以直接自动登录
+
+> 佣金宝 的自动登录需要安装以下二者之一， 广发的自动登录需要安装下列的 tesseract： 
 
 * `JAVA` : 推荐, 识别率高，安装简单, 需要命令行下 `java -version` 可用 (感谢空中园的贡献)
-* `tesseract` : 保证在命令行下 `tesseract` 可用
+* `tesseract` : 非 `pytesseract`, 需要单独安装, [地址](https://github.com/tesseract-ocr/tesseract/wiki),保证在命令行下 `tesseract` 可用
 
 ### 安装
 
@@ -63,26 +66,16 @@ import easytrader
 
 #### 设置账户:
 
+##### 银河
+
+```python
+user = easytrader.use('yh') # 银河支持 ['yh', 'YH', '银河']
+```
+
 ##### 佣金宝
 
 ```python
 user = easytrader.use('yjb') # 佣金宝支持 ['yjb', 'YJB', '佣金宝']
-```
-
-##### 华泰
-
-```python
-user = easytrader.use('ht') # 华泰支持 ['ht', 'HT', '华泰']
-```
-
-
-注: 如果你的华泰账户是以 `08` 开头，而且可以正常登录，但是其他操作返回 `账户记录表不存在` 等错误时，请尝试 `user = easytrader.use('ht', remove_zero=False)`
-
-
-##### 银河 
-
-```python
-user = easytrader.use('yh') # 银河支持 ['yh', 'YH', '银河']
 ```
 
 ##### 广发
@@ -91,28 +84,35 @@ user = easytrader.use('yh') # 银河支持 ['yh', 'YH', '银河']
 user = easytrader.use('gf') # 广发支持 ['gf', 'GF', '广发']
 ```
 
+
 #### 登录帐号
+
+##### 使用配置文件
 
 ```python
 user.prepare('/path/to/your/ht.json') // 或者 yjb.json 或者 yh.json 等配置文件路径
 ```
 
+##### 参数登录
+```
+user.prepare(user='用户名', password='券商加密后的密码, 雪球为明文密码')
+```
+
 **注**:
 
-配置文件需要自己用编辑器编辑生成, 请勿使用记事本, 推荐使用 [notepad++](https://notepad-plus-plus.org/zh/) 或者 [sublime text](http://www.sublimetext.com/)
+使用配置文件模式, 配置文件需要自己用编辑器编辑生成, 请勿使用记事本, 推荐使用 [notepad++](https://notepad-plus-plus.org/zh/) 或者 [sublime text](http://www.sublimetext.com/)
 
 
 格式可以参照 `Github` 目录下对应的 `json` 文件
 
-* 华泰需要配置 `ht.json` 填入相关信息, `trdpwd` 加密后的密码首次需要登录后查看登录 `POST` 的 `trdpwd` 值确定
 * 佣金宝需要配置 `yjb.json` 并填入相关信息, 其中的 `password` 为加密后的 `password`
-* 银河需要配置 `yh.json` 填入相关信息, `trdpwd` 加密后的密码首次需要登录后查看登录 `POST` 的 `trdpwd` 值确定
+* 银河类似佣金宝
 * 雪球配置中 `username` 为邮箱, `account` 为手机, 填两者之一即可，另一项改为 `""`, 密码直接填写登录的明文密码即可，不需要抓取 `POST` 的密码
 
 [如何获取配置所需信息, 可参考此文章](http://www.celuetan.com/topic/5731e9ee705ee8f61eb681fd)
 
 ### 交易相关
-以下用法以佣金宝为例，华泰类似
+以下用法以佣金宝为例
 
 #### 获取资金状况:
 
@@ -207,52 +207,12 @@ user.sell('162411', price=0.55, amount=100)
 ```
 #### 撤单
 
-##### 华泰
-
-```python
-user.cancel_entrust('委托单号')
-```
 ##### 佣金宝
 
 ```python
 user.cancel_entrust('委托单号', '股票代码')
 ```
-##### 银河证券
-
-```python
-user.cancel_entrust('委托单号', '股票代码')
-```
-
-#### 银河证券场内基金功能
-
-##### 基金认购
-
-```python
-user.fundsubscribe('基金代码', '基金份额')
-```
-##### 基金申购
-
-```python
-user.fundpurchase('基金代码', '基金份额')
-```
-##### 基金赎回
-```python
-user.fundredemption('基金代码', '基金份额')
-```
-##### 基金合并
-
-```python
-user.fundmerge('基金代码', '基金份额')
-```
-##### 基金拆分
-
-```python
-user.fundsplit('基金代码', '基金份额')
-```
-
 #### 查询交割单
-
-##### 华泰/广发
 
 需要注意通常券商只会返回有限天数最新的交割单，如查询2015年整年数据, 华泰只会返回年末的90天的交割单
 
@@ -261,7 +221,6 @@ user.exchangebill   # 查询最近30天的交割单
 
 user.get_exchangebill('开始日期', '截止日期')   # 指定查询时间段, 日期格式为 "20160214"
 ```
-
 **return**
 ```python
 {["entrust_bs": "操作", # "1":"买入", "2":"卖出", " ":"其他"
@@ -282,21 +241,51 @@ user.get_exchangebill('开始日期', '截止日期')   # 指定查询时间段,
   "entrust_no": "合同编号",
   "business_price": "成交均价",
 ]}
+
 ```
 
-#### 查询当天交易
+#### 基金申购
 
-##### 华泰
+##### 银河
 
-查询当天交易记录
-
-```python
-user.today_trade   
+```
+user.fundpurchase(stock_code, amount):
 ```
 
-# 未确认的key有, farex, fare3
-# 未确认的表头有 结算汇率, 备注
+#### 基金赎回
+
+##### 银河
+
 ```
+user.fundredemption(stock_code, amount):
+```
+
+#### 基金认购
+
+##### 银河
+
+```
+user.fundsubscribe(stock_code, amount):
+```
+
+
+#### 基金分拆
+
+##### 银河
+
+```
+user.fundsplit(stock_code, amount):
+```
+
+#### 基金合并
+
+##### 银河
+
+```
+user.fundmerge(stock_code, amount):
+```
+
+
 
 #### 查询当日成交
 
@@ -323,66 +312,6 @@ user.current_deal
 'stock_code': '证券代码',
 'stock_name': '证券名称'}]
 ```
-
-
-#### 场内基金赎回(广发)
-
-```
-user.cnjj_redemption('股票代码', '赎回份额')
-```
-
-#### 场内基金申购(广发)
-
-```
-user.cnjj_apply('股票代码', '赎回份额')
-```
-
-### 广发牛熊宝
-
-
-#### 牛熊宝查询
-
-```
-user.nxbQueryPrice('基金代码')
-```
-
-#### 牛熊宝单项申报
-
-```
-user.nxbentrust('基金代码', '转入数量', '转换比例', '转换方向')
-```
-
-#### 单日委托
-
-```
-user.nxbQueryEntrust('开始日期,ex:20160515', '结束日期', '查询类型[0:历史， 1:单日]')
-```
-
-#### 单日转换
-
-```
-user.nxbQueryDeliverOfToday()
-```
-
-#### 历史转换
-
-```
-user.nxbQueryHisDeliver()
-```
-
-#### 牛熊宝代码查询
-
-```
-user.queryOfStkCode()
-```
-
-#### 牛熊宝持仓查询
-
-```
-user.queryNXBOfStock()
-```
-
-#### 查询新股申购额度申购上限
 
 ##### 佣金宝
 
@@ -420,6 +349,79 @@ print(ipo_data)
 ```python
 user.adjust_weight('000001', 10)
 ```
+
+
+### 跟踪 joinquant 的模拟交易
+
+#### 初始化跟踪的 trader
+
+这里以雪球为例, 也可以使用银河之类 easytrader 支持的券商
+
+```
+xq_user = easytrader.use('xq')
+xq_user.prepare('xq.json')
+```
+
+#### 初始化跟踪 joinquant 的 follower
+
+```
+jq_follower = easytrader.follower('jq')
+jq_follower.login(user='jq用户名', password='jq密码')
+```
+
+#### 连接 follower 和 trader
+
+```
+jq_follower.follow(xq_user, 'jq的模拟交易url')
+
+```
+
+注: jq的模拟交易url指的是对应模拟交易对应的可以查看持仓, 交易记录的页面, 类似 `https://www.joinquant.com/algorithm/live/index?backtestId=xxx`
+
+正常会输出 
+
+
+![](https://raw.githubusercontent.com/shidenggui/assets/master/easytrader/joinquant.jpg)
+
+
+enjoy it 
+
+### 跟踪 雪球的组合 
+
+#### 初始化跟踪的 trader
+
+同上
+
+#### 初始化跟踪 雪球组合 的 follower
+
+```
+xq_follower = easytrader.follower('xq')
+xq_follower.login(user='xq用户名', password='xq密码')
+```
+
+#### 连接 follower 和 trader
+
+```
+xq_follower.follow(xq_user, 'xq组合ID，类似ZH123456', total_assets=100000)
+
+```
+
+
+注: 雪球组合是以百分比调仓的， 所以需要额外设置组合对应的资金额度
+
+* 这里可以设置 total_assets, 为当前组合的净值对应的总资金额度, 具体可以参考参数说明
+* 或者设置 initial_assets, 这时候总资金额度为 initial_assets * 组合净值
+
+
+#### 多用户跟踪多策略
+
+```
+jq_follower.follow(users=[xq_user, yh_user], strategies=['组合1', '组合2'], total_assets=[10000, 10000])
+```
+
+#### 目录下产生的 cmd_cache.pk
+
+这是用来存储历史执行过的交易指令，防止在重启程序时重复执行交易过的指令，可以通过 `jq_follower.follow(xxx, cmd_cache=False)` 来关闭
 
 ### 命令行模式
 
@@ -486,60 +488,3 @@ JSONDecodeError: Expecting value
 
 [软件实现原理](http://www.jisilu.cn/question/42707)
 
-### 附录
-
-#### 银河的返回
-
-##### balance
-
-```python
-[{
-    '资金帐号': 'x', 
-    '参考市值': 10.1, 
-    '资金余额': 10.1, 
-    '可用资金': 10.1, 
-    '总资产': 10.1, 
-    '股份参考盈亏': 10.1, 
-    '币种': '人民币'
-}]
-```
-
-##### entrust
-
-```python
-[{
-    '委托时间': '11:11:11', 
-    '证券名称': 'x', 
-    '成交数量': 100, 
-    '股东代码': 'x', 
-    '证券代码': 'x', 
-    '状态说明': '已成', 
-    '委托数量': 100, 
-    '委托日期': '20160401', 
-    '交易市场': '深A', 
-    '撤单数量': 0, 
-    '委托价格': 0.999, 
-    '委托序号': '12345', 
-    '买卖标志': '买入'
-}]
-```
-
-##### position
-
-```python
-[{
-    '参考市值': 10.1, 
-    '参考盈亏': -0.0, 
-    '当前持仓': 100, 
-    '股份余额': 100, 
-    '证券名称': 'x', 
-    '参考市价': 0.111, 
-    '卖出冻结': 0, 
-    '买入冻结': 0, 
-    '交易市场': '深A', 
-    '证券代码': '123456', 
-    '盈亏比例(%)': '0.00%', 
-    '股份可用': 100, 
-    '股东代码': 'x'
-}]
-```
