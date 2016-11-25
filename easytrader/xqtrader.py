@@ -44,7 +44,6 @@ class XueQiuTrader(WebTrader):
             raise ValueError('雪球初始资产不能小于1000元，当前预设值 {}'.format(self.multiple))
 
         headers = {
-        self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0',
             'Host': 'xueqiu.com',
             'Pragma': 'no-cache',
@@ -634,6 +633,16 @@ class XueQiuTrader(WebTrader):
             if start > -1:
                 name = str(self.html[start + 19: end])
         return name
+
+    def get_strategy(self, page):
+        respose = self.session.post(self.config["strategy_url"].format(page))
+        json_dict = json.loads(respose.text)
+        count = json_dict["count"]
+        maxPage = json_dict["maxPage"]
+        total = json_dict["total"]
+        page = json_dict["page"]
+        status = json_dict["statuses"]
+        return maxPage, status
 
 if __name__ == '__main__':
     XueQiuTrader.main()

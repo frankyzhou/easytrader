@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import time
 from trade.cn_trade import CNTrade
-from util import *
+from trade.util import *
 import sys
 import traceback
 # import matplotlib.pyplot as plt
