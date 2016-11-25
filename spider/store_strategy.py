@@ -20,6 +20,8 @@ class StoreStrategy:
             html = s["description"]
             text = BeautifulSoup(html).text.split()
             msg_dict["code"] = text[0]
+            if len(text) < 2:
+                continue
             msg = text[1].split("#")
             # time = datetime.datetime.strptime(msg[0], "%m月%d日%H:%M入选")
             msg_dict["time"] = datetime.datetime.fromtimestamp(s["created_at"]/1000)
@@ -29,8 +31,8 @@ class StoreStrategy:
                 self.db.insert_doc(msg_dict["title"], msg_dict)
 
     def main(self):
-        maxPage = 10
-        i = 1
+        maxPage = 10000
+        i = 645
         while i <= maxPage:
             maxPage, strategy = self.xq.get_strategy(i)
             time.sleep(10)
