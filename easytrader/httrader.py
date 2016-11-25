@@ -32,6 +32,10 @@ class HTTrader(WebTrader):
         self.__set_ip_and_mac()
         self.fund_account = None
 
+        # 账户初始化为None
+        self.__sh_stock_account = None
+        self.__sz_stock_account = None
+
     def __set_ip_and_mac(self):
         """获取本机IP和MAC地址"""
         # 获取ip
@@ -87,6 +91,15 @@ class HTTrader(WebTrader):
         if self.s is not None:
             self.s.get(self.config['logout_api'])
         self.s = requests.session()
+        self.s.headers.update({
+            'Connection': 'keep-alive',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36',
+            'Accept': '*/*',
+            'Referer': 'https://service.htsc.com.cn/service/login.jsp',
+            'Accept-Encoding': 'gzip, deflate, sdch, br'
+        })
         self.s.get(self.config['login_page'])
 
     def __handle_recognize_code(self):
@@ -103,8 +116,7 @@ class HTTrader(WebTrader):
         log.debug('verify code detect result: %s' % verify_code)
         os.remove(image_path)
 
-        ht_verify_code_length = 4
-        if len(verify_code) != ht_verify_code_length:
+        if not verify_code:
             return False
         return verify_code
 
@@ -130,10 +142,24 @@ class HTTrader(WebTrader):
 
     def __get_trade_info(self):
         """ 请求页面获取交易所需的 uid 和 password """
-        trade_info_response = self.s.get(self.config['trade_info_page'])
+        top_url = "https://service.htsc.com.cn/service/jy.jsp?sub_top=jy"
+
+        text = self.s.get(top_url).text
+
+        start_str = 'name="BIframe" width="100%" src="'
+        end_str = '" scrolling="no" frameborder=0'
+
+        start_p = text.find(start_str) + len(start_str)
+        end_p = text.find(end_str)
+
+        html = text[start_p:end_p]
+
+        new_url = "https://service.htsc.com.cn" + html
+
+        trade_info_response = self.s.get(new_url)
 
         # 查找登录信息
-        search_result = re.search(r'var data = "([/=\w\+]+)"', trade_info_response.text)
+        search_result = re.search(r'var data = "([/=\w+]+)"', trade_info_response.text)
         if not search_result:
             return False
 
@@ -224,12 +250,20 @@ class HTTrader(WebTrader):
 
     def __get_trade_need_info(self, stock_code):
         """获取股票对应的证券市场和帐号"""
-        # 获取股票对应的证券市场
-        exchange_type = self.__sh_exchange_type if helpers.get_stock_type(stock_code) == 'sh' \
-            else self.__sz_exchange_type
-        # 获取股票对应的证券帐号
-        stock_account = self.__sh_stock_account if exchange_type == self.__sh_exchange_type \
-            else self.__sz_stock_account
+        # 判断股票类型和是否存在对应证券账号
+        if helpers.get_stock_type(stock_code) == 'sh':
+            if self.__sh_stock_account is None:
+                raise Exception("没有上证账户，不可买入、卖出上证股票。")
+            else:
+                exchange_type = self.__sh_exchange_type
+                stock_account = self.__sh_stock_account
+        else:
+            if self.__sz_stock_account is None:
+                raise Exception("没有深证账户，不可买入、卖出深证股票。")
+            else:
+                exchange_type = self.__sz_exchange_type
+                stock_account = self.__sz_stock_account
+
         return dict(
             exchange_type=exchange_type,
             stock_account=stock_account

@@ -33,6 +33,8 @@ PAGE_DICT = {
     "24": "多头趋势回撤点",
 }
 info = {}
+
+
 class catch_strategy:
     def __init__(self):
         self.db = MongoDB(XUEQIU_DB_NAME)

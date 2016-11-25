@@ -9,11 +9,14 @@ import ssl
 import sys
 import uuid
 
+import requests
 import six
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
-import PIL
+from six.moves import input
+
 from .log import log
+from .thirdlibrary.yjb_captcha import YJBCaptcha
 
 if six.PY2:
     from io import open
@@ -57,11 +60,26 @@ def get_stock_type(stock_code):
     return 'sz'
 
 
+def ht_verify_code_new(image_path):
+    """显示图片，人肉读取，手工输入"""
+
+    from PIL import Image
+
+    img = Image.open(image_path)
+    img.show()
+
+    # 关闭图片后输入答案
+    s = input('input the pics answer :')
+
+    return s
+
+
 def recognize_verify_code(image_path, broker='ht'):
     """识别验证码，返回识别后的字符串，使用 tesseract 实现
     :param image_path: 图片路径
     :param broker: 券商 ['ht', 'yjb', 'gf', 'yh']
     :return recognized: verify code string"""
+
     if broker == 'ht':
         return detect_ht_result(image_path)
     elif broker == 'yjb':
@@ -74,6 +92,14 @@ def recognize_verify_code(image_path, broker='ht'):
     return default_verify_code_detect(image_path)
 
 
+def input_verify_code_manual(image_path):
+    from PIL import Image
+    image = Image.open(image_path)
+    image.show()
+    code = input('image path: {}, input verify code answer:'.format(image_path))
+    return code
+
+
 def detect_ht_result(image_path):
     code = detect_verify_code_by_java(image_path, 'ht')
     if not code:
@@ -82,8 +108,11 @@ def detect_ht_result(image_path):
 
 
 def detect_yjb_result(image_path):
-    code = detect_verify_code_by_java(image_path, 'yjb')
+    captcha = YJBCaptcha(imagePath=image_path)
+    code = captcha.string()
     if not code:
+        code = detect_verify_code_by_java(image_path, 'yjb')
+    elif not code:
         return default_verify_code_detect(image_path)
     return code
 
@@ -118,19 +147,26 @@ def detect_verify_code_by_java(image_path, broker):
         verify_code_start = -4
         return out_put[verify_code_start:]
 
+    # 获取识别的验证码
+    verify_code_result = 'result.txt'
+    try:
+        with open(verify_code_result) as f:
+            recognized_code = f.readline()
+    except UnicodeDecodeError:
+        with open(verify_code_result, encoding='gbk') as f:
+            recognized_code = f.readline()
+    # 移除空格和换行符
+    return_index = -1
+    recognized_code = recognized_code.replace(' ', '')[:return_index]
 
 def default_verify_code_detect(image_path):
     from PIL import Image
-    import pytesseract
     img = Image.open(image_path)
-    code = pytesseract.image_to_string(img)
-    valid_chars = re.findall('[0-9a-z]', code, re.IGNORECASE)
-    return ''.join(valid_chars)
+    return invoke_tesseract_to_recognize(img)
 
 
 def detect_gf_result(image_path):
     from PIL import ImageFilter, Image
-    import pytesseract
     img = Image.open(image_path)
     if hasattr(img, "width"):
         width, height = img.width, img.height
@@ -146,37 +182,39 @@ def detect_gf_result(image_path):
     med_res = min_res.filter(ImageFilter.MedianFilter)
     for _ in range(2):
         med_res = med_res.filter(ImageFilter.MedianFilter)
-    res = pytesseract.image_to_string(med_res)
-    return res.replace(' ', '')
+    return invoke_tesseract_to_recognize(med_res)
 
 
 def detect_yh_result(image_path):
-    from PIL import Image
+    """封装了tesseract的中文识别，部署在daocloud上，服务端源码地址为： https://github.com/shidenggui/yh_verify_code_docker"""
+    api = 'http://123.56.157.162:5000/yh'
+    with open(image_path, 'rb') as f:
+        try:
+            rep = requests.post(api, files={
+                'image': f
+            })
+            if rep.status_code != 200:
+                raise Exception('request {} error'.format(api))
+        except Exception as e:
+            log.error('自动识别银河验证码失败: {}, 请手动输入验证码'.format(e))
+            return input_verify_code_manual(image_path)
+    return rep.text
+
+
+def invoke_tesseract_to_recognize(img):
     import pytesseract
-
-    img = Image.open(image_path)
-
-    brightness = list()
-    for x in range(img.width):
-        for y in range(img.height):
-            (r, g, b) = img.getpixel((x, y))
-            brightness.append(r + g + b)
-    avg_brightness = sum(brightness) // len(brightness)
-
-    for x in range(img.width):
-        for y in range(img.height):
-            (r, g, b) = img.getpixel((x, y))
-            if ((r + g + b) > avg_brightness / 1.5) or (y < 3) or (y > 17) or (x < 5) or (x > (img.width - 5)):
-                img.putpixel((x, y), (256, 256, 256))
-
-    res = pytesseract.image_to_string(img)
-    return res
+    try:
+        res = pytesseract.image_to_string(img)
+    except FileNotFoundError:
+        raise Exception('tesseract 未安装，请至 https://github.com/tesseract-ocr/tesseract/wiki 查看安装教程')
+    valid_chars = re.findall('[0-9a-z]', res, re.IGNORECASE)
+    return ''.join(valid_chars)
 
 
 def get_mac():
     # 获取mac地址 link: http://stackoverflow.com/questions/28927958/python-get-mac-address
     return ("".join(c + "-" if i % 2 else c for i, c in enumerate(hex(
-            uuid.getnode())[2:].zfill(12)))[:-1]).upper()
+        uuid.getnode())[2:].zfill(12)))[:-1]).upper()
 
 
 def grep_comma(num_str):
@@ -239,7 +277,7 @@ def get_today_ipo_data():
 
     for line in json_data['data']:
         # if datetime.datetime(2016, 9, 14).ctime()[:10] == line[3][:10]:
-        if datetime.datetime.now().ctime()[:10] == line[3][:10]:
+        if datetime.datetime.now().strftime('%a %b %d') == line[3][:10]:
             today_ipo.append({
                 'stock_code': line[0],
                 'stock_name': line[1],
@@ -248,12 +286,3 @@ def get_today_ipo_data():
             })
 
     return today_ipo
-
-def open_img(image_name):
-    """打开图片
-    :param image_name: 图片的路径
-    :return:
-    """
-    im = Image.open(image_name)
-    im.show()
-    im.close()
