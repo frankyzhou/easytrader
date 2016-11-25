@@ -3,6 +3,7 @@ import easytrader
 import time
 from bs4 import BeautifulSoup
 from trade.util import *
+import traceback
 base_url = "https://xueqiu.com/v4/statuses/user_timeline.json?user_id=9796081404&page={0}&type=0&_=1479898855214"
 COLLECTION = "xq_strategy"
 
@@ -33,7 +34,12 @@ class StoreStrategy:
         while i <= maxPage:
             maxPage, strategy = self.xq.get_strategy(i)
             time.sleep(10)
-            self.deal_strategy(strategy)
+            try:
+                self.deal_strategy(strategy)
+            except:
+                traceback.print_exc()
+                time.sleep(60)
+                continue
             i += 1
             record_msg(self.logger, str(i) + "/" + str(maxPage))
 
