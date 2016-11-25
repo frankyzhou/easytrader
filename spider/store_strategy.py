@@ -2,16 +2,16 @@
 import easytrader
 import time
 from bs4 import BeautifulSoup
-from easytrader.MongoDB import *
-
+from trade.util import *
 base_url = "https://xueqiu.com/v4/statuses/user_timeline.json?user_id=9796081404&page={0}&type=0&_=1479898855214"
-
+COLLECTION = "xq_strategy"
 
 class StoreStrategy:
     def __init__(self, p):
         self.xq = easytrader.use("xq")
         self.xq.prepare('../trade/config/xq'+p+'.json')
         self.db = MongoDB("strategy")
+        self.logger = get_logger(COLLECTION)
 
     def deal_strategy(self, strategys):
         for s in strategys:
@@ -33,8 +33,9 @@ class StoreStrategy:
         while i <= maxPage:
             maxPage, strategy = self.xq.get_strategy(i)
             time.sleep(10)
-            i += 1
             self.deal_strategy(strategy)
+            i += 1
+            record_msg(self.logger, str(i) + "/" + str(maxPage))
 
 if __name__  == "__main__":
     ss = StoreStrategy("3")
