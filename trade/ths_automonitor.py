@@ -9,13 +9,25 @@ class ThsMonitor(CNTrade):
     def __init__(self, p):
         super(ThsMonitor, self).__init__(p=p)
         self.logger = get_logger(COLLECTION)
+        self.position = {}
+
+    def get_sh_sz_percent(self):
+        sh_amount = 0
+        sz_amount = 0
+        for code in self.position:
+            if code[:1] == "60":
+                sh_amount += self.position[code]["amount"]
+            else:
+                sz_amount += self.position[code]["amount"]
+        return sh_amount, sz_amount
 
     def main(self):
         while 1:
             self.update_para()
             while is_trade_time(TEST_STATE, self.trade_time):
-                self.client.exec_order("get_position 600100", response=False)
-                record_msg(self.logger, "reflash....")
+                self.position = str_to_dict(self.client.exec_order("get_position all"))
+                sh_amount, sz_amount = self.get_sh_sz_percent()
+                record_msg(self.logger, "sh:" + sh_amount + ",  sz:" + sz_amount)
                 time.sleep(15 * 60)
 
 if __name__ == '__main__':
