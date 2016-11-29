@@ -2,7 +2,7 @@
 import sys
 from cn_trade import *
 COLLECTION = "ths_monitor"
-TEST_STATE = False
+TEST_STATE = True
 
 
 class ThsMonitor(CNTrade):
@@ -15,10 +15,10 @@ class ThsMonitor(CNTrade):
         sh_amount = 0
         sz_amount = 0
         for code in self.position:
-            if code[:1] == "60":
-                sh_amount += self.position[code]["amount"]
+            if code[0] == "6":
+                sh_amount += self.position[code]["turnover"]
             else:
-                sz_amount += self.position[code]["amount"]
+                sz_amount += self.position[code]["turnover"]
         return sh_amount, sz_amount
 
     def main(self):
@@ -27,7 +27,7 @@ class ThsMonitor(CNTrade):
             while is_trade_time(TEST_STATE, self.trade_time):
                 self.position = str_to_dict(self.client.exec_order("get_position all"))
                 sh_amount, sz_amount = self.get_sh_sz_percent()
-                record_msg(self.logger, "sh:" + sh_amount + ",  sz:" + sz_amount)
+                record_msg(self.logger, "sh:" + str(sh_amount) + ",  sz:" + str(sz_amount))
                 time.sleep(15 * 60)
 
 if __name__ == '__main__':
