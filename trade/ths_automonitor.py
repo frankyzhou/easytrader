@@ -19,6 +19,8 @@ class ThsMonitor(CNTrade):
                 sh_amount += self.position[code]["turnover"]
             else:
                 sz_amount += self.position[code]["turnover"]
+        sh_amount = int(sh_amount/10000) *1000
+        sz_amount = int(sz_amount/5000) *500
         return sh_amount, sz_amount
 
     def main(self):
