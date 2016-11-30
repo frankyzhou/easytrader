@@ -123,7 +123,7 @@ class WBTrader(WebTrader):
                 if info_json["ok"] == 0:
                     raise Exception
                 return info_json
-            except:
+            except Exception:
                 traceback.print_exc()
                 log.warn("json not correct. try to relogin.")
                 self.driver.save_screenshot("error.jpg")

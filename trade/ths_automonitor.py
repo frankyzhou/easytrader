@@ -61,7 +61,7 @@ class ThsMonitor(CNTrade):
                     time.sleep(15 * 60)
                     self.get_real_price()
                     self.get_sh_sz_percent()
-                except:
+                except Exception:
                     traceback.print_exc()
             self.sumup_today()
 

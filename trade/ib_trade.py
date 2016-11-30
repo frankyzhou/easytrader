@@ -146,6 +146,6 @@ if __name__ == '__main__':
         try:
             ib = ib_trade()
             ib.main()
-        except:
+        except Exception:
             traceback.print_exc()
             time.sleep(100)

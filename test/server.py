@@ -26,6 +26,6 @@ while 1:
     except (KeyboardInterrupt, SystemExit):
         print "raise"
         raise
-    except :
+    except Exception:
         print "traceback"
         traceback.print_exc()
