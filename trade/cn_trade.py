@@ -14,6 +14,7 @@ class CNTrade(object):
         self.trade_time = get_date_now("CN")
         self.is_update_stocks = False
         self.is_update_ports = False
+        self.is_report = False
         self.all_stocks_data = None
 
     def update_para(self):
@@ -31,7 +32,7 @@ class CNTrade(object):
                 self.is_update_stocks = False
                 self.all_stocks_data = None
                 self.is_update_ports = False
-                self.client.exec_order("get_position 600110", response=False)
+                self.is_report = False
         time.sleep(6)
 
     def trade_yjb(self, dif, code, price, amount, enable_amount):
