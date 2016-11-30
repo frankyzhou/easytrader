@@ -58,7 +58,7 @@ class ThsMonitor(CNTrade):
             while is_trade_time(TEST_STATE, self.trade_time):
                 try:
                     self.position = str_to_dict(self.client.exec_order("get_position all"))
-                    time.sleep(1 * 60)
+                    time.sleep(15 * 60)
                     self.get_real_price()
                     self.get_sh_sz_percent()
                 except:
