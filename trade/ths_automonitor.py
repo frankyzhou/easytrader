@@ -1,8 +1,9 @@
 # coding=utf-8
 import sys
 from cn_trade import *
+import traceback
 COLLECTION = "ths_monitor"
-TEST_STATE = True
+TEST_STATE = False
 
 
 class ThsMonitor(CNTrade):
@@ -27,10 +28,13 @@ class ThsMonitor(CNTrade):
         while 1:
             self.update_para()
             while is_trade_time(TEST_STATE, self.trade_time):
-                self.position = str_to_dict(self.client.exec_order("get_position all"))
-                sh_amount, sz_amount = self.get_sh_sz_percent()
-                record_msg(self.logger, "sh:" + str(sh_amount) + ",  sz:" + str(sz_amount))
-                time.sleep(15 * 60)
+                try:
+                    self.position = str_to_dict(self.client.exec_order("get_position all"))
+                    sh_amount, sz_amount = self.get_sh_sz_percent()
+                    record_msg(self.logger, "sh:" + str(sh_amount) + ",  sz:" + str(sz_amount))
+                    time.sleep(15 * 60)
+                except:
+                    traceback.print_exc()
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
