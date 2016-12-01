@@ -38,7 +38,7 @@ class StoreStrategy:
             time.sleep(10)
             try:
                 self.deal_strategy(strategy)
-            except:
+            except Exception:
                 traceback.print_exc()
                 time.sleep(60)
                 continue

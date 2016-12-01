@@ -198,7 +198,7 @@ class XueQiuTrader(WebTrader):
         try:
             url = self.config['portfolio_url'] + portfolio_code
             html = self.__get_html(url)
-        except Exception, e:
+        except Exception:
             traceback.print_exc()
         return html
 
