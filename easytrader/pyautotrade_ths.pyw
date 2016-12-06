@@ -109,6 +109,7 @@ class Operation:
                 stock["code"] = str(tokens[0])
                 stock["amount"] = int(tokens[2])
                 stock["enable"] = int(tokens[3])
+                #stock["name"] = str(tokens[1])
                 stock["turnover"] = float(tokens[8])
                 position_dict[stock["code"]] = copy.deepcopy(stock)
         return position_dict
