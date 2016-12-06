@@ -25,9 +25,8 @@ class ThsTrade:
 
         code = msg[1]
 
-        self.operation.clickRefreshButton()
-
         if type == GET_POSITION:
+            self.operation.clickRefreshButton()
             record_msg(self.logger, "查询仓位：" + code)
             return self.get_position_by_stock(code)
 
