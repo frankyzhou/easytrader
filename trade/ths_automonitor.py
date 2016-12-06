@@ -42,7 +42,7 @@ class ThsMonitor(CNTrade):
 
     def sumup_today(self):
         now = datetime.datetime.now()
-        if now > self.trade_time[3] and not self.is_report:
+        if now > self.trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
             # 大于3点才开始执行
             today = now.strftime("%Y-%m-%d")
             self.is_report = True

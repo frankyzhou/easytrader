@@ -7,7 +7,7 @@ __author__ = 'frankyzhou'
 # declare basic vars
 TEST_STATE = False
 DB_NAME = "Xueqiu"
-COLLECTION = "history_operation"
+COLLECTION = "xq_operation"
 SLIP_POINT = 0
 
 

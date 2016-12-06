@@ -14,63 +14,21 @@ options = webdriver.ChromeOptions()
 options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
 # options.add_argument("user-data-dir=C:\Users\\frankyzhou\AppData\Local\Google\Chrome\User Data")
 
-class WBTrader(WebTrader):
+class DFTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/wb.json'
 
     def __init__(self):
-        super(WBTrader, self).__init__()
+        super(DFTrader, self).__init__()
         self.multiple = 1000000
         # self.driver = webdriver.PhantomJS()
         self.driver = webdriver.Chrome(executable_path=chromedriver, chrome_options=options)
-        # self.driver = webdriver.Firefox(executable_path="C:\Program Files (x86)\Mozilla Firefox\\browser\geckodriver.exe", firefox_profile=fp)
 
     def login(self):
-        # isLogged = False
-        #
-        # while not isLogged:
-            #try:
-                self.driver.get("http://group.eastmoney.com/other,137596.html")
-                time.sleep(6)
-                self.driver.maximize_window()
-                if self.driver.title.find("我的首页") == 0:
-                    log.info("weibo has login!")
-                else:
-                    log.warn("need to login!")
-                    raise Exception
-                # login_field = self.driver.find_elements_by_link_text("登录")[0]
-                # login_field.click()
-                # time.sleep(5)
-                # name_field = self.driver.find_elements_by_name("username")[2]
-                # name_field.clear()
-                # name_field.send_keys(self.account_config['account'])
-                # password_field = self.driver.find_elements_by_name("password")[2]
-                # password_field.clear()
-                # password_field.send_keys(self.account_config['password'])
+        self.driver.get("http://group.eastmoney.com/other,137596.html")
+        time.sleep(6)
+        self.driver.maximize_window()
+        return True
 
-                # self.driver.save_screenshot("login.png")
-                # location = verify_pic.location  # 获取验证码x,y轴坐标
-                # size = verify_pic.size  # 获取验证码的长宽
-                # rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
-                #           int(location['y'] + size['height']))  # 写成我们需要截取的位置坐标
-                # i = Image.open("login.png")  # 打开截图
-                # frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取我们需要的区域
-                # frame4.save('vcode.jpg')
-                # code = raw_input("please input vcode: ")
-                # verify_field = self.driver.find_element_by_name("verifycode")
-                # verify_field.clear()
-                # verify_field.send_keys(unicode(code))
-            #except:
-                # log.info("not verifycode in this page!")
-                # submit = self.driver.find_element_by_class_name("W_btn_a")
-                # submit.click()
-                # time.sleep(20)
-
-                self.driver.get("http://m.weibo.cn")
-                time.sleep(5)
-                return True
-        # except:
-        #     traceback.print_exc()
-        #     return False
 
     def update_driver(self, url, sec=10):
         self.driver.get(url)
@@ -89,49 +47,19 @@ class WBTrader(WebTrader):
         return float(info_json["cards"][0]["card_group"][1]["group"][1]["item_title"]) * self.multiple
 
     def get_entrust(self):
-        msg = self.get_json(self.config["entrust_prefix"] + self.get_attr("portfolio_code") +
-                        self.config["entrust_fix"] + "1")
-        entrust = msg["cards"][0]["card_group"]
-        p1 = re.compile(r"\d+\-\d+\-\d+")
-        p2 = re.compile(r"\d+\:\d+")
-        p3 = re.compile(r"\d+\.\d+")
-        p4 = re.compile(r"\d+")
-        p5 = re.compile(u"[\u4e00-\u9fa5]+")
-
-        change_time = p1.findall(entrust[0]["desc"])[0]
-        del entrust[0]
-        for e in entrust:
-            e["report_time"] = change_time + " " + p2.findall(e["desc1"])[0] + ":00"
-            e["price"] = float(p3.findall(e["desc2"])[0])
-            e["amount"] = int(p4.findall(e["desc3"])[0])
-            e["stock_code"] = p4.findall(e["title_sub"])[0]
-            e["trade_type"] = re.findall(p5, e["desc2"].decode("utf8"))[0]
-            for key in e.keys():
-                if key not in ["report_time", "price", "amount", "stock_code", "trade_type"]:
-                    del e[key]
-
+        msg = self.driver.find_element_by_class_name("zuhe-cjtablediv").text.split("\n")
+        entrust = []
+        for e in msg:
+            stock = {}
+            tks = e.split()
+            stock["report_time"] = tks[0] + " " + tks[1]
+            stock["price"] = tks[5]
+            stock["amount"] = tks[4][:-1]
+            stock["stock_code"] = tks[3]
+            stock["trade_type"] = tks[2]
+            entrust.append(stock)
         return entrust
 
-    def get_json(self, url, limit=3):
-        times = 1
-        while times < limit:
-            self.driver.get(url)
-            time.sleep(5)
-            try:
-                bsObj = BeautifulSoup(self.driver.page_source, "lxml")
-                info_json = json.loads(bsObj.text)
-                if info_json["ok"] == 0:
-                    raise Exception
-                return info_json
-            except Exception:
-                traceback.print_exc()
-                log.warn("json not correct. try to relogin.")
-                self.driver.save_screenshot("error.jpg")
-                self.driver.refresh()
-                times += 1
-                time.sleep(10)
-
-        return "wrong"
 
 
 
