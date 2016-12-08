@@ -10,6 +10,7 @@ from .xqtrader import XueQiuTrader
 from .yhtrader import YHTrader
 from .yjbtrader import YJBTrader
 from .wbtrader import WBTrader
+from .dftrader import DFTrader
 
 def use(broker, debug=True, **kwargs):
     """用于生成特定的券商对象
@@ -39,6 +40,8 @@ def use(broker, debug=True, **kwargs):
         return GFTrader()
     if broker.lower() in ['wb', "WB"]:
         return WBTrader()
+    if broker.lower() in ['df', "DF"]:
+        return DFTrader()
 
 
 def follower(platform, **kwargs):

@@ -185,6 +185,14 @@ def get_client(host='127.0.0.1', textport=51500, timeout=15):
     return s
 
 
+def get_code_name(all_data, code, name=None):
+    n = all_data[["code", "name"]]
+    if name:
+        return n[n.name == name].values[0][0]
+    else:
+        return n[n.code == code].values[0][1]
+
+
 class client:
     def __init__(self, host):
         self.client = get_client(host=host)

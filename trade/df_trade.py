@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*
 import easytrader
-import time, sys
+import sys
 from cn_trade import *
 import traceback
 # declare basic vars
 TEST_STATE = False
-DB_NAME = "Weibo"
-COLLECTION = "wb_operation"
+DB_NAME = "Dongfang"
+COLLECTION = "df_operation"
 SLIP_POINT = 0.02
 
 
-class WBTrade(CNTrade):
+class DFTrade(CNTrade):
     def __init__(self, p):
-        super(WBTrade, self).__init__(p=p)
+        super(DFTrade, self).__init__(p=p)
         # 固定部分
-        self.wb = easytrader.use('wb')
+        self.wb = easytrader.use('df')
         self.wb.prepare("config/wb.json")
         self.logger = get_logger(COLLECTION)
         self.db = MongoDB(DB_NAME)
@@ -110,6 +110,6 @@ if __name__ == '__main__':
         print "usage: python wb_trade.py profilio_num[wb1,2,....n]"
         exit(-1)
     while 1:
-        wb = WBTrade(sys.argv[1])
+        wb = DFTrade(sys.argv[1])
         wb.main()
         time.sleep(60)
