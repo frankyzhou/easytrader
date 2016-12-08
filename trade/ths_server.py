@@ -42,9 +42,9 @@ class ThsTrade:
 
     def get_position_by_stock(self, code):
         position_broker = self.operation.getPosition()
+        rest_money = self.operation.getMoney()
         if code == "all":
             return position_broker
-        rest_money = self.operation.getMoney()
         stock_money = 0.01
         if len(position_broker) > 0:
             for k in position_broker.keys():
@@ -60,6 +60,7 @@ class ThsTrade:
 
     def main(self):
         top_hwnd = findTopWindow(wantedText=u'网上股票交易系统5.0')
+        address = 0
         if top_hwnd == 0:
             record_msg(self.logger, "无法找到客户端")
         else:
@@ -75,6 +76,7 @@ class ThsTrade:
                     return False
             except:
                 traceback.print_exc()
+                self.server.sendto("error", address)
                 record_msg(self.logger, "重新启动")
                 return True
 
