@@ -116,12 +116,12 @@ def get_logger(collection, name=None):
     return logger
 
 
-def record_msg(logger, msg, email=None):
+def record_msg(logger, msg, subject, email=None):
     if type(msg).__name__ != "unicode":
         msg = unicode(msg, "utf-8")
     logger.info(msg)
     if email:
-        email.send_email(msg)
+        email.send_email(msg, subject)
 
 
 def get_server(host='', port=51500):
@@ -306,14 +306,14 @@ class Email():
     def read_config(self, path):
         self.account_config = helpers.file2dict(path)
 
-    def send_email(self, msg):
+    def send_email(self, msg, subject=None):
         # 第三方 SMTP 服务
         # self.smtpObj = smtplib.SMTP()
         message = MIMEText(msg, 'plain', 'utf-8')
         message['From'] = "stock@163.com"
         message['To'] = "zlj"
 
-        subject = msg
+        subject = subject if not subject else msg
         message['Subject'] = Header(subject, 'utf-8')
         while(1):
             try:
