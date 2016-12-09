@@ -28,9 +28,9 @@ class ThsMonitor(CNTrade):
         record_msg(self.logger, "sh:" + str(sh_amount) + ",  sz:" + str(sz_amount))
 
     def get_real_price(self):
-        df_all = ts.get_today_all()
+        self.all_stocks_data = ts.get_today_all()
         for code in self.position:
-            s = df_all[df_all.code == code]
+            s = self.all_stocks_data[self.all_stocks_data.code == code]
             try:
                 if s["changepercent"].values[0] > 7:
                     print "\n"
@@ -39,7 +39,6 @@ class ThsMonitor(CNTrade):
                     print "\n"
                     record_msg(self.logger, str(code) + " down to 7%!", email=self.email)
             except:
-                #traceback.print_exc()
                 continue
 
     def sumup_today(self):
@@ -54,10 +53,12 @@ class ThsMonitor(CNTrade):
                 v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
                 p_change = df["p_change"].values[0]
                 turnover = df["turnover"].values[0]
-                record_msg(self.logger, str(code) + " c:" + str(p_change) + " t:" +str(turnover) +\
-                    "\np_ma: " + str(ma5/close) + " " + str(ma10/close) + " " + str(ma20/close) + \
-                    "\nv_ma: " + str(v_ma5/v) + " " + str(v_ma10/v) + " " + str(v_ma20/v)
-                           , email=self.email)
+                name = get_code_name(self.all_stocks_data, code=code)
+                url = "https://xueqiu.com/S/S%" + code % "H" if code[0] == 6 else "Z"
+                record_msg(self.logger, msg=str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
+                    "\np_ma: " + str(ma5/close) + " " + str(ma10/close) + " " + str(ma20/close) +\
+                           "\nURL:" + url, subject="report", email=self.email)
+                time.sleep(5)
 
     def main(self):
         while 1:
