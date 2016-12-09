@@ -187,10 +187,14 @@ def get_client(host='127.0.0.1', textport=51500, timeout=15):
 
 def get_code_name(all_data, code, name=None):
     n = all_data[["code", "name"]]
-    if name:
-        return n[n.name == name].values[0][0]
-    else:
-        return n[n.code == code].values[0][1]
+    try:
+        if name:
+            return n[n.name == name].values[0][0]
+        else:
+            return n[n.code == code].values[0][1]
+    except Exception, e:
+        print e
+        return code if not name else name
 
 
 class client:
@@ -313,7 +317,7 @@ class Email():
         message['From'] = "stock@163.com"
         message['To'] = "zlj"
 
-        subject = subject if not subject else msg
+        subject = subject if subject else msg
         message['Subject'] = Header(subject, 'utf-8')
         while(1):
             try:
