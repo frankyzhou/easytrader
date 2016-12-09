@@ -33,8 +33,10 @@ class ThsMonitor(CNTrade):
             s = df_all[df_all.code == code]
             try:
                 if s["changepercent"].values[0] > 7:
+                    print "\n"
                     record_msg(self.logger, str(code) + " up to 7%!", email=self.email)
                 if s["changepercent"].values[0] < -7:
+                    print "\n"
                     record_msg(self.logger, str(code) + " down to 7%!", email=self.email)
             except:
                 #traceback.print_exc()
