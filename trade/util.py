@@ -116,7 +116,7 @@ def get_logger(collection, name=None):
     return logger
 
 
-def record_msg(logger, msg, subject, email=None):
+def record_msg(logger, msg, subject=None, email=None):
     if type(msg).__name__ != "unicode":
         msg = unicode(msg, "utf-8")
     logger.info(msg)
