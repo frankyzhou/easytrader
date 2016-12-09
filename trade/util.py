@@ -313,7 +313,7 @@ class Email():
         message['From'] = "stock@163.com"
         message['To'] = "zlj"
 
-        subject = subject if not subject else msg
+        subject = subject if subject else msg
         message['Subject'] = Header(subject, 'utf-8')
         while(1):
             try:

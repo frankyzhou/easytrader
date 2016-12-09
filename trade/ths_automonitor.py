@@ -52,7 +52,8 @@ class ThsMonitor(CNTrade):
                 p_change = df["p_change"].values[0]
                 turnover = df["turnover"].values[0]
                 name = get_code_name(self.all_stocks_data, code=code)
-                url = "https://xueqiu.com/S/S%" + code % "H" if code[0] == 6 else "Z"
+                code_mk = "H" if code[0] == 6 else "Z"
+                url = "https://xueqiu.com/S/S" + code_mk + str(code)
                 record_msg(self.logger, msg=str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
                     "\np_ma: " + str(ma5/close) + " " + str(ma10/close) + " " + str(ma20/close) +\
                            "\nURL:" + url, subject="report", email=self.email)
