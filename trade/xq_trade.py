@@ -115,8 +115,8 @@ class XqTrade(CNTrade):
             try:
                 self.xq.set_attr("portfolio_code", k)
                 time.sleep(10)
-                entrust = self.xq.get_xq_entrust_checked()
-
+                # entrust = self.xq.get_xq_entrust_checked()
+                entrust = self.xq.get_entrust()
                 factor = self.portfolio_list[k]["factor"]
                 percent = self.portfolio_list[k]["percent"]
                 self.trade_by_entrust(entrust, k, factor, percent)

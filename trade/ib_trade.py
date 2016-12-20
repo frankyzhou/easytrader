@@ -129,7 +129,8 @@ class ib_trade:
                     # try:
                     self.xq.set_attr("portfolio_code", k)
                     time.sleep(10)
-                    entrust = self.xq.get_xq_entrust_checked()
+                    # entrust = self.xq.get_xq_entrust_checked()
+                    entrust = self.xq.get_entrust()
                     if entrust:
                         break
                     factor = portfolio_list[k]["factor"]
