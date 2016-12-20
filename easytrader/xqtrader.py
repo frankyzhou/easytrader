@@ -307,8 +307,10 @@ class XueQiuTrader(WebTrader):
             else:
                 status = "已成"
             for entrust in xq_entrusts['rebalancing_histories']:
-                if not entrust.has_key('prev_weight'):
-                    entrust['prev_weight'] = float(0) if not entrust.has_key("prev_weight_adjusted") else entrust["prev_weight_adjusted"]
+                if not entrust.has_key('prev_weight'):#实盘没有key，组合有，但新开仓为0的会为null
+                    entrust['prev_weight'] = float(0) if not entrust["prev_weight_adjusted"] else entrust["prev_weight_adjusted"]
+                if not entrust['prev_weight']: #key存在，但新开仓
+                    entrust['prev_weight'] = float(0)
                 volume = entrust['target_weight'] - entrust['prev_weight']
                 entrust_list.append({
                     'entrust_no': entrust['id'],
