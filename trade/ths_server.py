@@ -2,6 +2,7 @@
 from util import *
 from easytrader.pyautotrade_ths import *
 import traceback
+import logging
 
 COLLECTION = "yjb_operation"
 GET_POSITION = "get_position"
@@ -12,9 +13,9 @@ READ_SIZE = 8192
 
 
 class ThsTrade:
-    def __init__(self):
+    def __init__(self, is_first):
         self.server = get_server()
-        self.logger = get_logger(COLLECTION)
+        self.logger = get_logger(COLLECTION, is_first=is_first)
 
     def judge_opera(self, msg):
         msg = msg.split()
@@ -42,9 +43,7 @@ class ThsTrade:
 
     def get_position_by_stock(self, code):
         position_broker = self.operation.getPosition()
-        rest_money = self.operation.getMoney()
-        if code == "all":
-            return position_broker
+        rest_money = self.operation.getMoney()  # 获得资金，探测光标是否有效
         stock_money = 0.01
         if len(position_broker) > 0:
             for k in position_broker.keys():
@@ -52,6 +51,13 @@ class ThsTrade:
         total_money = rest_money + stock_money
         enable = 0
         percent = 0.0
+        for c in position_broker:
+            position_broker[c]["c_p"] = 100 * position_broker[c]["turnover"] / total_money
+            position_broker[c]["g_p"] = 100 * position_broker[c]["gain"] / position_broker[c]["turnover"] if position_broker[c]["turnover"] >0 else 0
+
+        if code == "all":
+            return position_broker
+
         if position_broker.has_key(code):
             enable = position_broker[code]["enable"]
             stock_turnover = position_broker[code]["turnover"]
@@ -84,5 +90,6 @@ if __name__ == '__main__':
     result = True
     is_first = True
     while result:
-        ths = ThsTrade()
+        ths = ThsTrade(is_first)
         result = ths.main()
+        is_first = False

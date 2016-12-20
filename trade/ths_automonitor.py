@@ -47,6 +47,7 @@ class ThsMonitor(CNTrade):
             # 大于3点才开始执行
             today = now.strftime("%Y-%m-%d")
             self.is_report = True
+            report = ""
             for code in self.position:
                 df = ts.get_hist_data(code, start=today)
                 close, ma5, ma10, ma20 = df["close"].values[0], df["ma5"].values[0], df["ma10"].values[0], df["ma20"].values[0]
@@ -54,12 +55,13 @@ class ThsMonitor(CNTrade):
                 p_change = df["p_change"].values[0]
                 turnover = df["turnover"].values[0]
                 name = get_code_name(self.all_stocks_data, code=code)
-                code_mk = "H" if code[0] == 6 else "Z"
+                code_mk = "H" if code[0] == "6" else "Z"
                 url = "https://xueqiu.com/S/S" + code_mk + str(code)
-                record_msg(self.logger, msg=str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
+
+                report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
                     "\np_ma: " + str(ma5/close) + " " + str(ma10/close) + " " + str(ma20/close) +\
-                           "\nURL:" + url, subject="report", email=self.email)
-                time.sleep(5)
+                           "\nURL:" + url + "\n"
+            record_msg(self.logger, msg=report, subject="每日持仓报告", email=self.email)
 
     def main(self):
         while 1:
@@ -72,7 +74,7 @@ class ThsMonitor(CNTrade):
                     time.sleep(5 * 60)
                 except Exception:
                     traceback.print_exc()
-                    time.sleep(30)
+                    time.sleep(60)
             self.sumup_today()
 
 if __name__ == '__main__':

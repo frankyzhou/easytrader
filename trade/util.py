@@ -92,7 +92,7 @@ def get_trade_date_series(country):
         return date_us
 
 
-def get_logger(collection, name=None):
+def get_logger(collection, name=None, is_first=True):
     time = datetime.datetime.now().strftime("%Y-%m-%d")
     name = "-" + name if name else ""
     logfile = '../logs/' + collection + "/" + time + name + '.log'
@@ -103,14 +103,15 @@ def get_logger(collection, name=None):
                         filename=logfile,
                         filemode='w')
     # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(filename)s %(lineno)s: %(message)s')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+    if is_first:
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(filename)s %(lineno)s: %(message)s')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
 
     logger = logging.getLogger(collection)
     return logger
@@ -205,7 +206,7 @@ class client:
         self.client.sendall(order)
         if not response:
             return
-        buf = self.client.recv(2048)
+        buf = self.client.recv(204800)
         if not len(buf):
             return "No data"
         return str(buf)
