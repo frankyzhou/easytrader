@@ -281,7 +281,8 @@ class XueQiuTrader(WebTrader):
             'count': 5,
             'page': 1
         }
-        r = self.session.get(self.config['history_url'], params=data)
+        url = self.config['history_url'] if self.account_config['portfolio_code'][:2] == "ZH" else self.config['sp_history_url']
+        r = self.session.get(url, params=data)
         r = json.loads(r.text)
         return r['list']
 
@@ -306,8 +307,8 @@ class XueQiuTrader(WebTrader):
             else:
                 status = "已成"
             for entrust in xq_entrusts['rebalancing_histories']:
-                if not entrust['prev_weight']:
-                    entrust['prev_weight'] = float(0)
+                if not entrust.has_key('prev_weight'):
+                    entrust['prev_weight'] = float(0) if not entrust.has_key("prev_weight_adjusted") else entrust["prev_weight_adjusted"]
                 volume = entrust['target_weight'] - entrust['prev_weight']
                 entrust_list.append({
                     'entrust_no': entrust['id'],

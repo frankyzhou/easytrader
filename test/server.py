@@ -21,11 +21,12 @@ while 1:
         print "Got data from ", address
 
         s.sendto("Data is received succeefully.", address)
+        a = 1/0
         print message
 
-    except (KeyboardInterrupt, SystemExit):
-        print "raise"
-        raise
+    # except (KeyboardInterrupt, SystemExit):
+    #     print "raise"
+    #     raise
     except Exception:
-        print "traceback"
+        print 1
         traceback.print_exc()
