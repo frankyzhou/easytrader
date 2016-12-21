@@ -44,9 +44,9 @@ class Operation:
         click(self.__control_hwnds[0][0])
         setEditText(self.__control_hwnds[0][0], str(code))
         setEditText(self.__control_hwnds[1][0], stop_price)
-        time.sleep(0.2)
+        #time.sleep(0.2)
         setEditText(self.__control_hwnds[2][0], quantity)
-        time.sleep(0.2)
+        time.sleep(1)
         clickButton(self.__control_hwnds[3][0])
         # time.sleep(1)
 
@@ -56,9 +56,9 @@ class Operation:
         click(self.__control_hwnds[4][0])
         setEditText(self.__control_hwnds[4][0], str(code))
         setEditText(self.__control_hwnds[5][0], stop_price)
-        time.sleep(0.2)
+        #time.sleep(0.2)
         setEditText(self.__control_hwnds[6][0], quantity)
-        time.sleep(0.2)
+        time.sleep(1)
         clickButton(self.__control_hwnds[7][0])
         # time.sleep(1)
 
@@ -67,12 +67,22 @@ class Operation:
         下单函数
         """
         # restoreFocusWindow(self.__top_hwnd)
-        if direction == 'B':
-            self.__buy(code, price, quantity)
-        if direction == 'S':
-            self.__sell(code, price, quantity)
-        time.sleep(1)
-        return closePopupWindow(self.__top_hwnd)
+        times = 3
+        msg = ""
+        while times > 0:
+            if direction == 'B':
+                self.__buy(code, price, quantity)
+            if direction == 'S':
+                self.__sell(code, price, quantity)
+            time.sleep(1)
+            msg = closePopupWindow(self.__top_hwnd)
+            if msg.find('存在') > -1:#证券代码不存在
+                times -= 1
+                time.sleep(1)
+                print u"代码不存在"
+            else:
+                break
+        return msg
 
     def clickRefreshButton(self):
         """
@@ -109,7 +119,7 @@ class Operation:
                 stock["code"] = str(tokens[0])
                 stock["amount"] = int(tokens[2])
                 stock["enable"] = int(tokens[3])
-                #stock["name"] = str(tokens[1])
+                stock["gain"] = float(tokens[4])
                 stock["turnover"] = float(tokens[8])
                 position_dict[stock["code"]] = copy.deepcopy(stock)
         return position_dict

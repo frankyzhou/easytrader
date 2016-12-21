@@ -92,7 +92,7 @@ def get_trade_date_series(country):
         return date_us
 
 
-def get_logger(collection, name=None):
+def get_logger(collection, name=None, is_first=True):
     time = datetime.datetime.now().strftime("%Y-%m-%d")
     name = "-" + name if name else ""
     logfile = '../logs/' + collection + "/" + time + name + '.log'
@@ -103,14 +103,15 @@ def get_logger(collection, name=None):
                         filename=logfile,
                         filemode='w')
     # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(filename)s %(lineno)s: %(message)s')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+    if is_first:
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(filename)s %(lineno)s: %(message)s')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
 
     logger = logging.getLogger(collection)
     return logger
@@ -187,10 +188,14 @@ def get_client(host='127.0.0.1', textport=51500, timeout=15):
 
 def get_code_name(all_data, code, name=None):
     n = all_data[["code", "name"]]
-    if name:
-        return n[n.name == name].values[0][0]
-    else:
-        return n[n.code == code].values[0][1]
+    try:
+        if name:
+            return n[n.name == name].values[0][0]
+        else:
+            return n[n.code == code].values[0][1]
+    except Exception, e:
+        print e
+        return code if not name else name
 
 
 class client:
@@ -201,7 +206,7 @@ class client:
         self.client.sendall(order)
         if not response:
             return
-        buf = self.client.recv(2048)
+        buf = self.client.recv(204800)
         if not len(buf):
             return "No data"
         return str(buf)
@@ -313,7 +318,7 @@ class Email():
         message['From'] = "stock@163.com"
         message['To'] = "zlj"
 
-        subject = subject if not subject else msg
+        subject = subject if subject else msg
         message['Subject'] = Header(subject, 'utf-8')
         while(1):
             try:
