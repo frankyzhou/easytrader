@@ -5,7 +5,7 @@ import traceback
 from cn_trade import *
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = True
+TEST_STATE = False
 DB_NAME = "Xueqiu"
 COLLECTION = "xq_operation"
 SLIP_POINT = 0
