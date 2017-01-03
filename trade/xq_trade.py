@@ -28,7 +28,6 @@ class XqTrade(CNTrade):
         # self.is_update_stocks = False
         # self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
 
-
     def trade_by_entrust(self, entrust, k, factor, percent):
         """
         解析每个组合的交易记录
@@ -41,13 +40,14 @@ class XqTrade(CNTrade):
         for trade in entrust:
             # only if entrust is today or not finished by no trade time
             if not TEST_STATE:
-                if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+                # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
+                trade["portfolio"] = k
+                if not is_today(trade["report_time"], self.last_trade_time) or self.db.exist_trade(COLLECTION, trade):
                     break
             else:
                 if self.db.get_doc(COLLECTION, trade):
                     continue
 
-            trade["portfolio"] = k
             record_msg(logger=self.logger, msg= k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
@@ -61,14 +61,14 @@ class XqTrade(CNTrade):
             2,the position is caled by xq;
             已经有比例，故其他需要对应
             """
-            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
-            before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
-            dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
-                                                       before_percent_yjb, asset, factor, code, trade)
-
-            result = self.trade(dif, code, price, amount, enable_amount)
-            record_msg(logger=self.logger,
-                       msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
+            # before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
+            # before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
+            # dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
+            #                                            before_percent_yjb, asset, factor, code, trade)
+            #
+            # result = self.trade(dif, code, price, amount, enable_amount)
+            # record_msg(logger=self.logger,
+            #            msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(COLLECTION, trade)
 
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
