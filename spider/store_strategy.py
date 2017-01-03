@@ -7,6 +7,7 @@ import traceback
 base_url = "https://xueqiu.com/v4/statuses/user_timeline.json?user_id=9796081404&page={0}&type=0&_=1479898855214"
 COLLECTION = "xq_strategy"
 
+
 class StoreStrategy:
     def __init__(self, p):
         self.xq = easytrader.use("xq")
