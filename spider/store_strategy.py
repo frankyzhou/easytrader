@@ -20,7 +20,7 @@ class StoreStrategy:
         for s in strategys:
             msg_dict = {}
             html = s["description"]
-            text = BeautifulSoup(html).text.split()
+            text = BeautifulSoup(html, "lxml").text.split()
             if text[0][0] != "$":
                 continue
             msg_dict["code"] = text[0]
@@ -54,6 +54,7 @@ class StoreStrategy:
             i += 1
             record_msg(self.logger, str(i) + "/" + str(maxPage))
             if result:
+                record_msg(self.logger, "updates " + str(num) + "records!")
                 time.sleep(12 * 60 * 60)
                 i = 1
                 num = 0
