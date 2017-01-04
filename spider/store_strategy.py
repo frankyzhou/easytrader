@@ -51,8 +51,8 @@ class StoreStrategy:
                 traceback.print_exc()
                 time.sleep(60)
                 continue
-            i += 1
             record_msg(self.logger, str(i) + "/" + str(maxPage))
+            i += 1
             if result:
                 record_msg(self.logger, "updates " + str(num) + "records!")
                 time.sleep(12 * 60 * 60)
