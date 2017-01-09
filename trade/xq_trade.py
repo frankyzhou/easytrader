@@ -74,18 +74,22 @@ class XqTrade(CNTrade):
         """
         for trade in entrust:
             # only if entrust is today or not finished by no trade time
+            trade["portfolio"] = k
             if not TEST_STATE:
                 if is_today(trade["report_time"], self.last_trade_time):
-                    trade["portfolio"] = k
-                    if not self.db.get_doc(SP_COLL, trade):
-                        if k[:2] == "SP":
+                    if self.db.exist_trade(OPEA_COLL, trade):  # 使用exist_trade防止实盘出现权重飘移
+                        continue  # 操作存在，但可能出现交叉成交，只跳过, 头做一次针对第一次就正确，也包含虚拟组合
+                    if k[:2] == "SP":  # 实盘特别处理
+                        if not self.db.get_doc(SP_COLL, trade):
                             self.db.insert_doc(SP_COLL, trade)
-                    if not judge_sp_trade(trade):
-                        trade = self.judge_sp_trades(trade)
+                        else:
+                            continue  # 若已插入，证明已经处理过，无需等到下面
                         if not judge_sp_trade(trade):
-                            continue  # 合并操作仍然不符合要求
-                    if self.db.get_doc(OPEA_COLL, trade):
-                        continue  # 操作存在，但可能出现交叉成交，只跳过
+                            trade = self.judge_sp_trades(trade)
+                            if not judge_sp_trade(trade):
+                                continue  # 合并操作仍然不符合要求
+                        if self.db.exist_trade(OPEA_COLL, trade):
+                            continue  # 操作存在，但可能出现交叉成交，只跳过，后面做一次，针对多次作对
                 else:
                     break  # 超时跳出大循环
             else:
