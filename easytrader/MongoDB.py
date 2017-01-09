@@ -52,7 +52,6 @@ class MongoDB:
         print coll.find_one({"_id": ObjectId(str(obj_id))})
 
     def clear_all_datas(self, coll):
-        #清空一个集合中的所有数据
         colls = self.db[coll]
         colls.drop()
 
@@ -60,6 +59,10 @@ class MongoDB:
         colls = self.db[coll]
         return colls.find_one({"report_time": str(trade["report_time"]), "portfolio": str(trade["portfolio"]), \
                       "stock_name": str(trade["stock_name"])})
+
+    def exist_stock(self, coll, trade):
+        colls = self.db[coll]
+        return colls.find({"portfolio": str(trade["portfolio"]), "stock_name": str(trade["stock_name"])})
 
 
 # if __name__ == '__main__':

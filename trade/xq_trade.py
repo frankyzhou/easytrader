@@ -1,14 +1,23 @@
 # -*- coding: utf-8 -*
 import easytrader
-import time, sys
+import sys
 import traceback
 from cn_trade import *
+import copy
 __author__ = 'frankyzhou'
 # declare basic vars
 TEST_STATE = False
 DB_NAME = "Xueqiu"
-COLLECTION = "xq_operation"
+OPEA_COLL = "xq_operation"
+SP_COLL = "shipan"
 SLIP_POINT = 0
+
+
+def judge_sp_trade(trade):
+    if trade["target_weight"] < 2.0 or trade["target_weight"] - trade["prev_weight"] > 9.0:
+        return True
+    else:
+        return False
 
 
 class XqTrade(CNTrade):
@@ -18,7 +27,7 @@ class XqTrade(CNTrade):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
         self.xq.set_attr("portfolio_code", "ZH776826")
-        self.logger = get_logger(COLLECTION)
+        self.logger = get_logger(OPEA_COLL)
         self.db = MongoDB(DB_NAME)
 
         # 每日更新 都在cn_trade里
@@ -27,6 +36,32 @@ class XqTrade(CNTrade):
         # self.all_stocks_data = None
         # self.is_update_stocks = False
         # self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
+
+    def judge_sp_trades(self, trade):
+        trade_list = []
+        trade_new = copy.deepcopy(trade)
+        trade_cur = self.db.exist_stock(SP_COLL, trade)
+        target_max = 0
+        target_min = 0
+        prev_max = 0
+        prev_min = 0
+        oper = ""
+        for trade_tmp in trade_cur:
+            if is_today(trade_tmp["report_time"], self.last_trade_time):
+                target_max = max(target_max, trade_tmp["target_weight"])
+                target_min = min(target_min, trade_tmp["target_weight"])
+                prev_max = max(prev_max, trade_tmp["prev_weight"])
+                prev_min = min(prev_min, trade_tmp["prev_weight"])
+                oper = trade["entrust_bs"]
+                trade_list.append(trade_tmp)
+        if oper == "买入":
+            trade_new["prev_weight"] = prev_min
+            trade_new["target_weight"] = target_max
+        else:
+            trade_new["prev_weight"] = prev_max
+            trade_new["target_weight"] = target_min
+        trade_new["report_time"] = trade_list[-1]["report_time"]
+        return trade_new
 
     def trade_by_entrust(self, entrust, k, factor, percent):
         """
@@ -40,18 +75,26 @@ class XqTrade(CNTrade):
         for trade in entrust:
             # only if entrust is today or not finished by no trade time
             if not TEST_STATE:
-                # if not is_today(trade["report_time"], self.last_trade_time) or self.db.get_doc(COLLECTION, trade):
-                trade["portfolio"] = k
-                if not is_today(trade["report_time"], self.last_trade_time) or self.db.exist_trade(COLLECTION, trade):
-                    break
+                if is_today(trade["report_time"], self.last_trade_time):
+                    trade["portfolio"] = k
+                    if not self.db.get_doc(SP_COLL, trade):
+                        if k[:2] == "SP":
+                            self.db.insert_doc(SP_COLL, trade)
+                    if not judge_sp_trade(trade):
+                        trade = self.judge_sp_trades(trade)
+                        if not judge_sp_trade(trade):
+                            continue  # 合并操作仍然不符合要求
+                    if self.db.get_doc(OPEA_COLL, trade):
+                        continue  # 操作存在，但可能出现交叉成交，只跳过
+                else:
+                    break  # 超时跳出大循环
             else:
-                if self.db.get_doc(COLLECTION, trade):
+                if self.db.get_doc(OPEA_COLL, trade):
                     continue
 
             record_msg(logger=self.logger, msg= k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
-            # target_percent = trade["target_weight"] * percent /100 if trade["target_weight"] > 2.0 else 0.0
             target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
                 else trade["target_weight"] * percent /100
             # 防止进入仓位1%，认为是卖出
@@ -69,7 +112,7 @@ class XqTrade(CNTrade):
             result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
-            self.db.insert_doc(COLLECTION, trade)
+            self.db.insert_doc(OPEA_COLL, trade)
 
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
         """
@@ -115,7 +158,6 @@ class XqTrade(CNTrade):
             try:
                 self.xq.set_attr("portfolio_code", k)
                 time.sleep(10)
-                # entrust = self.xq.get_xq_entrust_checked()
                 entrust = self.xq.get_entrust()
                 factor = self.portfolio_list[k]["factor"]
                 percent = self.portfolio_list[k]["percent"]
