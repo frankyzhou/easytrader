@@ -12,7 +12,7 @@ from decimal import Decimal
 import ast
 import re
 from easytrader.log import log
-
+# ts.fund_holdings()
 # after the last trade day
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
