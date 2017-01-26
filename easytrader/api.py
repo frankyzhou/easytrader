@@ -55,7 +55,7 @@ def follower(platform, **kwargs):
 
         >>> import easytrader
         >>> user = easytrader.use('xq')
-        >>> user.prepare('xq.json')
+        >>> user.prepare(xxq0.json)
         >>> jq = easytrader.follower('jq')
         >>> jq.login(user='username', password='password')
         >>> jq.follow(users=user, strategies=['strategies_link'])

@@ -6,7 +6,8 @@ from easytrader import helpers
 import pymongo
 import datetime
 
-class MongoDB():
+
+class MongoDB:
     def __init__(self, db):
         """载入MongoDB数据库的配置"""
         try:
@@ -33,7 +34,6 @@ class MongoDB():
         return colls.find_one(info)
         # print coll.find_one({"name": "none"})
 
-
     def get_one_by_id(db):
         # 通过objectid来查找一个doc
         coll = db['informations']
@@ -52,39 +52,48 @@ class MongoDB():
         print coll.find_one({"_id": ObjectId(str(obj_id))})
 
     def clear_all_datas(self, coll):
-        #清空一个集合中的所有数据
         colls = self.db[coll]
         colls.drop()
 
-if __name__ == '__main__':
-    db = MongoDB("Positions", "IB")
-    # get_doc(db, "example", "sdfa")
-    post =  {
-    "ZH776826" : {
-        "RIO" : {"price":28.34, "volume":2453},
-        "DUST" : {"price":11.02, "volume":349},
-        "DGAZ" : {"price":12.18, "volume":44},
-        "DWTI" : {"price":74.84, "volume":105},
-    },
-    "date": datetime.datetime.now(),
-    "ZH796463" : {
-        "LGCY" : {"price":2.32, "volume":9800},
-    }
-    }
+    def exist_trade(self, coll, trade):
+        colls = self.db[coll]
+        return colls.find_one({"report_time": str(trade["report_time"]), "portfolio": str(trade["portfolio"]), \
+                      "stock_name": str(trade["stock_name"])})
 
-    # # 插入记录
-    db.insert_doc(post)
-    # # 条件查询
-    # # 查询表中所有的数据
-    for iii in db.coll.find():
-        print iii
-    # print my_collection.count()
-    # my_collection.update({"author": "Mike"},
-    #                      {"author": "quyang", "text": "My first blog post!", "tags": ["mongodb", "python", "pymongo"],
-    #                       "date": datetime.datetime.utcnow()})
-    # for jjj in my_collection.find():
-    #     print jjj
-    # get_doc(db)
-    # get_one_by_id(db)
-    # get_many_docs(db)
-    # clear_all_datas(db)
+    def exist_stock(self, coll, trade):
+        colls = self.db[coll]
+        return colls.find({"portfolio": str(trade["portfolio"]), "stock_name": str(trade["stock_name"])})
+
+
+# if __name__ == '__main__':
+#     db = MongoDB("Positions", "IB")
+#     # get_doc(db, "example", "sdfa")
+#     post =  {
+#     "ZH776826" : {
+#         "RIO" : {"price":28.34, "volume":2453},
+#         "DUST" : {"price":11.02, "volume":349},
+#         "DGAZ" : {"price":12.18, "volume":44},
+#         "DWTI" : {"price":74.84, "volume":105},
+#     },
+#     "date": datetime.datetime.now(),
+#     "ZH796463" : {
+#         "LGCY" : {"price":2.32, "volume":9800},
+#     }
+#     }
+#
+#     # # 插入记录
+#     db.insert_doc(post)
+#     # # 条件查询
+#     # # 查询表中所有的数据
+#     for iii in db.coll.find():
+#         print iii
+#     # print my_collection.count()
+#     # my_collection.update({"author": "Mike"},
+#     #                      {"author": "quyang", "text": "My first blog post!", "tags": ["mongodb", "python", "pymongo"],
+#     #                       "date": datetime.datetime.utcnow()})
+#     # for jjj in my_collection.find():
+#     #     print jjj
+#     # get_doc(db)
+#     # get_one_by_id(db)
+#     # get_many_docs(db)
+#     # clear_all_datas(db)

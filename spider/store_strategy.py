@@ -7,6 +7,7 @@ import traceback
 base_url = "https://xueqiu.com/v4/statuses/user_timeline.json?user_id=9796081404&page={0}&type=0&_=1479898855214"
 COLLECTION = "xq_strategy"
 
+
 class StoreStrategy:
     def __init__(self, p):
         self.xq = easytrader.use("xq")
@@ -15,10 +16,11 @@ class StoreStrategy:
         self.logger = get_logger(COLLECTION)
 
     def deal_strategy(self, strategys):
+        num = 0
         for s in strategys:
             msg_dict = {}
             html = s["description"]
-            text = BeautifulSoup(html).text.split()
+            text = BeautifulSoup(html, "lxml").text.split()
             if text[0][0] != "$":
                 continue
             msg_dict["code"] = text[0]
@@ -29,21 +31,33 @@ class StoreStrategy:
             msg_dict["reason"] = msg[2][3:]
             if not self.db.get_doc(msg_dict["title"], msg_dict):
                 self.db.insert_doc(msg_dict["title"], msg_dict)
+                num += 1
+            else:
+                return True, num
+        return False, num
 
     def main(self):
         maxPage = 20000
-        i = 1062
+        i = 1
+        result = False
+        num = 0
         while i <= maxPage:
             maxPage, strategy = self.xq.get_strategy(i)
             time.sleep(10)
             try:
-                self.deal_strategy(strategy)
+                result, num_tmp = self.deal_strategy(strategy)
+                num += num_tmp
             except Exception:
                 traceback.print_exc()
                 time.sleep(60)
                 continue
-            i += 1
             record_msg(self.logger, str(i) + "/" + str(maxPage))
+            i += 1
+            if result:
+                record_msg(self.logger, "updates " + str(num) + "records!")
+                time.sleep(12 * 60 * 60)
+                i = 1
+                num = 0
 
 if __name__  == "__main__":
     ss = StoreStrategy("3")
