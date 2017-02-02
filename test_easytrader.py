@@ -1,9 +1,12 @@
+# coding: utf-8
+
 import unittest
 from datetime import datetime
 
 import easytrader
 from easytrader import JoinQuantFollower
 from easytrader import helpers
+from easytrader.follower import BaseFollower
 
 
 class TestEasytrader(unittest.TestCase):
@@ -160,6 +163,15 @@ class TestJoinQuantFollower(unittest.TestCase):
                 test,
                 result
             )
+
+
+class TestFollower(unittest.TestCase):
+    def test_is_number(self):
+        cases = [('1', True),
+                 ('--', False)]
+        for string, result in cases:
+            test = BaseFollower._is_number(string)
+            self.assertEqual(test, result)
 
 
 if __name__ == '__main__':

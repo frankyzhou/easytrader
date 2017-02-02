@@ -16,6 +16,7 @@ class JoinQuantFollower(BaseFollower):
     LOGIN_API = 'https://www.joinquant.com/user/login/doLogin?ajax=1'
     TRANSACTION_API = 'https://www.joinquant.com/algorithm/live/transactionDetail'
     WEB_REFERER = 'https://www.joinquant.com/user/login/index'
+    WEB_ORIGIN = 'https://www.joinquant.com'
 
     def create_login_params(self, user, password):
         params = {
@@ -33,7 +34,7 @@ class JoinQuantFollower(BaseFollower):
             'cookie': set_cookie
         })
 
-    def follow(self, users, strategies, track_interval=10, trade_cmd_expire_seconds=120, cmd_cache=True):
+    def follow(self, users, strategies, track_interval=1, trade_cmd_expire_seconds=120, cmd_cache=True):
         """跟踪joinquant对应的模拟交易，支持多用户多策略
         :param users: 支持easytrader的用户对象，支持使用 [] 指定多个用户
         :param strategies: joinquant 的模拟交易地址，支持使用 [] 指定多个模拟交易,
@@ -78,7 +79,7 @@ class JoinQuantFollower(BaseFollower):
         today_str = datetime.today().strftime('%Y-%m-%d')
         params = {
             'backtestId': strategy,
-            'data': today_str,
+            'date': today_str,
             'ajax': 1
         }
         return params

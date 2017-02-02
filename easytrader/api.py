@@ -4,6 +4,7 @@ import logging
 from .gftrader import GFTrader
 from .httrader import HTTrader
 from .joinquant_follower import JoinQuantFollower
+from .ricequant_follower import RiceQuantFollower
 from .log import log
 from .xq_follower import XueQiuFollower
 from .xqtrader import XueQiuTrader
@@ -42,6 +43,9 @@ def use(broker, debug=True, **kwargs):
         return WBTrader()
     if broker.lower() in ['df', "DF"]:
         return DFTrader()
+    if broker.lower() in ['yh_client', '银河客户端']:
+        from .yh_clienttrader import YHClientTrader
+        return YHClientTrader()
 
 
 def follower(platform, **kwargs):
@@ -60,6 +64,8 @@ def follower(platform, **kwargs):
         >>> jq.login(user='username', password='password')
         >>> jq.follow(users=user, strategies=['strategies_link'])
     """
+    if platform.lower() in ['rq', 'ricequant', '米筐']:
+        return RiceQuantFollower()
     if platform.lower() in ['jq', 'joinquant', '聚宽']:
         return JoinQuantFollower()
     if platform.lower() in ['xq', 'xueqiu', '雪球']:

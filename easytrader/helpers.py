@@ -22,11 +22,6 @@ if six.PY2:
     from io import open
 
 
-class EntrustProp(object):
-    Limit = 'limit'
-    Market = 'market'
-
-
 class Ssl3HttpAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
         self.poolmanager = PoolManager(num_pools=connections,
@@ -48,7 +43,7 @@ def get_stock_type(stock_code):
     ['5', '6', '9'] 开头的为 sh， 其余为 sz
     :param stock_code:股票ID, 若以 'sz', 'sh' 开头直接返回对应类型，否则使用内置规则判断
     :return 'sh' or 'sz'"""
-    assert type(stock_code) is str, 'stock code need str type'
+    stock_code = str(stock_code)
     if stock_code.startswith(('sh', 'sz')):
         return stock_code[:2]
     if stock_code.startswith(('50', '51', '60', '73', '90', '110', '113', '132', '204', '78')):
@@ -88,8 +83,23 @@ def recognize_verify_code(image_path, broker='ht'):
         return detect_gf_result(image_path)
     elif broker == 'yh':
         return detect_yh_result(image_path)
+    elif broker == 'yh_client':
+        return detect_yh_client_result(image_path)
     # 调用 tesseract 识别
     return default_verify_code_detect(image_path)
+
+
+def detect_yh_client_result(image_path):
+    """封装了tesseract的识别，部署在阿里云上，服务端源码地址为： https://github.com/shidenggui/yh_verify_code_docker"""
+    api = 'http://123.56.157.162:5000/yh_client'
+    with open(image_path, 'rb') as f:
+        rep = requests.post(api, files={
+            'image': f
+        })
+    if rep.status_code != 201:
+        error = rep.json()['message']
+        raise Exception('request {} error: {]'.format(api, error))
+    return rep.json()['result']
 
 
 def input_verify_code_manual(image_path):
@@ -186,7 +196,7 @@ def detect_gf_result(image_path):
 
 
 def detect_yh_result(image_path):
-    """封装了tesseract的中文识别，部署在daocloud上，服务端源码地址为： https://github.com/shidenggui/yh_verify_code_docker"""
+    """封装了tesseract的中文识别，部署在阿里云上，服务端源码地址为： https://github.com/shidenggui/yh_verify_code_docker"""
     api = 'http://123.56.157.162:5000/yh'
     with open(image_path, 'rb') as f:
         try:
