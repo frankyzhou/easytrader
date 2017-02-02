@@ -6,7 +6,7 @@ from cn_trade import *
 import copy
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = True
+TEST_STATE = False
 DB_NAME = "Xueqiu"
 OPEA_COLL = "xq_operation"
 SP_COLL = "shipan"
@@ -26,16 +26,9 @@ class XqTrade(CNTrade):
         super(XqTrade, self).__init__(p=p)
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
-        self.xq.set_attr("portfolio_code", "ZH776826")
+        self.xq.set_attr("portfolio_code", "ZH831968")
         self.logger = get_logger(OPEA_COLL)
         self.db = MongoDB(DB_NAME)
-
-        # 每日更新 都在cn_trade里
-        # self.last_trade_time = get_trade_date_series("CN")
-        # self.trade_time = get_date_now("CN")
-        # self.all_stocks_data = None
-        # self.is_update_stocks = False
-        # self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
 
     def judge_sp_trades(self, trade):
         trade_list = []
@@ -95,25 +88,17 @@ class XqTrade(CNTrade):
             else:
                 if self.db.get_doc(OPEA_COLL, trade):
                     continue
-
+            self.xq.set_attr("portfolio_code", "ZH831968")
             record_msg(logger=self.logger, msg= k + " updates new operation!" +
                                                " @ " + trade["report_time"])
             code = str(trade["stock_code"][2:])
-            target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
-                else trade["target_weight"] * percent /100
-            # 防止进入仓位1%，认为是卖出
-            """
-            before_percent has two version.
-            1.the position is caled by yjb;
-            2,the position is caled by xq;
-            已经有比例，故其他需要对应
-            """
-            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
-            before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
-            dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
-                                                       before_percent_yjb, asset, factor, code, trade)
+            balance = self.xq.get_balance()[0]
+            enable = balance["enable_balance"] / balance["asset_balance"] * 100
+            target = trade["target_weight"] if trade["entrust_bs"] == u"卖出" else min(enable, trade["target_weight"])
 
-            result = self.trade(dif, code, price, amount, enable_amount)
+            self.xq.adjust_weight(code, target)
+
+            result = trade["entrust_bs"] + " " + trade["stock_name"] + " " + str(target)
             record_msg(logger=self.logger,
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(OPEA_COLL, trade)
