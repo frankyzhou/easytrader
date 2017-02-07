@@ -70,11 +70,13 @@ class ThsTrade:
 
     def main(self):
         top_hwnd = findTopWindow(wantedText=u'网上股票交易系统5.0')
+
         address = 0
         if top_hwnd == 0:
             record_msg(self.logger, "无法找到客户端")
         else:
             self.operation = Operation(top_hwnd)
+            self.operation.ipo()
             record_msg(self.logger, "成功找到客户端")
         while 1:
             try:
