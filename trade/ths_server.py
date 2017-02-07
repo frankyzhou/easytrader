@@ -6,6 +6,7 @@ import logging
 
 COLLECTION = "yjb_operation"
 GET_POSITION = "get_position"
+IPO = "ipo"
 BUY = "buy"
 SELL = "sell"
 STOP = "stop"
@@ -25,6 +26,9 @@ class ThsTrade:
             return STOP
 
         code = msg[1]
+
+        if type == IPO:
+            self.operation
 
         if type == GET_POSITION:
             self.operation.clickRefreshButton()

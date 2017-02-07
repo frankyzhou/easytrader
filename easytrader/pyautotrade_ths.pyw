@@ -9,7 +9,8 @@ import time
 import copy
 import win32con
 import tushare as ts
-
+import win32gui
+import win32api
 from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
@@ -124,6 +125,23 @@ class Operation:
                 position_dict[stock["code"]] = copy.deepcopy(stock)
         return position_dict
 
+    def ipo(self):
+        # left, top, right, bottom = win32gui.GetWindowRect(self.__top_hwnd)
+        for hwnd, text_name, class_name in dumpWindows(self.__top_hwnd):
+            if class_name == "msctls_statusbar32":  #获得底部类名
+                left1, top1, right1, bottom1 = win32gui.GetWindowRect(hwnd)
+                # 获得位置
+                x_point = left1 + (right1 - left1) * 0.6
+                y_point = (top1 + bottom1) / 2
+                win32api.SetCursorPos([int(x_point), int(y_point)])
+                # 点击
+                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+                time.sleep(0.2)
+                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+                time.sleep(1)
+                #　关闭弹窗
+                closePopupWindow(self.__top_hwnd)
+
 #     查询委托：control_hwnds[16][0], 其他持仓可以使用快捷键
 
 def pickCodeFromItems(items_info):
@@ -187,6 +205,7 @@ def monitor():
         tkMessageBox.showerror('错误', '请先打开华泰证券交易软件，再运行本软件')
     else:
         operation = Operation(top_hwnd)
+        operation.ipo()
 
     while is_monitor and top_hwnd:
         if is_start:
