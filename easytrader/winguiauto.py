@@ -122,10 +122,14 @@ def findSubWindows(windows, numChildWindows):
         windowContent = dumpWindow(childHwnd)
         # print "-"*20 + str(windows.index(window))
         # for hwnd, text_name, class_name in windowContent:
-        #     # print text_name.decode("gbk")
-        # if len(windowContent) > 0:
-        #     print len(windowContent)
-        #     print windowText
+        #     print text_name.decode("gbk")
+        #     try:
+        #         for hwnd1, text_name1, class_name1 in dumpWindows(hwnd):
+        #             print text_name1.decode("gbk")
+        #             # for hwnd2, text_name2, class_name2 in dumpWindows(hwnd1):
+        #             #     print text_name2.decode("gbk")
+        #     except:
+        #         continue
         if len(windowContent) == numChildWindows:
             return windowContent
 
