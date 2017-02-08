@@ -27,8 +27,8 @@ class ThsTrade:
 
         code = msg[1]
 
-        if type == IPO:
-            self.operation
+        # if type == IPO:
+        #     self.operation
 
         if type == GET_POSITION:
             self.operation.clickRefreshButton()
