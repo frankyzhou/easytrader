@@ -60,7 +60,7 @@ class XqTrade(CNTrade):
         else:
             trade_new["prev_weight"] = prev_max
             trade_new["target_weight"] = target_min
-        trade_new["report_time"] = trade_list[-1]["report_time"]
+        trade_new["report_time"] = trade_list[0]["report_time"]  # 第一个不会变，避免出现最后一次交易后，之前结果会重复交易
         return trade_new
 
     def trade_by_entrust(self, entrust, k, factor, percent):
