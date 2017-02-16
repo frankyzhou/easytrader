@@ -51,7 +51,8 @@ def get_four_five(num, pre=3):
 def get_date_now(country):
     now_time = datetime.datetime.now()
     if country == "CN":
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 30, 0)
+        # 开盘提前更新数据
+        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
         trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 30, 0)
         trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 13, 0, 0)
         trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 0, 0)
