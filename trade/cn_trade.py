@@ -77,6 +77,9 @@ class CNTrade(object):
         """
         result = {}
         result["status"] = "OK"
+        if code[0] == "5":
+            result["trade"] = "暂时不支持操作 " + code
+            return result
         if dif > 0:
                 if amount >= 100:
                     result["status"] = self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount))
@@ -94,4 +97,5 @@ class CNTrade(object):
             result["trade"] = code + " 数量为0，不动！"
 
         result = result["status"] + " " + result["trade"] if result["status"] != "OK" else result["trade"]
+
         return result
