@@ -94,7 +94,7 @@ class XqTrade(CNTrade):
             code = str(trade["stock_code"][2:])
             balance = self.xq.get_balance()[0]
             enable = balance["enable_balance"] / balance["asset_balance"] * 100
-            target = trade["target_weight"] if trade["entrust_bs"] == u"卖出" else min(enable, trade["target_weight"])
+            target = percent * trade["target_weight"] if trade["entrust_bs"] == u"卖出" else min(enable, percent * trade["target_weight"])
 
             self.xq.adjust_weight(code, target)
 

@@ -131,7 +131,7 @@ class Operation:
             if class_name == "msctls_statusbar32":  #获得底部类名
                 left1, top1, right1, bottom1 = win32gui.GetWindowRect(hwnd)
                 # 获得位置
-                x_point = left1 + (right1 - left1) * 0.8
+                x_point = left1 + (right1 - left1) * 0.75
                 y_point = (top1 + bottom1) / 2
                 win32api.SetCursorPos([int(x_point), int(y_point)])
                 # 点击
