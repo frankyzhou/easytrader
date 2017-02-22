@@ -187,13 +187,9 @@ def closePopupWindow(top_hwnd, wantedText=None, wantedClass=None):
     windows = dumpWindows(hwnd_popup)
     if windows[0][1].decode("gbk") == u"提示":
         left, top, right, bottom = win32gui.GetWindowRect(windows[5][0])
-        win32api.SetCursorPos([(right - left) //2 + left, 2* (bottom - top) // 3 + top])
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-        time.sleep(0.2)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-        time.sleep(1)
-
-        clickButton(windows[1][0])
+        clickOnVerticalTimes(left, top, right, bottom, 0.2, 0.8, 20)
+        time.sleep(2)
+        clickButton(windows[1][0])  # 关闭窗口
         print "ipo has been done!"
         return
     hwnd_text = windows[2][0]
@@ -206,6 +202,18 @@ def closePopupWindow(top_hwnd, wantedText=None, wantedClass=None):
         clickButton(hwnd_control)
         return error
     return "OK"
+
+
+def clickOnVerticalTimes(left, top, right, bottom, up_limit, down_limit, times):
+    width = right - left
+    height = bottom - top
+    for i in range(times):
+        win32api.SetCursorPos([width //2 + left, int((float(i+1) / times * (down_limit - up_limit) + up_limit) * height) + top])
+        # x为中点位置，  y 为 上部分top加上偏移总起点up_limit*height加上偏移每分量i*(down_limit-up_limit) * height, 结果转为int
+        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+        time.sleep(0.2)
+        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+        time.sleep(0.2)
 
 
 def closePopupWindows(top_hwnd):
