@@ -144,7 +144,7 @@ class Operation:
                 # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
                 # time.sleep(1)
                 # 关闭弹窗
-                # closePopupWindow(self.__top_hwnd)
+                closePopupWindow(self.__top_hwnd)
 
 #     查询委托：control_hwnds[16][0], 其他持仓可以使用快捷键
 
