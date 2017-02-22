@@ -10,7 +10,7 @@ import copy
 import win32con
 import tushare as ts
 import win32gui
-import win32api
+import pyautogui
 from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
@@ -133,14 +133,18 @@ class Operation:
                 # 获得位置
                 x_point = left1 + (right1 - left1) * 0.8
                 y_point = (top1 + bottom1) / 2
-                win32api.SetCursorPos([int(x_point), int(y_point)])
+                # win32api.SetCursorPos([int(x_point), int(y_point)])
+                pyautogui.moveTo(int(x_point), int(y_point))
+                pyautogui.click()
+                time.sleep(5)
                 # 点击
-                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-                time.sleep(0.2)
-                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-                time.sleep(1)
-                #　关闭弹窗
-                closePopupWindow(self.__top_hwnd)
+
+                # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+                # time.sleep(0.2)
+                # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+                # time.sleep(1)
+                # 关闭弹窗
+                # closePopupWindow(self.__top_hwnd)
 
 #     查询委托：control_hwnds[16][0], 其他持仓可以使用快捷键
 
