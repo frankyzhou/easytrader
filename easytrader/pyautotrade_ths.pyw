@@ -133,16 +133,10 @@ class Operation:
                 # 获得位置
                 x_point = left1 + (right1 - left1) * 0.8
                 y_point = (top1 + bottom1) / 2
-                # win32api.SetCursorPos([int(x_point), int(y_point)])
                 pyautogui.moveTo(int(x_point), int(y_point))
+                # 点击
                 pyautogui.click()
                 time.sleep(5)
-                # 点击
-
-                # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-                # time.sleep(0.2)
-                # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-                # time.sleep(1)
                 # 关闭弹窗
                 closePopupWindow(self.__top_hwnd)
 
