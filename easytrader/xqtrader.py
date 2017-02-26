@@ -597,7 +597,7 @@ class XueQiuTrader(WebTrader):
         data = {
             "cube_symbol": str(self.account_config['portfolio_code'])
         }
-        r = self.requests.get(self.config['profit_daily'], headers=self.headers, cookies=self.cookies, params=data)
+        r = self.session.get(self.config['profit_daily'], params=data)
         if r.status_code != 200:
             print r.status_code
             return None
