@@ -607,9 +607,12 @@ class XueQiuTrader(WebTrader):
     def get_viewer(self):
         viewer = 0
         if len(self.html) > 0:
-            start = self.html.find("\"num\"") + 6
-            end = self.html.find("\n人关注")
-            viewer = int(self.html[start: end])
+            try:
+                start = self.html.find("\"num\"") + 6
+                end = self.html.find("\n人关注")
+                viewer = int(self.html[start: end])
+            except:
+                return 0
         return viewer
 
     def is_stop(self):
