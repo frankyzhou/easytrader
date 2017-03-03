@@ -627,8 +627,11 @@ class XueQiuTrader(WebTrader):
         if len(self.html) > 0:
             start = self.html.find("最近三个月调仓")
             end = self.html.find("</span> 次")
-            if start > -1 :
-                trade_times = int(self.html[start + 41: end])
+            if start > -1:
+                try:
+                    trade_times = int(self.html[start + 41: end])
+                except:
+                    return 0
         return trade_times
 
     def get_pname(self):
