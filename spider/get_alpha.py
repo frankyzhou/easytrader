@@ -222,7 +222,7 @@ if __name__ == '__main__':
         if start:
             alpha = GetAlpha()
             start = alpha.main(start, end, is_first)
-            # is_first = False
+            is_first = False
             time.sleep(60*10)
         else:
             break
