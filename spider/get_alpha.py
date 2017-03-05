@@ -160,8 +160,8 @@ class GetAlpha(CNTrade):
             print portfolio_list[p_name]["name"] + ": alpha:" + str(alpha) + " beta:" + str(beta) + \
                   " sharp:" + str(sharp) + " volatility:" + str(volatility) + " maxdown:" + str(maxdown)
 
-    def main(self, s, e):
-        self.logger = get_logger(COLLECTION, name=str(s)+"-"+str(e))
+    def main(self, s, e, is_first):
+        self.logger = get_logger(COLLECTION, name=str(s)+"-"+str(e), is_first=is_first)
         s = int(s)
         e = int(e)
         tmp = s
@@ -216,11 +216,13 @@ if __name__ == '__main__':
 
     end = sys.argv[2]
     start = sys.argv[1]
+    is_first = True
 
     while 1:
         if start:
             alpha = GetAlpha()
-            start = alpha.main(start, end)
+            start = alpha.main(start, end, is_first)
+            is_first = False
             time.sleep(60*10)
         else:
             break
