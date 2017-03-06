@@ -63,7 +63,7 @@ class ThsMonitor(CNTrade):
                 url = "https://xueqiu.com/S/S" + code_mk + str(code)
 
                 report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
-                    " cp:" + str(c_percent) + " gp:" + str(g_percent) +\
+                    " cp:" + str(round(c_percent,2)) + " gp:" + str(round(g_percent,2)) +\
                     "\np_ma: " + str(round(ma5/close,3)) + " " + str(round((ma10/close),3)) + " " + str(round(ma20/close,3)) +\
                            "\nURL:" + url + "\n"
             record_msg(self.logger, msg=report, subject="每日持仓报告", email=self.email)
