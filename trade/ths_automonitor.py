@@ -45,6 +45,7 @@ class ThsMonitor(CNTrade):
         now = datetime.datetime.now()
         if now > self.trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
             # 大于3点才开始执行
+            self.position = str_to_dict(self.client.exec_order("get_position all"))
             today = now.strftime("%Y-%m-%d")
             self.is_report = True
             report = ""
