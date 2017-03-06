@@ -14,7 +14,7 @@ SLIP_POINT = 0
 
 
 def judge_sp_trade(trade):
-    if trade["target_weight"] < 2.0 or trade["target_weight"] - trade["prev_weight"] > 9.0:
+    if trade["target_weight"] == 0 or trade["target_weight"] - trade["prev_weight"] > 9.0:
         return True
     else:
         return False
@@ -80,7 +80,7 @@ class XqTrade(CNTrade):
                     if self.db.exist_trade(OPEA_COLL, trade):  # 使用exist_trade防止实盘出现权重飘移
                         continue  # 操作存在，但可能出现交叉成交，只跳过, 头做一次针对第一次就正确，也包含虚拟组合
                     if k[:2] == "SP":  # 实盘特别处理
-                        if not self.db.get_doc(SP_COLL, trade):
+                        if not self.db.exist_trade(SP_COLL, trade):
                             self.db.insert_doc(SP_COLL, trade)
                         else:
                             continue  # 若已插入，证明已经处理过，无需等到下面
@@ -98,24 +98,24 @@ class XqTrade(CNTrade):
 
             record_msg(logger=self.logger, msg= k + " updates new operation!" +
                                                " @ " + trade["report_time"])
-            code = str(trade["stock_code"][2:])
-            target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
-                else trade["target_weight"] * percent /100
-            # 防止进入仓位1%，认为是卖出
-            """
-            before_percent has two version.
-            1.the position is caled by yjb;
-            2,the position is caled by xq;
-            已经有比例，故其他需要对应
-            """
-            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
-            before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
-            dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
-                                                       before_percent_yjb, asset, factor, code, trade)
-
-            result = self.trade(dif, code, price, amount, enable_amount)
-            record_msg(logger=self.logger,
-                       msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
+            # code = str(trade["stock_code"][2:])
+            # target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
+            #     else trade["target_weight"] * percent /100
+            # # 防止进入仓位1%，认为是卖出
+            # """
+            # before_percent has two version.
+            # 1.the position is caled by yjb;
+            # 2,the position is caled by xq;
+            # 已经有比例，故其他需要对应
+            # """
+            # before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
+            # before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
+            # dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
+            #                                            before_percent_yjb, asset, factor, code, trade)
+            #
+            # result = self.trade(dif, code, price, amount, enable_amount)
+            # record_msg(logger=self.logger,
+            #            msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(OPEA_COLL, trade)
 
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
