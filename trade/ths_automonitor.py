@@ -51,15 +51,18 @@ class ThsMonitor(CNTrade):
             for code in self.position:
                 df = ts.get_hist_data(code, start=today)
                 close, ma5, ma10, ma20 = df["close"].values[0], df["ma5"].values[0], df["ma10"].values[0], df["ma20"].values[0]
-                v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
+                # v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
                 p_change = df["p_change"].values[0]
                 turnover = df["turnover"].values[0]
+                c_percent = self.position[code]["c_p"]
+                g_percent = self.position[code]["g_p"]
                 name = get_code_name(self.all_stocks_data, code=code)
                 code_mk = "H" if code[0] == "6" else "Z"
                 url = "https://xueqiu.com/S/S" + code_mk + str(code)
 
                 report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
-                    "\np_ma: " + str(ma5/close) + " " + str(ma10/close) + " " + str(ma20/close) +\
+                    " cp:" + str(c_percent) + " gp:" + str(g_percent) +\
+                    "\np_ma: " + str(round(ma5/close,3)) + " " + str(round((ma10/close),3)) + " " + str((ma20/close),3) +\
                            "\nURL:" + url + "\n"
             record_msg(self.logger, msg=report, subject="每日持仓报告", email=self.email)
 
