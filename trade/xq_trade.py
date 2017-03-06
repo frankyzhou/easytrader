@@ -98,24 +98,24 @@ class XqTrade(CNTrade):
 
             record_msg(logger=self.logger, msg= k + " updates new operation!" +
                                                " @ " + trade["report_time"])
-            # code = str(trade["stock_code"][2:])
-            # target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
-            #     else trade["target_weight"] * percent /100
-            # # 防止进入仓位1%，认为是卖出
-            # """
-            # before_percent has two version.
-            # 1.the position is caled by yjb;
-            # 2,the position is caled by xq;
-            # 已经有比例，故其他需要对应
-            # """
-            # before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
-            # before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
-            # dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
-            #                                            before_percent_yjb, asset, factor, code, trade)
-            #
-            # result = self.trade(dif, code, price, amount, enable_amount)
-            # record_msg(logger=self.logger,
-            #            msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
+            code = str(trade["stock_code"][2:])
+            target_percent = 0.0 if trade["target_weight"] < 2.0 and trade["prev_weight"] > trade["target_weight"] \
+                else trade["target_weight"] * percent /100
+            # 防止进入仓位1%，认为是卖出
+            """
+            before_percent has two version.
+            1.the position is caled by yjb;
+            2,the position is caled by xq;
+            已经有比例，故其他需要对应
+            """
+            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
+            before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
+            dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
+                                                       before_percent_yjb, asset, factor, code, trade)
+
+            result = self.trade(dif, code, price, amount, enable_amount)
+            record_msg(logger=self.logger,
+                       msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(OPEA_COLL, trade)
 
     def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
