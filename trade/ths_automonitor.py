@@ -4,7 +4,7 @@ from cn_trade import *
 import traceback
 import tushare as ts
 COLLECTION = "ths_monitor"
-TEST_STATE = True
+TEST_STATE = False
 
 
 class ThsMonitor(CNTrade):
