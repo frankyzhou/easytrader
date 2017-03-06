@@ -45,6 +45,8 @@ class ThsMonitor(CNTrade):
         now = datetime.datetime.now()
         if now > self.trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
             # 大于3点才开始执行
+            self.position = str_to_dict(self.client.exec_order("get_position all"))
+            self.get_real_price()
             today = now.strftime("%Y-%m-%d")
             self.is_report = True
             report = ""
@@ -62,7 +64,7 @@ class ThsMonitor(CNTrade):
 
                 report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
                     " cp:" + str(c_percent) + " gp:" + str(g_percent) +\
-                    "\np_ma: " + str(round(ma5/close,3)) + " " + str(round((ma10/close),3)) + " " + str((ma20/close),3) +\
+                    "\np_ma: " + str(round(ma5/close,3)) + " " + str(round((ma10/close),3)) + " " + str(round(ma20/close,3)) +\
                            "\nURL:" + url + "\n"
             record_msg(self.logger, msg=report, subject="每日持仓报告", email=self.email)
 
