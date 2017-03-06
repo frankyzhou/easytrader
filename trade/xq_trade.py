@@ -14,7 +14,7 @@ SLIP_POINT = 0
 
 
 def judge_sp_trade(trade):
-    if trade["target_weight"] < 2.0 or trade["target_weight"] - trade["prev_weight"] > 9.0:
+    if trade["target_weight"] == 0 or trade["target_weight"] - trade["prev_weight"] > 9.0:
         return True
     else:
         return False
@@ -80,7 +80,7 @@ class XqTrade(CNTrade):
                     if self.db.exist_trade(OPEA_COLL, trade):  # 使用exist_trade防止实盘出现权重飘移
                         continue  # 操作存在，但可能出现交叉成交，只跳过, 头做一次针对第一次就正确，也包含虚拟组合
                     if k[:2] == "SP":  # 实盘特别处理
-                        if not self.db.get_doc(SP_COLL, trade):
+                        if not self.db.exist_trade(SP_COLL, trade):
                             self.db.insert_doc(SP_COLL, trade)
                         else:
                             continue  # 若已插入，证明已经处理过，无需等到下面
