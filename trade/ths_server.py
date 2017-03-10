@@ -58,7 +58,8 @@ class ThsTrade:
         percent = 0.0
         for c in position_broker:
             position_broker[c]["c_p"] = 100 * position_broker[c]["turnover"] / total_money
-            position_broker[c]["g_p"] = 100 * position_broker[c]["gain"] / position_broker[c]["turnover"] if position_broker[c]["turnover"] >0 else 0
+            position_broker[c]["g_p"] = 100 * position_broker[c]["gain"] / position_broker[c]["turnover"] \
+                                                  if position_broker[c]["turnover"] >0 else 0
 
         if code == "all":
             return position_broker
