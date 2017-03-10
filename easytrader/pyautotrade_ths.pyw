@@ -126,7 +126,6 @@ class Operation:
         return position_dict
 
     def ipo(self):
-        # left, top, right, bottom = win32gui.GetWindowRect(self.__top_hwnd)
         for hwnd, text_name, class_name in dumpWindows(self.__top_hwnd):
             if class_name == "msctls_statusbar32":  #获得底部类名
                 left1, top1, right1, bottom1 = win32gui.GetWindowRect(hwnd)
@@ -138,8 +137,8 @@ class Operation:
                 pyautogui.click()
                 time.sleep(5)
                 # 关闭弹窗
-                closePopupWindow(self.__top_hwnd)
-
+                return closePopupWindow(self.__top_hwnd)
+        return
 #     查询委托：control_hwnds[16][0], 其他持仓可以使用快捷键
 
 def pickCodeFromItems(items_info):

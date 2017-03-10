@@ -17,6 +17,7 @@ class ThsTrade:
     def __init__(self, is_first):
         self.server = get_server()
         self.logger = get_logger(COLLECTION, is_first=is_first)
+        self.email = Email()
 
     def judge_opera(self, msg):
         msg = msg.split()
@@ -76,7 +77,8 @@ class ThsTrade:
             record_msg(self.logger, "无法找到客户端")
         else:
             self.operation = Operation(top_hwnd)
-            self.operation.ipo()
+            if self.operation.ipo():
+                record_msg(self.logger, "ipo", subject="ipo", email=self.email)
             record_msg(self.logger, "成功找到客户端")
         while 1:
             try:
