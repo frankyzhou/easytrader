@@ -8,6 +8,8 @@ import win32clipboard
 import pyautogui
 import win32con
 import commctrl
+from PIL import ImageGrab
+import datetime
 
 GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
 VirtualAllocEx = ctypes.windll.kernel32.VirtualAllocEx
@@ -30,9 +32,6 @@ def getTableData():
         return []
     else:
         lst = content.strip().split("\r\n")[1:]
-    # matrix = []
-    # for i in range(0, len(lst) // cols):
-    #     matrix.append(lst[i * cols:(i + 1) * cols])
     return lst
 
 
@@ -189,9 +188,17 @@ def closePopupWindow(top_hwnd, wantedText=None, wantedClass=None):
         left, top, right, bottom = win32gui.GetWindowRect(windows[5][0])
         clickOnVerticalTimes(left, top, right, bottom, 0.2, 0.8, 20)
         time.sleep(5)
+
+        # save pic of ipo
+        pic = ImageGrab.grab((left, top, right, bottom))
+        name = datetime.datetime.now().strftime("%Y-%m-%d")
+        pic.save("logs/ipo/"+name+".jpg")
+        time.sleep(1)
+
         clickButton(windows[1][0])  # 关闭窗口
         print "ipo has been done!"
-        return
+        return "ipo"
+
     hwnd_text = windows[2][0]
     error = getStaticText(hwnd_text)
     if len(error) > 0:

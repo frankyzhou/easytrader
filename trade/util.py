@@ -6,6 +6,8 @@ from easytrader.MongoDB import *
 from yahoo_finance import Share
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 from email.header import Header
 import socket
 from decimal import Decimal
@@ -14,6 +16,8 @@ import re
 from easytrader.log import log
 # ts.fund_holdings()
 # after the last trade day
+
+
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
     if report_time > last_trade_time:
@@ -314,16 +318,27 @@ class Email():
 
     def send_email(self, msg, subject=None):
         # 第三方 SMTP 服务
-        # self.smtpObj = smtplib.SMTP()
-        message = MIMEText(msg, 'plain', 'utf-8')
+        msgRoot = MIMEMultipart('related')  # root as base
+
+        message = MIMEText(msg, 'plain', 'utf-8')  # text
         message['From'] = "stock@163.com"
         message['To'] = "zlj"
 
         subject = subject if subject else msg
         message['Subject'] = Header(subject, 'utf-8')
-        while(1):
+        msgRoot.attach(msgRoot)
+
+        if msg == "ipo":
+            name = datetime.datetime.now().strftime("%Y-%m-%d")
+            fp = open('../logs/ipo/'+name+".jpg", 'rb')
+            msgImage = MIMEImage(fp.read())
+            fp.close()
+            msgImage.add_header('Content-ID', '<image1>')
+            msgRoot.attach(msgImage)
+
+        while 1:
             try:
-                self.smtpObj.sendmail(self.mail_user, self.mail_user, message.as_string())
+                self.smtpObj.sendmail(self.mail_user, self.mail_user, msgRoot.as_string())
                 # print "邮件发送成功"
                 return
             except smtplib.SMTPException, ex:
@@ -340,7 +355,7 @@ class Email():
 # c = a.get_position_by_stock('ZH776826', "DUST")
 # a.write_position("IB")
 # print c
-# e = Email()
+e = Email()
 # while True:
-#     time.sleep(60*10)
-#     e.send_email("i love you")
+# time.sleep(60*10)
+e.send_email("ipo", "ipo")
