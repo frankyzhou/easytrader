@@ -52,27 +52,38 @@ def get_four_five(num, pre=3):
     return float(p.format(Decimal(num)))
 
 
-def get_date_now(country):
-    now_time = datetime.datetime.now()
-    if country == "CN":
-        # 开盘提前更新数据
-        trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
-        trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 30, 0)
-        trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 13, 0, 0)
-        trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 0, 0)
-
-    elif country == "US":
-        offsize = 0 if now_time.hour < 4 else 1
-        base_time = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day))
-        trade_begin_am = base_time + datetime.timedelta(days=offsize-1, hours=21, minutes=25)
-        trade_end_pm = base_time + datetime.timedelta(days=offsize, hours=4, minutes=5)
-        trade_end_am = base_time + datetime.timedelta(days=offsize)
-        trade_begin_pm = trade_end_am
-
-    return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
+# def get_date_now(country):
+#     """
+#     获得相应市场的每天交易岂止时间，上午开始，结束，下午开始，结束
+#     :param country:
+#     :return:
+#     """
+#     now_time = datetime.datetime.now()
+#     if country == "CN":
+#         # 开盘提前更新数据
+#         trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
+#         trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 30, 0)
+#         trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 13, 0, 0)
+#         trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 0, 0)
+#
+#     elif country == "US":
+#         offsize = 0 if now_time.hour < 4 else 1
+#         base_time = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day))
+#         trade_begin_am = base_time + datetime.timedelta(days=offsize-1, hours=21, minutes=25)
+#         trade_end_pm = base_time + datetime.timedelta(days=offsize, hours=4, minutes=5)
+#         trade_end_am = base_time + datetime.timedelta(days=offsize)
+#         trade_begin_pm = trade_end_am
+#
+#     return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
 
 
 def is_trade_time(test, trade_time):
+    """
+    判断当前时间是否为交易时间
+    :param test: 测试
+    :param trade_time: get_tradetime_series[0]而来
+    :return:
+    """
     now_time = datetime.datetime.now()
     if test: return True
 
@@ -84,17 +95,31 @@ def is_trade_time(test, trade_time):
 
 
 def get_trade_date_series(country):
-    # get the data of 000001 by tushare
+    """
+    获得相应市场最近一个交易日的开始时间
+    :param country:
+    :return:
+    """
     if country == "CN":
         df = ts.get_realtime_quotes("sh")
-        date_cn = datetime.datetime.strptime(df["date"].values[0].encode("utf8"), "%Y-%m-%d") + datetime.timedelta(hours=9, minutes=25)
-        return date_cn
+        date_cn = datetime.datetime.strptime(df["date"].values[0].encode("utf8"), "%Y-%m-%d")
+        trade_begin_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 9, 25, 0)
+        trade_end_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 11, 30, 0)
+        trade_begin_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 13, 0, 0)
+        trade_end_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 15, 0, 0)
 
     elif country == "US":
         yahoo = Share('QQQ')
         time_str = yahoo.get_trade_datetime()
-        date_us = datetime.datetime.strptime(time_str[:10], "%Y-%m-%d") + datetime.timedelta(hours=28, minutes=5)
-        return date_us
+        base_time = datetime.datetime.strptime(time_str[:10], "%Y-%m-%d")
+        # offsize = 0 if now_time.hour < 4 else 1
+        # base_time = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day))
+        trade_begin_am = base_time
+        trade_end_pm = base_time + datetime.timedelta(hours=3)
+        trade_end_am = base_time + datetime.timedelta(hours=6)
+        trade_begin_pm = trade_end_am
+
+    return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
 
 
 def get_logger(collection, name=None, is_first=True):
@@ -143,6 +168,12 @@ def get_server(host='', port=51500):
 
 
 def update_stocks_data(state, all_stocks):
+    """
+    通过tushare获取全市场开盘情况
+    :param state:
+    :param all_stocks:
+    :return:
+    """
     if not state:
         try:
             all_stocks = ts.get_today_all()
@@ -174,9 +205,14 @@ def parse_digit(string):
     return float(m[0]), float(m[1]), float(m[2])
 
 
-def is_trade_day(last_trade_time):
-    now = datetime.datetime.now()
-    return now.month == last_trade_time.month and now.day == last_trade_time.day
+# def is_trade_day(last_trade_time):
+#     """
+#     判断当天是否为交易日，
+#     :param last_trade_time: get_trade_date_series得到的最近一个交易日的开始时间
+#     :return:
+#     """
+#     now = datetime.datetime.now()
+#     return now.month == last_trade_time.month and now.day == last_trade_time.day
 
 
 def get_client(host='127.0.0.1', textport=51500, timeout=15):
@@ -202,11 +238,6 @@ def get_code_name(all_data, code, name=None):
         print e
         return code if not name else name
 
-
-def get_text_from_pic():
-    name = datetime.datetime.now().strftime("%Y-%m-%d")
-    msg = pytesseract.image_to_string(Image.open('../logs/ipo/' + name + ".jpg"), lang='chi_sim')
-    return msg
 
 class client:
     def __init__(self, host):

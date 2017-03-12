@@ -123,7 +123,7 @@ class ib_trade:
 
     def main(self):
         while 1:
-            if is_trade_time(TEST_STATE, self.trade_time):
+            if is_trade_time(TEST_STATE, self.last_trade_time):
             # judge whether it is trade time
                 for k in portfolio_list.keys():
                     # try:

@@ -138,7 +138,7 @@ class GetAlpha(CNTrade):
     def __init__(self):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq3.json')
-        self.trade_time = get_date_now("CN")
+        self.trade_time = get_trade_date_series("CN")
         self.email = Email()
 
     def get_para_by_portfolio(self, p_name):
@@ -168,7 +168,7 @@ class GetAlpha(CNTrade):
 
         try:
             for no in range(s, e):
-                self.update_para()
+                self.update_para(TEST_STATE)
                 while is_trade_time(TEST_STATE, self.trade_time):
                     time.sleep(60 * 10)
                 tmp = no

@@ -43,15 +43,14 @@ class ThsMonitor(CNTrade):
 
     def sumup_today(self):
         now = datetime.datetime.now()
-        if now > self.trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
+        if now > self.last_trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
             # 大于3点才开始执行
             self.position = str_to_dict(self.client.exec_order("get_position all"))
             self.get_real_price()
-            today = now.strftime("%Y-%m-%d")
             self.is_report = True
             report = ""
             for code in self.position:
-                df = ts.get_hist_data(code, start=today)
+                df = ts.get_hist_data(code, start=self.last_trade_time[0].strftime("%Y-%m-%d"))
                 close, ma5, ma10, ma20 = df["close"].values[0], df["ma5"].values[0], df["ma10"].values[0], df["ma20"].values[0]
                 # v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
                 p_change = df["p_change"].values[0]
@@ -70,8 +69,8 @@ class ThsMonitor(CNTrade):
 
     def main(self):
         while 1:
-            self.update_para()
-            while is_trade_time(TEST_STATE, self.trade_time):
+            self.update_para(TEST_STATE)
+            while is_trade_time(TEST_STATE, self.last_trade_time):
                 try:
                     self.position = str_to_dict(self.client.exec_order("get_position all"))
                     self.get_real_price()

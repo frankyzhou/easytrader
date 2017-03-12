@@ -10,25 +10,24 @@ class CNTrade(object):
         self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
         self.portfolio_list = helpers.file2dict(self.p_path)
         # 每日更新
-        self.last_trade_time = get_trade_date_series("CN")
-        self.trade_time = get_date_now("CN")
+        self.last_trade_time = get_trade_date_series("CN")  # 最近一个交易日的开始时间
+        # self.trade_time = get_date_now("CN")  # 被last_trade_time替代
         self.is_update_stocks = False
         self.is_update_ports = False
         self.is_report = False
         self.all_stocks_data = None
 
-    def update_para(self):
+    def update_para(self, TEST_STATE):
         """
         当每天自动运行到固定时间更新，否则启动时候更新
         :return:
         """
         now_time = datetime.datetime.now()
         update_begin_1 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 27, 30)
-        update_begin_2 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 27, 40)
+        update_begin_2 = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 27, 50)
         if update_begin_1 < now_time < update_begin_2:
             self.last_trade_time = get_trade_date_series("CN")
-            if is_trade_day(self.last_trade_time):
-                self.trade_time = get_date_now("CN")
+            if is_trade_time(TEST_STATE, self.last_trade_time):
                 self.is_update_stocks = False
                 self.all_stocks_data = None
                 self.is_update_ports = False
