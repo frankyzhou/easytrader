@@ -347,6 +347,7 @@ class Email():
         self.mail_host = self.account_config["mail_host"]  #设置服务器
         self.mail_user = self.account_config["mail_user"]   #用户名
         self.mail_pass = self.account_config["mail_pass"]   #口令
+        self.mail_loca = self.account_config["mail_loca"]
         self.smtpObj = smtplib.SMTP()
 
     def read_config(self, path):
@@ -355,7 +356,7 @@ class Email():
     def send_email(self, msg, subject=None):
         # 第三方 SMTP 服务
         msgRoot = MIMEMultipart('related')  # root as base
-        msgRoot['From'] = "stock@163.com"
+        msgRoot['From'] = self.mail_loca
         msgRoot['To'] = "zlj"
 
         subject = subject if subject else msg
@@ -367,7 +368,6 @@ class Email():
             fp = open(name, 'rb')
             msgImage = MIMEImage(fp.read())
             fp.close()
-            # msgImage.add_header('Content-ID', '<image1>')
             msgRoot.attach(msgImage)
             # 发文字
             msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
