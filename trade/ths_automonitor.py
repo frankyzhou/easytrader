@@ -43,7 +43,7 @@ class ThsMonitor(CNTrade):
 
     def sumup_today(self):
         now = datetime.datetime.now()
-        if now > self.trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
+        if now > self.last_trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
             # 大于3点才开始执行
             self.position = str_to_dict(self.client.exec_order("get_position all"))
             self.get_real_price()
@@ -70,8 +70,8 @@ class ThsMonitor(CNTrade):
 
     def main(self):
         while 1:
-            self.update_para()
-            while is_trade_time(TEST_STATE, self.trade_time):
+            self.update_para(TEST_STATE)
+            while is_trade_time(TEST_STATE, self.last_trade_time):
                 try:
                     self.position = str_to_dict(self.client.exec_order("get_position all"))
                     self.get_real_price()
