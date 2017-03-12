@@ -160,8 +160,8 @@ class XqTrade(CNTrade):
 
     def main(self):
         while 1:
-            self.update_para()
-            while is_trade_time(TEST_STATE, self.trade_time):
+            self.update_para(TEST_STATE)
+            while is_trade_time(TEST_STATE, self.last_trade_time):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
                                                                                  self.all_stocks_data)
                 self.trade_entrust()

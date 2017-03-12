@@ -42,7 +42,7 @@ class catch_strategy:
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq1.json')
         self.email = Email()
-        self.trade_time = get_date_now("CN")
+        self.trade_time = get_trade_date_series("CN")
 
     def update_name(self):
         for i in range(1, TEST_NUM, 1):
