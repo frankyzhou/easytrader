@@ -78,7 +78,7 @@ class ThsTrade:
             record_msg(self.logger, "无法找到客户端")
         else:
             self.operation = Operation(top_hwnd)
-            if self.operation.ipo():
+            if self.operation.ipo() == "ipo":
                 record_msg(self.logger, msg="ipo", subject="ipo", email=self.email)
             record_msg(self.logger, "成功找到客户端")
         while 1:
