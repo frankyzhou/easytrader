@@ -192,7 +192,7 @@ def closePopupWindow(top_hwnd, wantedText=None, wantedClass=None):
         # save pic of ipo
         pic = ImageGrab.grab((left, top, right, bottom))
         name = datetime.datetime.now().strftime("%Y-%m-%d")
-        pic.save("logs/ipo/"+name+".jpg")
+        pic.save("ipo/"+name+".png")
         time.sleep(1)
 
         clickButton(windows[1][0])  # 关闭窗口

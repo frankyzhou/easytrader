@@ -14,8 +14,8 @@ from decimal import Decimal
 import ast
 import re
 from easytrader.log import log
-# ts.fund_holdings()
-# after the last trade day
+from PIL import Image
+import pytesseract
 
 
 def is_today(report_time, last_trade_time):
@@ -203,6 +203,11 @@ def get_code_name(all_data, code, name=None):
         return code if not name else name
 
 
+def get_text_from_pic():
+    name = datetime.datetime.now().strftime("%Y-%m-%d")
+    msg = pytesseract.image_to_string(Image.open('../logs/ipo/' + name + ".jpg"), lang='chi_sim')
+    return msg
+
 class client:
     def __init__(self, host):
         self.client = get_client(host=host)
@@ -319,26 +324,29 @@ class Email():
     def send_email(self, msg, subject=None):
         # 第三方 SMTP 服务
         msgRoot = MIMEMultipart('related')  # root as base
-
-        message = MIMEText(msg, 'plain', 'utf-8')  # text
-        message['From'] = "stock@163.com"
-        message['To'] = "zlj"
+        msgRoot['From'] = "stock@163.com"
+        msgRoot['To'] = "zlj"
 
         subject = subject if subject else msg
-        message['Subject'] = Header(subject, 'utf-8')
-        msgRoot.attach(msgRoot)
+        msgRoot['Subject'] = Header(subject, 'utf-8')
 
-        if msg == "ipo":
-            name = datetime.datetime.now().strftime("%Y-%m-%d")
-            fp = open('../logs/ipo/'+name+".jpg", 'rb')
+        if subject == "ipo":
+            # 发照片
+            name = 'ipo/' + datetime.datetime.now().strftime("%Y-%m-%d") +".png"
+            fp = open(name, 'rb')
             msgImage = MIMEImage(fp.read())
             fp.close()
-            msgImage.add_header('Content-ID', '<image1>')
+            # msgImage.add_header('Content-ID', '<image1>')
             msgRoot.attach(msgImage)
+            # 发文字
+            msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
 
+        message = MIMEText(msg, 'plain', 'utf-8')  # text
+        msgRoot.attach(message)
         while 1:
             try:
                 self.smtpObj.sendmail(self.mail_user, self.mail_user, msgRoot.as_string())
+                # self.smtpObj.sendmail(self.mail_user, self.mail_user, message.as_string())
                 # print "邮件发送成功"
                 return
             except smtplib.SMTPException, ex:
@@ -348,6 +356,7 @@ class Email():
                 self.smtpObj.login(self.mail_user, self.mail_pass)
                 print ex
 
+
 # is_trade_time()
 # get_trade_date_series()
 # a = PorfolioPosition("Positions", "IB")
@@ -355,7 +364,7 @@ class Email():
 # c = a.get_position_by_stock('ZH776826', "DUST")
 # a.write_position("IB")
 # print c
-e = Email()
-# while True:
-# time.sleep(60*10)
-e.send_email("ipo", "ipo")
+# e = Email()
+# # while True:
+# # time.sleep(60*10)
+# e.send_email("ipo", "ipo")
