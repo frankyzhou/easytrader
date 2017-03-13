@@ -341,7 +341,7 @@ class PorfolioPosition():
 
 class Email():
     config_path = os.path.dirname(__file__) + '/config/email.json'
-
+    
     def __init__(self):
         self.read_config(self.config_path)
         self.mail_host = self.account_config["mail_host"]  #设置服务器
@@ -356,8 +356,8 @@ class Email():
     def send_email(self, msg, subject=None):
         # 第三方 SMTP 服务
         msgRoot = MIMEMultipart('related')  # root as base
-        msgRoot['From'] = "stock@163.com"
-        msgRoot['To'] = self.mail_loca
+        msgRoot['From'] = self.mail_loca + "_" + "stock@163.com"
+        msgRoot['To'] = self.mail_user
 
         subject = subject if subject else msg
         msgRoot['Subject'] = Header(subject, 'utf-8')
@@ -370,7 +370,7 @@ class Email():
             fp.close()
             msgRoot.attach(msgImage)
             # 发文字
-            # msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
+            msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
 
         message = MIMEText(msg, 'plain', 'utf-8')  # text
         msgRoot.attach(message)
@@ -399,3 +399,4 @@ class Email():
 # # while True:
 # # time.sleep(60*10)
 # e.send_email("ipo", "ipo")
+
