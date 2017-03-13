@@ -47,7 +47,7 @@ class XqTrade(CNTrade):
         prev_min = 0
         oper = ""
         for trade_tmp in trade_cur:
-            if is_today(trade_tmp["report_time"], self.last_trade_time):
+            if is_trade_time(trade_tmp["report_time"], self.last_trade_time):
                 target_max = max(target_max, trade_tmp["target_weight"])
                 target_min = min(target_min, trade_tmp["target_weight"])
                 prev_max = max(prev_max, trade_tmp["prev_weight"])
@@ -76,7 +76,7 @@ class XqTrade(CNTrade):
             # only if entrust is today or not finished by no trade time
             trade["portfolio"] = k
             if not TEST_STATE:
-                if is_today(trade["report_time"], self.last_trade_time):
+                if is_trade_time(trade["report_time"], self.last_trade_time):
                     if self.db.exist_trade(OPEA_COLL, trade):  # 使用exist_trade防止实盘出现权重飘移
                         continue  # 操作存在，但可能出现交叉成交，只跳过, 头做一次针对第一次就正确，也包含虚拟组合
                     if k[:2] == "SP":  # 实盘特别处理
