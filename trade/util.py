@@ -370,7 +370,7 @@ class Email():
             fp.close()
             msgRoot.attach(msgImage)
             # 发文字
-            # msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
+            msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
 
         message = MIMEText(msg, 'plain', 'utf-8')  # text
         msgRoot.attach(message)
@@ -399,3 +399,4 @@ class Email():
 # # while True:
 # # time.sleep(60*10)
 # e.send_email("ipo", "ipo")
+
