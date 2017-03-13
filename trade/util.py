@@ -341,7 +341,7 @@ class PorfolioPosition():
 
 class Email():
     config_path = os.path.dirname(__file__) + '/config/email.json'
-
+    
     def __init__(self):
         self.read_config(self.config_path)
         self.mail_host = self.account_config["mail_host"]  #设置服务器
