@@ -356,8 +356,8 @@ class Email():
     def send_email(self, msg, subject=None):
         # 第三方 SMTP 服务
         msgRoot = MIMEMultipart('related')  # root as base
-        msgRoot['From'] = "stock@163.com"
-        msgRoot['To'] = self.mail_loca
+        msgRoot['From'] = self.mail_loca + "_" + "stock@163.com"
+        msgRoot['To'] = self.mail_user
 
         subject = subject if subject else msg
         msgRoot['Subject'] = Header(subject, 'utf-8')
