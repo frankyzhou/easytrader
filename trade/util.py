@@ -395,8 +395,8 @@ class Email():
 # c = a.get_position_by_stock('ZH776826', "DUST")
 # a.write_position("IB")
 # print c
-# e = Email()
+e = Email()
 # # while True:
 # # time.sleep(60*10)
-# e.send_email("ipo", "ipo")
+e.send_email("ipo", "ipo")
 
