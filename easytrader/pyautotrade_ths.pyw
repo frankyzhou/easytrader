@@ -39,17 +39,16 @@ class Operation:
         """下买单
         :param code: 代码
         :param stop_price: 涨停价
-        :param quantity: 数量
+        :param quantity: 数量，当数量为0，代表上一次可用资金不足，此次不修改数量，采用系统默认值
         :return:
         """
         click(self.__control_hwnds[0][0])
         setEditText(self.__control_hwnds[0][0], str(code))
         setEditText(self.__control_hwnds[1][0], stop_price)
-        #time.sleep(0.2)
-        setEditText(self.__control_hwnds[2][0], quantity)
+        if quantity != 0:
+            setEditText(self.__control_hwnds[2][0], quantity)
         time.sleep(1)
         clickButton(self.__control_hwnds[3][0])
-        # time.sleep(1)
 
     def __sell(self, code, stop_price, quantity):
         """下卖单
@@ -57,11 +56,9 @@ class Operation:
         click(self.__control_hwnds[4][0])
         setEditText(self.__control_hwnds[4][0], str(code))
         setEditText(self.__control_hwnds[5][0], stop_price)
-        #time.sleep(0.2)
         setEditText(self.__control_hwnds[6][0], quantity)
         time.sleep(1)
         clickButton(self.__control_hwnds[7][0])
-        # time.sleep(1)
 
     def order(self, code, price, direction, quantity):
         """
@@ -77,10 +74,12 @@ class Operation:
                 self.__sell(code, price, quantity)
             time.sleep(1)
             msg = closePopupWindow(self.__top_hwnd)
-            if msg.find('存在') > -1:#证券代码不存在
+            if msg.find('存在') > -1:  # 证券代码不存在
                 times -= 1
                 time.sleep(1)
                 print u"代码不存在"
+            elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
+                quantity = 0  # 将目标量降低为0，以识别是资金不足
             else:
                 break
         return msg
