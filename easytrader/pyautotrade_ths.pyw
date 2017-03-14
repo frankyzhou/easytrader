@@ -80,6 +80,7 @@ class Operation:
                 print u"代码不存在"
             elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
                 quantity = 0  # 将目标量降低为0，以识别是资金不足
+                print u'可用资金不足'
             else:
                 break
         return msg
