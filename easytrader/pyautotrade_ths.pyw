@@ -43,11 +43,11 @@ class Operation:
         :return:
         """
         click(self.__control_hwnds[0][0])
-        setEditText(self.__control_hwnds[0][0], str(code))
-        setEditText(self.__control_hwnds[1][0], stop_price)
-        if quantity != 0:
+        if quantity != 0:  # 若数量不为0，则为正常；若为0，则是可用资金不够，采用系统默认值再次买入
+            setEditText(self.__control_hwnds[0][0], str(code))
+            setEditText(self.__control_hwnds[1][0], stop_price)
             setEditText(self.__control_hwnds[2][0], quantity)
-        time.sleep(1)
+            time.sleep(1)
         clickButton(self.__control_hwnds[3][0])
 
     def __sell(self, code, stop_price, quantity):
