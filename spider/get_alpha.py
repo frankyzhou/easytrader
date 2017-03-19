@@ -168,8 +168,8 @@ class GetAlpha(CNTrade):
 
         try:
             for no in range(s, e):
-                self.update_para(TEST_STATE)
-                while is_trade_time(TEST_STATE, self.trade_time):
+                # self.update_para(TEST_STATE)
+                while is_trade_time(TEST_STATE, self.trade_time, is_day_in=True):
                     time.sleep(60 * 10)
                 tmp = no
                 p_name = unicode("ZH" + '{:0>6}'.format(no))
