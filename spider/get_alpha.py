@@ -205,7 +205,7 @@ class GetAlpha(CNTrade):
                                        str(get_four_five(sortino)) + " t:" + str(trade_times) + " " + str(market) + " " + str(start_date) + " " + str(viewer) + " " + state )
         except Exception as e:
                 msg = "get_alpha " + str(e) 
-                record_msg(self.logger, msg=msg, email=self.email)
+                record_msg(self.logger, msg=msg)
                 traceback.print_exc()
                 return tmp - 1
 
