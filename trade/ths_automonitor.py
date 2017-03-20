@@ -10,7 +10,7 @@ TEST_STATE = False
 class ThsMonitor(CNTrade):
     def __init__(self, p, is_first):
         super(ThsMonitor, self).__init__(p=p)
-        self.logger = get_logger(COLLECTION, is_first)
+        self.logger = get_logger(COLLECTION, is_first=is_first)
         self.position = {}
         self.email = Email()
 

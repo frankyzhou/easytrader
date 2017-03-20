@@ -27,7 +27,7 @@ class XqTrade(CNTrade):
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
         self.xq.set_attr("portfolio_code", "ZH776826")
-        self.logger = get_logger(OPEA_COLL, is_first)
+        self.logger = get_logger(OPEA_COLL, is_first=is_first)
         self.db = MongoDB(DB_NAME)
 
         # 每日更新 都在cn_trade里
