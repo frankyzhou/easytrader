@@ -51,6 +51,8 @@ class ThsMonitor(CNTrade):
             report = ""
             for code in self.position:
                 df = ts.get_hist_data(code, start=self.last_trade_time[0].strftime("%Y-%m-%d"))
+                if len(df) == 0:
+                    continue  # 没有数据跳过
                 close, ma5, ma10, ma20 = df["close"].values[0], df["ma5"].values[0], df["ma10"].values[0], df["ma20"].values[0]
                 # v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
                 p_change = df["p_change"].values[0]
