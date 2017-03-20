@@ -8,9 +8,9 @@ TEST_STATE = False
 
 
 class ThsMonitor(CNTrade):
-    def __init__(self, p):
+    def __init__(self, p, is_first):
         super(ThsMonitor, self).__init__(p=p)
-        self.logger = get_logger(COLLECTION)
+        self.logger = get_logger(COLLECTION, is_first)
         self.position = {}
         self.email = Email()
 
@@ -87,8 +87,10 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print "usage: python ThsMonitor.py profilio_num[1,2,....n]"
         exit(-1)
+    is_first = True
     while 1:
-        xq = ThsMonitor(sys.argv[1])
+        xq = ThsMonitor(sys.argv[1], is_first)
         xq.main()
         time.sleep(60)
+        is_first = False
 

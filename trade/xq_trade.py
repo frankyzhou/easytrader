@@ -21,13 +21,13 @@ def judge_sp_trade(trade):
 
 
 class XqTrade(CNTrade):
-    def __init__(self, p):
+    def __init__(self, p, is_first):
         # 固定部分
         super(XqTrade, self).__init__(p=p)
         self.xq = easytrader.use('xq')
         self.xq.prepare('config/xq'+p+'.json')
         self.xq.set_attr("portfolio_code", "ZH776826")
-        self.logger = get_logger(OPEA_COLL)
+        self.logger = get_logger(OPEA_COLL, is_first)
         self.db = MongoDB(DB_NAME)
 
         # 每日更新 都在cn_trade里
@@ -187,7 +187,9 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print "usage: python xq_trade.py profilio_num[1,2,....n]"
         exit(-1)
+    is_first = True
     while 1:
-        xq = XqTrade(sys.argv[1])
+        xq = XqTrade(sys.argv[1], is_first)
         xq.main()
         time.sleep(60)
+        is_first = False
