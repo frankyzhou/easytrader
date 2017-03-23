@@ -26,10 +26,12 @@ class ThsTrade:
         if type == STOP:
             return STOP
 
-        code = msg[1]
+        if type == IPO:
+            if self.operation.ipo() == "ipo":
+                record_msg(self.logger, msg="ipo", subject="ipo", email=self.email)
+            return IPO
 
-        # if type == IPO:
-        #     self.operation
+        code = msg[1]
 
         if type == GET_POSITION:
             self.operation.clickRefreshButton()
@@ -68,7 +70,7 @@ class ThsTrade:
             enable = position_broker[code]["enable"]
             stock_turnover = position_broker[code]["turnover"]
             percent = stock_turnover / total_money
-        return percent, enable, total_money
+        return percent, enable, total_money, rest_money
 
     def main(self):
         top_hwnd = findTopWindow(wantedText=u'网上股票交易系统5.0')

@@ -210,7 +210,7 @@ def cal_time_cost(begin):
 def parse_digit(string):
     p = re.compile(r"\d+\.*\d*")
     m = p.findall(string)
-    return float(m[0]), float(m[1]), float(m[2])
+    return float(m[0]), float(m[1]), float(m[2]), float(m[3])
 
 
 # def is_trade_day(last_trade_time):

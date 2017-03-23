@@ -14,6 +14,7 @@ import pyautogui
 from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
+import os
 
 is_start = False
 is_monitor = True
@@ -78,9 +79,9 @@ class Operation:
                 times -= 1
                 time.sleep(1)
                 print u"代码不存在"
-            elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
-                quantity = 0  # 将目标量降低为0，以识别是资金不足
-                print u'可用资金不足'
+            # elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
+            #     quantity = 0  # 将目标量降低为0，以识别是资金不足
+            #     print u'可用资金不足'
             else:
                 break
         return msg
@@ -126,6 +127,10 @@ class Operation:
         return position_dict
 
     def ipo(self):
+        name = datetime.datetime.now().strftime("%Y-%m-%d")
+        if os.path.exists("ipo/"+name+".png"):  # 若存在截图，证明已经申购
+            return
+
         for hwnd, text_name, class_name in dumpWindows(self.__top_hwnd):
             if class_name == "msctls_statusbar32":  #获得底部类名
                 left1, top1, right1, bottom1 = win32gui.GetWindowRect(hwnd)
