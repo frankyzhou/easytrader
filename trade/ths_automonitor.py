@@ -72,7 +72,7 @@ class ThsMonitor(CNTrade):
     def ipo_am(self):
         now = datetime.datetime.now()
         if self.last_trade_time[1] < now < self.last_trade_time[2] and not self.is_ipo:
-            self.client.exec_order("ipo", response=False) #不需要等待消息
+            self.client.exec_order("ipo", response=False)  # 不需要等待消息
             self.is_ipo = True
 
     def main(self):
