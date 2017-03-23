@@ -26,11 +26,12 @@ class ThsTrade:
         if type == STOP:
             return STOP
 
-        code = msg[1]
-
         if type == IPO:
             if self.operation.ipo() == "ipo":
                 record_msg(self.logger, msg="ipo", subject="ipo", email=self.email)
+            return IPO
+
+        code = msg[1]
 
         if type == GET_POSITION:
             self.operation.clickRefreshButton()
