@@ -14,6 +14,7 @@ import pyautogui
 from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
+import os
 
 is_start = False
 is_monitor = True
