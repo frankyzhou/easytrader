@@ -87,6 +87,7 @@ class ThsMonitor(CNTrade):
                     traceback.print_exc()
                     time.sleep(60)
             self.sumup_today()
+            self.ipo_am()
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
