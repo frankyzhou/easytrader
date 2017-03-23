@@ -69,6 +69,11 @@ class ThsMonitor(CNTrade):
                            "\nURL:" + url + "\n"
             record_msg(self.logger, msg=report, subject="每日持仓报告", email=self.email)
 
+    def ipo_am(self):
+        if now > self.last_trade_time[1] and not self.is_ipo:
+            self.client.exec_order("ipo")
+            self.is_ipo = True
+
     def main(self):
         while 1:
             self.update_para(TEST_STATE)

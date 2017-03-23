@@ -12,10 +12,11 @@ class CNTrade(object):
         # 每日更新
         self.last_trade_time = get_trade_date_series("CN")  # 最近一个交易日的开始时间
         # self.trade_time = get_date_now("CN")  # 被last_trade_time替代
-        self.is_update_stocks = False
-        self.is_update_ports = False
-        self.is_report = False
-        self.all_stocks_data = None
+        self.is_update_stocks = False # 更新市场数据
+        self.is_update_ports = False # 更新组合消息（df,wb）
+        self.is_report = False  # 每日汇报
+        self.all_stocks_data = None # 市场数据集合
+        self.is_ipo = False # 每天ipo记录
 
     def update_para(self, TEST_STATE):
         """
@@ -32,6 +33,7 @@ class CNTrade(object):
                 self.all_stocks_data = None
                 self.is_update_ports = False
                 self.is_report = False
+                self.is_ipo = False
         time.sleep(6)
 
     def trade_yjb(self, dif, code, price, amount, enable_amount):

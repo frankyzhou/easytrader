@@ -28,8 +28,9 @@ class ThsTrade:
 
         code = msg[1]
 
-        # if type == IPO:
-        #     self.operation
+        if type == IPO:
+            if self.operation.ipo() == "ipo":
+                record_msg(self.logger, msg="ipo", subject="ipo", email=self.email)
 
         if type == GET_POSITION:
             self.operation.clickRefreshButton()
