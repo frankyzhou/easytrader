@@ -70,7 +70,7 @@ class ThsTrade:
             enable = position_broker[code]["enable"]
             stock_turnover = position_broker[code]["turnover"]
             percent = stock_turnover / total_money
-        return percent, enable, total_money
+        return percent, enable, total_money, rest_money
 
     def main(self):
         top_hwnd = findTopWindow(wantedText=u'网上股票交易系统5.0')

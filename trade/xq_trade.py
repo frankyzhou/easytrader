@@ -108,17 +108,17 @@ class XqTrade(CNTrade):
             2,the position is caled by xq;
             已经有比例，故其他需要对应
             """
-            before_percent_yjb, enable_amount, asset = parse_digit(self.client.exec_order("get_position "+ code))
+            before_percent_yjb, enable_amount, asset, rest_money = parse_digit(self.client.exec_order("get_position "+ code))
             before_percent_xq = trade["prev_weight"] * percent / 100 if trade["prev_weight"] > 2.0 else 0.0
             dif, price, amount = self.get_trade_detail(target_percent, before_percent_xq,
-                                                       before_percent_yjb, asset, factor, code, trade)
+                                                       before_percent_yjb, asset, factor, code, trade, rest_money)
 
             result = self.trade(dif, code, price, amount, enable_amount)
             record_msg(logger=self.logger,
                        msg=self.portfolio_list[k]["name"] + ": " + result + " 花" + cal_time_cost(trade["report_time"]) + "s")
             self.db.insert_doc(OPEA_COLL, trade)
 
-    def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade):
+    def get_trade_detail(self, target_percent, before_percent_xq, before_percent_yjb, asset, factor, code, trade, rest_money):
         """
         得到交易变化，价格，数量
         :param target_percent:
@@ -150,7 +150,7 @@ class XqTrade(CNTrade):
         # dif = -0.04
         # price = 14.74
 
-        volume = dif*asset
+        volume = dif*asset if dif < 0 else min(dif*asset, rest_money) # 当买入时，检查可用资金是否够
         factor = abs(factor) if dif > 0.0 else -abs(factor)
         price = get_price_by_factor(self.all_stocks_data, code, trade["business_price"], (1+factor))
         amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
