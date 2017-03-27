@@ -140,7 +140,7 @@ class Operation:
                 pyautogui.moveTo(int(x_point), int(y_point))
                 # 点击
                 pyautogui.click()
-                time.sleep(5)
+                time.sleep(30)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
         return
