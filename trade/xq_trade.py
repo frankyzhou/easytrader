@@ -84,10 +84,16 @@ class XqTrade(CNTrade):
                             self.db.insert_doc(SP_COLL, trade)
                         else:
                             continue  # 若已插入，证明已经处理过，无需等到下面
+
                         if not judge_sp_trade(trade):
                             trade = self.judge_sp_trades(trade)
                             if not judge_sp_trade(trade):
                                 continue  # 合并操作仍然不符合要求
+
+                        if trade["target_weight"] > 0:  # 是实盘操作，将买入权重修复
+                            trade["prev_weight"] = 0
+                            trade["target_weight"] = 10
+
                         if self.db.exist_trade(OPEA_COLL, trade):
                             continue  # 操作存在，但可能出现交叉成交，只跳过，后面做一次，针对多次作对
                 else:
