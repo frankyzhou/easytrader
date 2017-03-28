@@ -1,9 +1,16 @@
 {
 	"zh200181":
 		{
-			"percent": 0.25,
+			"percent": 0.001,
 			"factor": 0.005,
 			"name": "镇山的虎",
+			"capital": 1666800
+		 },
+    "zh236374":
+		{
+			"percent": 0.001,
+			"factor": 0.005,
+			"name": "湖北经济学院",
 			"capital": 1666800
 		 }
 }
