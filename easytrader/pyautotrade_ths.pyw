@@ -145,7 +145,7 @@ class Operation:
                 win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, int(x_point), int(y_point))
                 # time.sleep(15)
                 win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, int(x_point), int(y_point))
-                #time.sleep(60)
+                time.sleep(5)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
         return
