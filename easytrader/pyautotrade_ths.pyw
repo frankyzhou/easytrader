@@ -143,9 +143,9 @@ class Operation:
                 # 点击
                 # pyautogui.click()
                 win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, int(x_point), int(y_point))
-                # time.sleep(15)
+                time.sleep(0.1)
                 win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, int(x_point), int(y_point))
-                time.sleep(5)
+                time.sleep(8)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
         return
