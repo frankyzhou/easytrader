@@ -138,9 +138,13 @@ class Operation:
                 x_point = left1 + (right1 - left1) * 0.8
                 y_point = (top1 + bottom1) / 2
                 pyautogui.moveTo(int(x_point), int(y_point))
+                #win32gui.SetCursor([int(x_point), int(y_point)])
                 # 点击
                 pyautogui.click()
-                time.sleep(60)
+                #win32gui.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, int(x_point), int(y_point))
+                time.sleep(15)
+                #win32gui.mouse_event(win32con.MOUSEEVENTF_LEFTUP, int(x_point), int(y_point))
+                #time.sleep(60)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
         return
