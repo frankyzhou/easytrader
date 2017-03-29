@@ -40,7 +40,7 @@ class catch_strategy:
         self.db = MongoDB(XUEQIU_DB_NAME)
         self.logger = get_logger(COLLECTION)
         self.xq = easytrader.use('xq')
-        self.xq.prepare('config/xq1.json')
+        self.xq.prepare('config/1.json')
         self.email = Email()
         self.trade_time = get_trade_date_series("CN")
 
@@ -56,7 +56,7 @@ class catch_strategy:
 
     def main(self):
         while(1):
-            if is_trade_time(test=TEST_STATE, trade_time=self.trade_time):
+            if is_trade_time(test=TEST_STATE, last_trade_time=self.trade_time):
                 try:
                     time.sleep(5)
                     info_list = self.xq.get_xq_strategy("9")
