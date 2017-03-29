@@ -140,10 +140,10 @@ class Operation:
                 pyautogui.moveTo(int(x_point), int(y_point))
                 #win32gui.SetCursor([int(x_point), int(y_point)])
                 # 点击
-                pyautogui.click()
-                #win32gui.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, int(x_point), int(y_point))
-                time.sleep(15)
-                #win32gui.mouse_event(win32con.MOUSEEVENTF_LEFTUP, int(x_point), int(y_point))
+                # pyautogui.click()
+                win32gui.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, int(x_point), int(y_point))
+                # time.sleep(15)
+                win32gui.mouse_event(win32con.MOUSEEVENTF_LEFTUP, int(x_point), int(y_point))
                 #time.sleep(60)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
