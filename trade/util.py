@@ -85,7 +85,7 @@ def is_trade_time(test, last_trade_time, is_day_in=False, test_time=None):
     :param is_day_in: 判断是否是日内，若是则只判断小时
     :return:
     """
-    now_time = datetime.datetime.now() if not test_time else test_time
+    now_time = datetime.datetime.now() if not test_time else datetime.datetime.strptime(test_time, "%Y-%m-%d %H:%M:%S")
 
     if test: return True
 
