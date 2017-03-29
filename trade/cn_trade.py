@@ -5,7 +5,7 @@ import time
 
 class CNTrade(object):
     def __init__(self, p):
-        # self.email = Email()
+        self.email = Email()
         self.client = client(host="127.0.0.1")
         self.p_path = os.path.dirname(os.path.abspath(__file__)) + '/config/'+p+'.json'
         self.portfolio_list = helpers.file2dict(self.p_path)
