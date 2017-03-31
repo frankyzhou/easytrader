@@ -47,7 +47,7 @@ class XqTrade(CNTrade):
         prev_min = 0
         oper = ""
         for trade_tmp in trade_cur:
-            if is_trade_time(trade_tmp["report_time"], self.last_trade_time):
+            if is_trade_time(test=TEST_STATE, last_trade_time=self.last_trade_time, test_time=trade_tmp["report_time"]):
                 target_max = max(target_max, trade_tmp["target_weight"])
                 target_min = min(target_min, trade_tmp["target_weight"])
                 prev_max = max(prev_max, trade_tmp["prev_weight"])
@@ -76,7 +76,7 @@ class XqTrade(CNTrade):
             # only if entrust is today or not finished by no trade time
             trade["portfolio"] = k
             if not TEST_STATE:
-                if is_trade_time(trade["report_time"], self.last_trade_time):
+                if is_trade_time(test=TEST_STATE, last_trade_time=self.last_trade_time, test_time=trade["report_time"]):
                     if self.db.exist_trade(OPEA_COLL, trade):  # 使用exist_trade防止实盘出现权重飘移
                         continue  # 操作存在，但可能出现交叉成交，只跳过, 头做一次针对第一次就正确，也包含虚拟组合
                     if k[:2] == "SP":  # 实盘特别处理
@@ -84,10 +84,16 @@ class XqTrade(CNTrade):
                             self.db.insert_doc(SP_COLL, trade)
                         else:
                             continue  # 若已插入，证明已经处理过，无需等到下面
+
                         if not judge_sp_trade(trade):
                             trade = self.judge_sp_trades(trade)
                             if not judge_sp_trade(trade):
                                 continue  # 合并操作仍然不符合要求
+
+                        if trade["target_weight"] > 0:  # 是实盘操作，将买入权重修复
+                            trade["prev_weight"] = 0
+                            trade["target_weight"] = 10
+
                         if self.db.exist_trade(OPEA_COLL, trade):
                             continue  # 操作存在，但可能出现交叉成交，只跳过，后面做一次，针对多次作对
                 else:

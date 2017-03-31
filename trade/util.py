@@ -77,26 +77,27 @@ def get_four_five(num, pre=3):
 #     return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
 
 
-def is_trade_time(test, trade_time, is_day_in=False):
+def is_trade_time(test, last_trade_time, is_day_in=False, test_time=None):
     """
     判断当前时间是否为交易时间
     :param test: 测试
-    :param trade_time: get_tradetime_series[0]而来
+    :param last_trade_time: get_tradetime_series[0]而来
     :param is_day_in: 判断是否是日内，若是则只判断小时
     :return:
     """
-    now_time = datetime.datetime.now()
+    now_time = datetime.datetime.now() if not test_time else datetime.datetime.strptime(test_time, "%Y-%m-%d %H:%M:%S")
+
     if test: return True
 
     if is_day_in:
-        if trade_time[0].hour <= now_time.hour <= trade_time[1].hour \
-                or trade_time[2].hour <= now_time.hour <= trade_time[3].hour:
+        if last_trade_time[0].hour <= now_time.hour <= last_trade_time[1].hour \
+                or last_trade_time[2].hour <= now_time.hour <= last_trade_time[3].hour:
             return True
         else:
             return False
 
-    if trade_time[0] <= now_time <= trade_time[1] \
-            or trade_time[2] <= now_time <= trade_time[3]:
+    if last_trade_time[0] <= now_time <= last_trade_time[1] \
+            or last_trade_time[2] <= now_time <= last_trade_time[3]:
         return True
     else:
         return False

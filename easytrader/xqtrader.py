@@ -300,12 +300,16 @@ class XueQiuTrader(WebTrader):
         entrust_list = []
         for xq_entrusts in xq_entrust_list:
             status = xq_entrusts['status']  # 调仓状态
-            if status == 'pending':
-                status = "已报"
-            elif status == 'canceled':
-                status = "废单"
-            else:
+            # if status == 'pending':
+            #     status = "已报"
+            # elif status == 'canceled':
+            #     status = "废单"
+            # else:
+            if status == 'success':
                 status = "已成"
+            else:
+                continue
+
             for entrust in xq_entrusts['rebalancing_histories']:
                 if not entrust.has_key('prev_weight'):#实盘没有key，组合有，但新开仓为0的会为null
                     entrust['prev_weight'] = float(0) if not entrust["prev_weight_adjusted"] else entrust["prev_weight_adjusted"]

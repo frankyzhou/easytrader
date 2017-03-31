@@ -8,6 +8,7 @@ import pickle
 import time
 import copy
 import win32con
+import win32api
 import tushare as ts
 import win32gui
 import pyautogui
@@ -138,9 +139,13 @@ class Operation:
                 x_point = left1 + (right1 - left1) * 0.8
                 y_point = (top1 + bottom1) / 2
                 pyautogui.moveTo(int(x_point), int(y_point))
+                #win32gui.SetCursor([int(x_point), int(y_point)])
                 # 点击
-                pyautogui.click()
-                time.sleep(5)
+                # pyautogui.click()
+                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, int(x_point), int(y_point))
+                time.sleep(0.1)
+                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, int(x_point), int(y_point))
+                time.sleep(8)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
         return
