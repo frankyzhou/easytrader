@@ -130,7 +130,7 @@ class Operation:
     def ipo(self):
         name = datetime.datetime.now().strftime("%Y-%m-%d")
         if os.path.exists("ipo/"+name+".png"):  # 若存在截图，证明已经申购
-            return
+            return "ipo"
 
         for hwnd, text_name, class_name in dumpWindows(self.__top_hwnd):
             if class_name == "msctls_statusbar32":  #获得底部类名
