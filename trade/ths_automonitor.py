@@ -56,14 +56,14 @@ class ThsMonitor(CNTrade):
                 close, ma5, ma10, ma20 = df["close"].values[0], df["ma5"].values[0], df["ma10"].values[0], df["ma20"].values[0]
                 # v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
                 p_change = df["p_change"].values[0]
-                turnover = df["turnover"].values[0]
+                # turnover = df["turnover"].values[0]
                 c_percent = self.position[code]["c_p"]
                 g_percent = self.position[code]["g_p"]
                 name = get_code_name(self.all_stocks_data, code=code)
                 code_mk = "H" if code[0] == "6" else "Z"
                 url = "https://xueqiu.com/S/S" + code_mk + str(code)
 
-                report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:" +str(turnover) +\
+                report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:"  +\
                     " cp:" + str(round(c_percent,2)) + " gp:" + str(round(g_percent,2)) +\
                     "\np_ma: " + str(round(ma5/close,3)) + " " + str(round((ma10/close),3)) + " " + str(round(ma20/close,3)) +\
                            "\nURL:" + url + "\n"
