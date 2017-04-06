@@ -139,24 +139,28 @@ class XqTrade(CNTrade):
         dif_xq = target_percent - before_percent_xq
         dif_yjb = target_percent - before_percent_yjb
 
-        # dif = dif_xq if dif_xq > 0 else min(max(dif_xq, dif_yjb), 0)
-        if dif_xq > 0:
-            dif = dif_xq
-        elif target_percent == 0:
-            dif = -2
-        else:
-            dif = min(max(dif_xq, dif_yjb), 0)
+        dif = dif_xq if target_percent != 0 else -2
+        '''
+        除非target为0，不然全部采用雪球，证券不够可由可用额度确保
+        '''
+        # if dif_xq > 0:
+        #     dif = dif_xq
+        # elif target_percent == 0:
+        #     dif = -2
+        # else:
+        #     dif = min(max(dif_xq, dif_yjb), 0)
 
         '''如果dif_xq为正，那幅度选择dif_xq，避免过高成本建仓；
         当dif_xq为负，
         若dif_yjb为正，说明目前账户持仓比雪球目标还低，出于风险考虑不加仓，dif取0；
         若dif_yib为负，择最大的变化，避免持有证券数量不够
+        问题，做高抛低吸的操作，反应可能由于仓位比较小，导致无法识别
         '''
         # code = "600037"
         # dif = -0.04
         # price = 14.74
 
-        volume = dif*asset if dif < 0 else min(dif*asset, rest_money) # 当买入时，检查可用资金是否够
+        volume = dif*asset if dif < 0 else min(dif*asset, rest_money)  # 当买入时，检查可用资金是否够
         factor = abs(factor) if dif > 0.0 else -abs(factor)
         price = get_price_by_factor(self.all_stocks_data, code, trade["business_price"], (1+factor))
         amount = abs(volume) * (1+SLIP_POINT) // price // 100 * 100
