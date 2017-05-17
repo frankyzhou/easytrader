@@ -25,6 +25,12 @@ actual_stock_info = []
 is_ordered = [1] * 5  # 1：准备  0：交易成功 -1：交易失败
 
 
+def is_today_ipo():
+    df_ipo = ts.new_stocks()
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    return today_str in df_ipo["ipo_date"].values
+
+
 class Operation:
     def __init__(self, top_hwnd):
         # try:
@@ -131,12 +137,18 @@ class Operation:
         name = datetime.datetime.now().strftime("%Y-%m-%d")
         if os.path.exists("ipo/"+name+".png"):  # 若存在截图，证明已经申购
             return
+        if is_today_ipo():  #判断今天是否有ipo
+            result = self.click_ipo(0.8)  # 先尝试右边
+            if not os.path.exists("ipo/" + name + ".png"):  # 不存在截图,说明在左边
+                result = self.click_ipo(0.3)  # 先尝试左边
+        return result
 
+    def click_ipo(self, loc):
         for hwnd, text_name, class_name in dumpWindows(self.__top_hwnd):
             if class_name == "msctls_statusbar32":  #获得底部类名
                 left1, top1, right1, bottom1 = win32gui.GetWindowRect(hwnd)
                 # 获得位置
-                x_point = left1 + (right1 - left1) * 0.8
+                x_point = left1 + (right1 - left1) * loc
                 y_point = (top1 + bottom1) / 2
                 pyautogui.moveTo(int(x_point), int(y_point))
                 #win32gui.SetCursor([int(x_point), int(y_point)])
@@ -148,8 +160,6 @@ class Operation:
                 time.sleep(8)
                 # 关闭弹窗
                 return closePopupWindow(self.__top_hwnd)
-        return
-#     查询委托：control_hwnds[16][0], 其他持仓可以使用快捷键
 
 def pickCodeFromItems(items_info):
     """
@@ -212,7 +222,7 @@ def monitor():
         tkMessageBox.showerror('错误', '请先打开华泰证券交易软件，再运行本软件')
     else:
         operation = Operation(top_hwnd)
-        operation.ipo()
+        # operation.ipo()
 
     while is_monitor and top_hwnd:
         if is_start:
