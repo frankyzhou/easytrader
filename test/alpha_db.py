@@ -20,19 +20,19 @@ def parse(count, path):
                     print str(count) + " records has been cal."
                 report = {}
                 tokens = line.split()
-                if len(tokens) == 14:
+                if len(tokens) == 16:
                     time = tokens[0]
-                    code = tokens[3].split(":")[0]
-                    alpha = get_four_five(tokens[4].split(":")[1], 5)
-                    beta = get_four_five(tokens[5].split(":")[1], 5)
-                    sharp = get_four_five(tokens[6].split(":")[1], 5)
-                    drawdown = get_four_five(tokens[7].split(":")[1], 5)
-                    sortino = get_four_five(tokens[8].split(":")[1], 5)
-                    trade_times = int(tokens[9].split(":")[1])
-                    market = tokens[10]
-                    start_time = tokens[11]
-                    fans = int(tokens[12])
-                    status = 1 if tokens[13] == "run" else 0
+                    code = tokens[4].split(":")[0]
+                    alpha = get_four_five(tokens[6].split(":")[1], 5)
+                    beta = get_four_five(tokens[7].split(":")[1], 5)
+                    sharp = get_four_five(tokens[8].split(":")[1], 5)
+                    drawdown = get_four_five(tokens[9].split(":")[1], 5)
+                    sortino = get_four_five(tokens[10].split(":")[1], 5)
+                    trade_times = int(tokens[11].split(":")[1])
+                    market = tokens[12]
+                    start_time = tokens[13]
+                    fans = int(tokens[14])
+                    status = 1 if tokens[15] == "run" else 0
 
                     report["time"] = time
                     report["code"] = code
@@ -55,7 +55,7 @@ factor_dict = []
 factor_id_set = set()
 
 now = datetime.datetime.now()
-# parse(path=path, count=count)
+parse(path=path, count=count)
 for i in db.db[COLLECTION].find():
     start_time = datetime.datetime.strptime(i["start_time"], "%Y-%M-%d")
     delta = now - start_time
