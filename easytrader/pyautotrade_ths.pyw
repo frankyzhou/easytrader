@@ -141,7 +141,7 @@ class Operation:
             result = self.click_ipo(0.9)  # 先尝试右边
             if not os.path.exists("ipo/" + name + ".png"):  # 不存在截图,说明在左边
                 result = self.click_ipo(0.7)  # 先尝试左边
-        return result
+            return result
 
     def click_ipo(self, loc):
         for hwnd, text_name, class_name in dumpWindows(self.__top_hwnd):
