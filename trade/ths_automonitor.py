@@ -51,7 +51,7 @@ class ThsMonitor(CNTrade):
             report = ""
             for code in self.position:
                 df = ts.get_hist_data(code, start=self.last_trade_time[0].strftime("%Y-%m-%d"))
-                if len(df) == 0:
+                if df is None or len(df) == 0:
                     continue  # 没有数据跳过
                 close, ma5, ma10, ma20 = df["close"].values[0], df["ma5"].values[0], df["ma10"].values[0], df["ma20"].values[0]
                 # v, v_ma5, v_ma10, v_ma20 = df["volume"].values[0], df["v_ma5"].values[0], df["v_ma10"].values[0], df["v_ma20"].values[0]
@@ -63,7 +63,7 @@ class ThsMonitor(CNTrade):
                 code_mk = "H" if code[0] == "6" else "Z"
                 url = "https://xueqiu.com/S/S" + code_mk + str(code)
 
-                report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) + " t:"  +\
+                report += "*"*40 + "\n" + str(name) + " c:" + str(p_change) +\
                     " cp:" + str(round(c_percent,2)) + " gp:" + str(round(g_percent,2)) +\
                     "\np_ma: " + str(round(ma5/close,3)) + " " + str(round((ma10/close),3)) + " " + str(round(ma20/close,3)) +\
                            "\nURL:" + url + "\n"
