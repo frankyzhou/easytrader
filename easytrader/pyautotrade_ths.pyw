@@ -2,6 +2,7 @@
 from Tkinter import *
 import tkMessageBox
 from ttk import *
+from trade.util import *
 import datetime
 import threading
 import pickle
@@ -16,6 +17,7 @@ from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
 import os
+
 
 is_start = False
 is_monitor = True
@@ -136,7 +138,7 @@ class Operation:
     def ipo(self):
         name = datetime.datetime.now().strftime("%Y-%m-%d")
         if os.path.exists("ipo/"+name+".png"):  # 若存在截图，证明已经申购
-            return
+            return IPO
         if is_today_ipo():  #判断今天是否有ipo
             result = self.click_ipo(0.9)  # 先尝试右边
             if not os.path.exists("ipo/" + name + ".png"):  # 不存在截图,说明在左边

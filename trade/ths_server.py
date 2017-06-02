@@ -2,15 +2,6 @@
 from util import *
 from easytrader.pyautotrade_ths import *
 import traceback
-import logging
-
-COLLECTION = "yjb_operation"
-GET_POSITION = "get_position"
-IPO = "ipo"
-BUY = "buy"
-SELL = "sell"
-STOP = "stop"
-READ_SIZE = 8192
 
 
 class ThsTrade:
@@ -27,9 +18,11 @@ class ThsTrade:
             return STOP
 
         if type == IPO:
-            if self.operation.ipo() == "ipo":
+            if self.operation.ipo() == IPO:
                 record_msg(self.logger, msg="ipo", subject="ipo", email=self.email)
-            return IPO
+                return 'ipo is done!'
+            else:
+                return 'no ipo!'
 
         code = msg[1]
 

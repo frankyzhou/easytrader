@@ -16,7 +16,13 @@ import re
 from easytrader.log import log
 from PIL import Image
 import pytesseract
-
+COLLECTION = "yjb_operation"
+GET_POSITION = "get_position"
+IPO = "ipo"
+BUY = "buy"
+SELL = "sell"
+STOP = "stop"
+READ_SIZE = 8192
 
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
