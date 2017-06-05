@@ -17,7 +17,7 @@ from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
 import os
-
+from easytrader import helpers
 
 is_start = False
 is_monitor = True
@@ -139,7 +139,7 @@ class Operation:
         name = datetime.datetime.now().strftime("%Y-%m-%d")
         if os.path.exists("ipo/"+name+".png"):  # 若存在截图，证明已经申购
             return IPO
-        if is_today_ipo():  #判断今天是否有ipo
+        if len(helpers.get_today_ipo_data())>0:  #判断今天是否有ipo
             result = self.click_ipo(0.9)  # 先尝试右边
             if not os.path.exists("ipo/" + name + ".png"):  # 不存在截图,说明在左边
                 result = self.click_ipo(0.7)  # 先尝试左边
