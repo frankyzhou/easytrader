@@ -79,7 +79,7 @@ class CNTrade(object):
         result = {}
         result["status"] = "OK"
 
-        if code[0] == "5":
+        if code[0] not in ['0', '3', '6']:
             result["trade"] = "暂时不支持操作 " + code
 
         else:
