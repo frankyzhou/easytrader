@@ -142,7 +142,7 @@ class Operation:
         if len(helpers.get_today_ipo_data())>0:  #判断今天是否有ipo
             result = self.click_ipo(0.9)  # 先尝试右边
             if not os.path.exists("ipo/" + name + ".png"):  # 不存在截图,说明在左边
-                result = self.click_ipo(0.7)  # 先尝试左边
+                result = self.click_ipo(0.6)  # 先尝试左边
             return result
 
     def click_ipo(self, loc):
