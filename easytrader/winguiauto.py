@@ -115,13 +115,12 @@ def findSubWindows(windows, numChildWindows):
     :param numChildWindows: 子窗口数量
     :return:子窗口列表，包括子窗口hwnd, title, className
     """
-
     for window in windows:
         childHwnd, windowText, windowClass = window
         windowContent = dumpWindow(childHwnd)
         # print "-"*20 + str(windows.index(window))
         # for hwnd, text_name, class_name in windowContent:
-        #     print text_name.decode("gbk")
+        #     #print text_name.decode("gbk")
         #     try:
         #         for hwnd1, text_name1, class_name1 in dumpWindows(hwnd):
         #             print text_name1.decode("gbk")

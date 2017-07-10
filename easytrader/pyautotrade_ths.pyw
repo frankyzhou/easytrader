@@ -41,7 +41,9 @@ class Operation:
             # self.__wanted_hwnds = findSubWindows(temp_hwnds, 70)  # 华泰专用版
             self.__wanted_hwnds = findSubWindows(self.__temp_hwnds, 73)   # 同花顺通用版
             self.__control_hwnds = []
+
             for hwnd, text_name, class_name in self.__wanted_hwnds:
+
                 if class_name in ('Button', 'Edit'):
                     self.__control_hwnds.append((hwnd, text_name.decode("gbk"), class_name))
 
@@ -104,11 +106,18 @@ class Operation:
 
     def getMoney(self):
         """
-        获取可用资金
+        获取总资产
         """
         #restoreFocusWindow(self.__top_hwnd)
-        self.__wanted_hwnds = findSubWindows(self.__temp_hwnds, 73)   # 更新可用资金
-        return float(self.__wanted_hwnds[51][1])
+        tmp = dumpWindows(self.__temp_hwnds[0][0])
+        t_lst = []
+        for h, t, c in tmp:
+            try:
+                for h1, t1, c1 in dumpWindows(h):
+                    t_lst.append(t1.decode("gbk"))
+            except:
+                continue
+        return float(t_lst[527])
 
     def getPosition(self):
         """
