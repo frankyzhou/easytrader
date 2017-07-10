@@ -117,7 +117,6 @@ class Operation:
                     try:
                         for h1, t1, c1 in dumpWindows(h):
                             t_lst.append(t1.decode("gbk"))
-                            print t1.decode("gbk")
                     except:
                         continue
             except:
