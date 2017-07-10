@@ -109,15 +109,23 @@ class Operation:
         获取总资产
         """
         #restoreFocusWindow(self.__top_hwnd)
-        tmp = dumpWindows(self.__temp_hwnds[0][0])
-        t_lst = []
-        for h, t, c in tmp:
+        for i in range(len(self.__temp_hwnds)):
+            t_lst = []
             try:
-                for h1, t1, c1 in dumpWindows(h):
-                    t_lst.append(t1.decode("gbk"))
+                tmp = dumpWindows(self.__temp_hwnds[i][0])
+                for h, t, c in tmp:
+                    try:
+                        for h1, t1, c1 in dumpWindows(h):
+                            t_lst.append(t1.decode("gbk"))
+                            print t1.decode("gbk")
+                    except:
+                        continue
             except:
                 continue
-        return float(t_lst[527])
+            if len(t_lst) > 100:
+                break
+        index = t_lst.index(u'在途资金')
+        return float(t_lst[index-1])
 
     def getPosition(self):
         """
