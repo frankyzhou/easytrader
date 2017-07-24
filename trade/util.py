@@ -119,9 +119,9 @@ def get_trade_date_series(country):
         df = ts.get_realtime_quotes("sh")
         date_cn = datetime.datetime.strptime(df["date"].values[0].encode("utf8"), "%Y-%m-%d")
         trade_begin_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 9, 25, 0)
-        trade_end_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 11, 30, 0)
-        trade_begin_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 13, 0, 0)
-        trade_end_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 15, 0, 0)
+        trade_end_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 11, 35, 0)
+        trade_begin_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 12, 55, 0)
+        trade_end_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 15, 05, 0)
 
     elif country == "US":
         yahoo = Share('QQQ')

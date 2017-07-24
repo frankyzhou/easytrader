@@ -67,12 +67,14 @@ def cal_max_drawdown(p_series):
     cur_mx = 0
     position = [0, 0]
     for i in range(len(p)):
-        cur_mx = p[i] if p[i] > cur_mx else cur_mx
+        # cur_mx = p[i] if p[i] > cur_mx else cur_mx
+        cur_mx = max(p[i], cur_mx)
         # if p[i] > cur_mx:
         #     cur_mx = p[i]
         #     position[0] = i
         md = float(p[i] - cur_mx) / cur_mx
-        cur_md = md if md < cur_md else cur_md
+        # cur_md = md if md < cur_md else cur_md
+        cur_md = min(md, cur_md)
         # if md < cur_md:
         #     cur_md = md
         #     position[1] = i
