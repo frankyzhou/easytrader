@@ -28,7 +28,7 @@ class ThsMonitor(CNTrade):
         record_msg(self.logger, "sh:" + str(sh_amount) + ",  sz:" + str(sz_amount))
 
     def get_real_price(self):
-        while not self.all_stocks_data:
+        while self.all_stocks_data is None:
             try:
                 self.all_stocks_data = ts.get_today_all()
             except:
