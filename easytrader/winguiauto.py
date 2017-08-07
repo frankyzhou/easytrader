@@ -185,7 +185,7 @@ def closePopupWindow(top_hwnd, wantedText=None, wantedClass=None):
     windows = dumpWindows(hwnd_popup)
     if windows[0][1].decode("gbk") == u"提示":
         left, top, right, bottom = win32gui.GetWindowRect(windows[5][0])
-        clickOnVerticalTimes(left, top, right, bottom, 0.5, 0.9, 20)
+        clickOnVerticalTimes(left, top, right, bottom, 0.5, 0.9, 10)
         time.sleep(5)
 
         # save pic of ipo
