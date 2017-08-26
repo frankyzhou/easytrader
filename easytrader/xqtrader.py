@@ -286,25 +286,61 @@ class XueQiuTrader(WebTrader):
         r = json.loads(r.text)
         return r['list']
 
+    def __get_xq_all_history(self):
+        """
+        获取雪球调仓历史
+        :param instance:
+        :param owner:
+        :return:
+        """
+        maxPage = 100
+        history = []
+        data = {
+            "cube_symbol": str(self.account_config['portfolio_code']),
+            'count': 20,
+            'page': 1
+        }
+        url = self.config['history_url'] if self.account_config['portfolio_code'][:2] == "ZH" else self.config['sp_history_url']
+        r = self.session.get(url, params=data)
+        r = json.loads(r.text)
+
+        history.extend(r['list'])
+        maxPage = r['maxPage']
+
+        for i in range(2, maxPage+1):
+            try:
+                print str(i) + "/" + str(maxPage)
+                time.sleep(5)
+                data = {
+                    "cube_symbol": str(self.account_config['portfolio_code']),
+                    'count': 20,
+                    'page': i
+                }
+                url = self.config['history_url'] if self.account_config['portfolio_code'][:2] == "ZH" else self.config[
+                    'sp_history_url']
+                r = self.session.get(url, params=data)
+                r = json.loads(r.text)
+                history.extend(r['list'])
+            except:
+                traceback.print_exc()
+                print i
+                continue
+        return history
+
     @property
     def history(self):
         return self.__get_xq_history()
 
-    def get_entrust(self):
+    def get_entrust(self, is_all=False):
         """
         获取委托单(目前返回5次调仓的结果)
         操作数量都按1手模拟换算的
         :return:
         """
-        xq_entrust_list = self.__get_xq_history()
+        xq_entrust_list = self.__get_xq_history() if not is_all else self.__get_xq_all_history()
         entrust_list = []
         for xq_entrusts in xq_entrust_list:
             status = xq_entrusts['status']  # 调仓状态
-            # if status == 'pending':
-            #     status = "已报"
-            # elif status == 'canceled':
-            #     status = "废单"
-            # else:
             if status == 'success':
                 status = "已成"
             else:
@@ -329,6 +365,7 @@ class XueQiuTrader(WebTrader):
                     'entrust_price': entrust['price'],
                     'prev_weight': entrust['prev_weight'],
                     'target_weight': entrust['target_weight'],
+                    'comment': xq_entrusts['comment']
                 })
         return entrust_list
 
