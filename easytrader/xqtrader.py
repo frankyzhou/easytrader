@@ -55,8 +55,8 @@ class XueQiuTrader(WebTrader):
         :return:
         """
         self.driver.get(self.config['login_api'])
-        time.sleep(6)
-        self.driver.minimize_window()
+        time.sleep(3)
+        self.driver.set_window_size(0,0)
         if self.driver.title.find("我的首页") == 0:
             log.info("xueqiu has login!")
         else:
@@ -238,8 +238,8 @@ class XueQiuTrader(WebTrader):
         # r = self.session.get(url, params=data)
         url = url + "?cube_symbol=%s&count=%s&page=%s" % (str(self.account_config['portfolio_code']), 5, 1)
         self.driver.get(url)
-        time.sleep(1)
-        r = json.loads(self.driver.page_source)
+        # time.sleep(1)
+        r = json.loads(self.driver.find_element_by_xpath('/html/body/pre').text)
         return r['list']
 
     def __get_xq_all_history(self):
