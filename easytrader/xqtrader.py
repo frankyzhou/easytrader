@@ -1,27 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import json
-import urllib
-import zlib
 import traceback
-# import requests
 import six
-import os
-import re
-import time
 from numbers import Number
 
-import requests
-
-from .log import log
 from .webtrader import NotLoginError, TradeError
-import requests
-from six.moves.urllib.parse import urlencode
-
 from .log import log
-from .webtrader import NotLoginError
 from .webtrader import WebTrader
-
+from selenium import webdriver
 
 from trade.util import *
 import time
@@ -29,6 +16,12 @@ import helpers
 import os
 if six.PY2:
     import urllib2
+
+
+chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
+options = webdriver.ChromeOptions()
+options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
+
 
 class XueQiuTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/xq.json'
@@ -43,21 +36,9 @@ class XueQiuTrader(WebTrader):
         if self.multiple < 1e3:
             raise ValueError('雪球初始资产不能小于1000元，当前预设值 {}'.format(self.multiple))
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0',
-            'Host': 'xueqiu.com',
-            'Pragma': 'no-cache',
-            'Connection': 'keep-alive',
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip,deflate,sdch',
-            'Cache-Control': 'no-cache',
-            'Referer': 'http://xueqiu.com/P/ZH003694',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept-Language': 'zh-CN,zh;q=0.8'
-        }
-        self.session = requests.Session()
-        self.session.headers.update(headers)
         self.account_config = None
+        self.driver = webdriver.Chrome(executable_path=chromedriver, chrome_options=options)
+
 
     def autologin(self, **kwargs):
         """
@@ -73,32 +54,14 @@ class XueQiuTrader(WebTrader):
         :param throw:
         :return:
         """
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
-        self.account_config = None
-        # self.requests = requests
-        self.cookies = ""
-        self.multiple = 1000000  # 资金换算倍数
-
-    def autologin(self, **kwargs):
-        """
-        重写自动登录方法
-        避免重试导致的帐号封停
-        :return:
-        """
-        self.login()
-
-    def login(self, throw=False):
-        """
-        登录
-        :param throw:
-        :return:
-        """
-        login_status, result = self.post_login_data()
-        if login_status is False and throw:
-            raise NotLoginError(result)
-        log.debug('login status: %s' % result)
-        return login_status
+        self.driver.get(self.config['login_api'])
+        time.sleep(6)
+        self.driver.minimize_window()
+        if self.driver.title.find("我的首页") == 0:
+            log.info("xueqiu has login!")
+        else:
+            log.warn("need to login!")
+            raise Exception
 
     def _prepare_account(self, user='', password='', **kwargs):
         """
@@ -124,19 +87,6 @@ class XueQiuTrader(WebTrader):
             'portfolio_market': kwargs['portfolio_market']
         }
 
-    def post_login_data(self):
-        login_post_data = {
-            'username': self.account_config.get('username', ''),
-            'areacode': '86',
-            'telephone': self.account_config['account'],
-            'remember_me': '0',
-            'password': self.account_config['password']
-        }
-        login_response = self.session.post(self.config['login_api'], data=login_post_data)
-        login_status = login_response.json()
-        if 'error_description' in login_status:
-            return False, login_status['error_description']
-        return True, "SUCCESS"
 
     def __virtual_to_balance(self, virtual):
         """
@@ -147,7 +97,10 @@ class XueQiuTrader(WebTrader):
         return virtual * self.multiple
 
     def __get_html(self, url):
-        return self.session.get(url).text
+        # return self.session.get(url).text
+        self.driver.get(url)
+        time.sleep(1)
+        return self.driver.page_source
 
     def __search_stock_info(self, code):
         """
@@ -282,8 +235,11 @@ class XueQiuTrader(WebTrader):
             'page': 1
         }
         url = self.config['history_url'] if self.account_config['portfolio_code'][:2] == "ZH" else self.config['sp_history_url']
-        r = self.session.get(url, params=data)
-        r = json.loads(r.text)
+        # r = self.session.get(url, params=data)
+        url = url + "?cube_symbol=%s&count=%s&page=%s" % (str(self.account_config['portfolio_code']), 5, 1)
+        self.driver.get(url)
+        time.sleep(1)
+        r = json.loads(self.driver.page_source)
         return r['list']
 
     def __get_xq_all_history(self):
