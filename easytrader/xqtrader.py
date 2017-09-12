@@ -56,7 +56,6 @@ class XueQiuTrader(WebTrader):
         """
         self.driver.get(self.config['login_api'])
         time.sleep(3)
-        self.driver.set_window_size(0,0)
         if self.driver.title.find("我的首页") == 0:
             log.info("xueqiu has login!")
         else:
