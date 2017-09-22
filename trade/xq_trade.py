@@ -179,9 +179,12 @@ class XqTrade(CNTrade):
 
             except Exception, e:
                 msg = "xq:" + str(e.message)
+                # self.xq.driver.close()
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
-                return -1
+                time.sleep(60)
+                self.xq.autologin()
+                # return -1
 
     def main(self):
         while 1:
@@ -201,5 +204,5 @@ if __name__ == '__main__':
     while 1:
         xq = XqTrade(sys.argv[1], is_first)
         xq.main()
-        time.sleep(60)
+        time.sleep(10)
         is_first = False
