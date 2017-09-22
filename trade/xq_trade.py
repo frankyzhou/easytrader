@@ -183,7 +183,11 @@ class XqTrade(CNTrade):
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
                 time.sleep(60)
-                self.xq.autologin()
+                try:
+                    self.xq.autologin()
+                except:
+                    print "login fail..."
+                    return -1
                 # return -1
 
     def main(self):
@@ -204,5 +208,6 @@ if __name__ == '__main__':
     while 1:
         xq = XqTrade(sys.argv[1], is_first)
         xq.main()
+        xq.xq.driver.close()
         time.sleep(10)
         is_first = False
