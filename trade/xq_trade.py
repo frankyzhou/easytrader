@@ -182,7 +182,7 @@ class XqTrade(CNTrade):
                 # self.xq.driver.close()
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
-                time.sleep(60)
+                time.sleep(10)
                 try:
                     self.xq.autologin()
                 except:
