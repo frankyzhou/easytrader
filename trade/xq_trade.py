@@ -206,8 +206,8 @@ if __name__ == '__main__':
         exit(-1)
     is_first = True
     while 1:
-        xq = XqTrade(sys.argv[1], is_first)
-        xq.main()
-        xq.xq.driver.close()
+        ins = XqTrade(sys.argv[1], is_first)
+        ins.main()
+        ins.xq.driver.close()
         time.sleep(10)
         is_first = False
