@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import tushare as ts
 import logging, logging.handlers
-from HTMLParser import HTMLParser
+# from HTMLParser import HTMLParser
 from easytrader.MongoDB import *
-from yahoo_finance import Share
+# from yahoo_finance import Share
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -45,11 +45,8 @@ def get_price_by_factor(all_stocks_data, code, price, factor):
             price = min(price, high_stop)
         else:
             price = max(price, low_stop)
-    except Exception, e:
-        print e
-        print values
-        print len(values)
-
+    except:
+        pass
     return price
 
 
@@ -121,7 +118,7 @@ def get_trade_date_series(country):
         trade_begin_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 9, 25, 0)
         trade_end_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 11, 35, 0)
         trade_begin_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 12, 55, 0)
-        trade_end_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 15, 05, 0)
+        trade_end_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 15, 5, 0)
 
     elif country == "US":
         yahoo = Share('QQQ')
@@ -163,8 +160,8 @@ def get_logger(collection, name=None, is_first=True):
 
 
 def record_msg(logger, msg, subject=None, email=None):
-    if type(msg).__name__ != "unicode":
-        msg = unicode(msg, "utf-8")
+    # if type(msg).__name__ != "unicode":
+    # msg = unicode(msg, "utf-8")
     logger.info(msg)
     if email:
         email.send_email(msg, subject)
@@ -193,10 +190,9 @@ def update_stocks_data(state, all_stocks):
         try:
             all_stocks = ts.get_today_all()
             state = True
-            print "\n" + "-" * 50
+            print("\n" + "-" * 50)
             log.info("updates stock data!")
-        except Exception, e:
-            print e
+        except:
             all_stocks = None
             state = False
     return state, all_stocks
@@ -249,8 +245,8 @@ def get_code_name(all_data, code, name=None):
             return n[n.name == name].values[0][0]
         else:
             return n[n.code == code].values[0][1]
-    except Exception, e:
-        print e
+    except:
+        pass
         return code if not name else name
 
 
@@ -268,66 +264,66 @@ class client:
         return str(buf)
 
 
-class MyHTMLParser(HTMLParser):
-    def __init__(self):
-      self.data=[]
-      self.rt=0
-      self.sy=0
-      self.td=0
-      self.mt=0
-      self.linkname=''
-      HTMLParser.__init__(self)
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'meta':
-            for name, value in attrs:
-                if name == "content" and "雪球" in value  and self.mt == 0:
-                    self.data.append(value.split(" ")[0])
-                    self.mt = 1
-                    # return
-
-        if tag == 'div':
-            for name, value in attrs:
-                if value == 'column-rt':
-                    self.rt = 1
-                    # return
-                if value == 'stock-symbol':
-                    self.sy = 1
-                    # return
-
-        if tag == 'td':
-            self.td = 1
-            # return
-
-    def handle_data(self, data):
-        if self.rt or self.sy or self.td or self.mt:
-            self.linkname += data
-
-    def handle_endtag(self, tag):
-        if tag == 'div' or tag == 'td':
-            # self.linkname=''.join(self.linkname.split())
-            if self.rt or self.sy or self.td:
-                self.linkname = self.linkname.strip()
-                if self.linkname:
-                    self.data.append(self.linkname)
-                self.linkname = ''
-                self.rt = 0
-                self.sy = 0
-                self.td = 0
-
-    def getresult(self):
-        data = self.data
-        info_list = []
-        # time = data[1][:-2]
-        num = len(data)/6
-        info_list.append(data[0])
-        for i in range(0,num):
-            e = {}
-            stock = {"price":data[i*6+6], "reason":data[i*6+8]}
-            stock_name = data[i*6+4]
-            e[stock_name] = stock
-            info_list.append(e)
-        return info_list
+# class MyHTMLParser(HTMLParser):
+#     def __init__(self):
+#       self.data=[]
+#       self.rt=0
+#       self.sy=0
+#       self.td=0
+#       self.mt=0
+#       self.linkname=''
+#       HTMLParser.__init__(self)
+#
+#     def handle_starttag(self, tag, attrs):
+#         if tag == 'meta':
+#             for name, value in attrs:
+#                 if name == "content" and "雪球" in value  and self.mt == 0:
+#                     self.data.append(value.split(" ")[0])
+#                     self.mt = 1
+#                     # return
+#
+#         if tag == 'div':
+#             for name, value in attrs:
+#                 if value == 'column-rt':
+#                     self.rt = 1
+#                     # return
+#                 if value == 'stock-symbol':
+#                     self.sy = 1
+#                     # return
+#
+#         if tag == 'td':
+#             self.td = 1
+#             # return
+#
+#     def handle_data(self, data):
+#         if self.rt or self.sy or self.td or self.mt:
+#             self.linkname += data
+#
+#     def handle_endtag(self, tag):
+#         if tag == 'div' or tag == 'td':
+#             # self.linkname=''.join(self.linkname.split())
+#             if self.rt or self.sy or self.td:
+#                 self.linkname = self.linkname.strip()
+#                 if self.linkname:
+#                     self.data.append(self.linkname)
+#                 self.linkname = ''
+#                 self.rt = 0
+#                 self.sy = 0
+#                 self.td = 0
+#
+#     def getresult(self):
+#         data = self.data
+#         info_list = []
+#         # time = data[1][:-2]
+#         num = len(data)/6
+#         info_list.append(data[0])
+#         for i in range(0,num):
+#             e = {}
+#             stock = {"price":data[i*6+6], "reason":data[i*6+8]}
+#             stock_name = data[i*6+4]
+#             e[stock_name] = stock
+#             info_list.append(e)
+#         return info_list
 
 
 class PorfolioPosition():
@@ -377,15 +373,15 @@ class Email():
         subject = subject if subject else msg
         msgRoot['Subject'] = Header(subject, 'utf-8')
 
-        if subject == "ipo":
-            # 发照片
-            name = 'ipo/' + datetime.datetime.now().strftime("%Y-%m-%d") +".png"
-            fp = open(name, 'rb')
-            msgImage = MIMEImage(fp.read())
-            fp.close()
-            msgRoot.attach(msgImage)
-            # 发文字
-            msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
+        # if subject == "ipo":
+        #     # 发照片
+        #     name = 'ipo/' + datetime.datetime.now().strftime("%Y-%m-%d") +".png"
+        #     fp = open(name, 'rb')
+        #     msgImage = MIMEImage(fp.read())
+        #     fp.close()
+        #     msgRoot.attach(msgImage)
+        #     # 发文字
+        #     msg = pytesseract.image_to_string(Image.open(name), lang="chi_sim")  # 覆盖原先文字
 
         message = MIMEText(msg, 'plain', 'utf-8')  # text
         msgRoot.attach(message)
@@ -395,12 +391,12 @@ class Email():
                 # self.smtpObj.sendmail(self.mail_user, self.mail_user, message.as_string())
                 # print "邮件发送成功"
                 return
-            except smtplib.SMTPException, ex:
+            except:
                 # print "Error: 无法发送邮件"
                 self.smtpObj = smtplib.SMTP()
                 self.smtpObj.connect(self.mail_host, 25)
                 self.smtpObj.login(self.mail_user, self.mail_pass)
-                print ex
+                # print ex
 
 
 # is_trade_time()

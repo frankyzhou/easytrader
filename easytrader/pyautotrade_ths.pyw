@@ -1,7 +1,7 @@
 # -*- encoding: utf8 -*-
-from Tkinter import *
-import tkMessageBox
-from ttk import *
+# from Tkinter import *
+# import tkMessageBox
+# from ttk import *
 from trade.util import *
 import datetime
 import threading
@@ -12,10 +12,10 @@ import win32con
 import win32api
 import tushare as ts
 import win32gui
-import pyautogui
-from winguiauto import (dumpWindows, clickButton, click, setEditText,
-                        findSubWindows, closePopupWindow, clickWindow,
-                        findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
+# import pyautogui
+# from winguiauto import (dumpWindows, clickButton, click, setEditText,
+#                         findSubWindows, closePopupWindow, clickWindow,
+#                         findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
 import os
 from easytrader import helpers
 
@@ -89,7 +89,7 @@ class Operation:
             if msg.find('存在') > -1:  # 证券代码不存在
                 times -= 1
                 time.sleep(1)
-                print u"代码不存在"
+                print(u"代码不存在")
             # elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
             #     quantity = 0  # 将目标量降低为0，以识别是资金不足
             #     print u'可用资金不足'
@@ -283,8 +283,8 @@ def monitor():
 
         if count % 1 == 0:
             operation.clickRefreshButton()
-            print "已经刷新"
-            print operation.getMoney()
+            # print("已经刷新"
+            # print operation.getMoney()
             position = operation.getPosition()
             position_list = []
             stock_num = len(position) / 13

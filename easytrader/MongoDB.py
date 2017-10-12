@@ -39,17 +39,17 @@ class MongoDB:
         coll = db['informations']
         obj = coll.find_one()
         obj_id = obj["_id"]
-        print "_id 为ObjectId类型，obj_id:" + str(obj_id)
+        # print "_id 为ObjectId类型，obj_id:" + str(obj_id)
 
-        print coll.find_one({"_id": obj_id})
+        # print coll.find_one({"_id": obj_id})
         # 需要注意这里的obj_id是一个对象，不是一个str，使用str类型作为_id的值无法找到记录
-        print "_id 为str类型 "
-        print coll.find_one({"_id": str(obj_id)})
+        # print "_id 为str类型 "
+        # print coll.find_one({"_id": str(obj_id)})
         # 可以通过ObjectId方法把str转成ObjectId类型
         from bson.objectid import ObjectId
 
-        print "_id 转换成ObjectId类型"
-        print coll.find_one({"_id": ObjectId(str(obj_id))})
+        # print "_id 转换成ObjectId类型"
+        # print coll.find_one({"_id": ObjectId(str(obj_id))})
 
     def clear_all_datas(self, coll):
         colls = self.db[coll]

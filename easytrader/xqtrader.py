@@ -12,7 +12,7 @@ from selenium import webdriver
 
 from trade.util import *
 import time
-import helpers
+# import helpers
 import os
 if six.PY2:
     import urllib2
@@ -20,8 +20,8 @@ if six.PY2:
 
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 options = webdriver.ChromeOptions()
-options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
-
+# options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
+options.add_argument("user-data-dir=C:\\Users\\frankyzhou\\AppData\\Local\\Google\\Chrome\\User Data")
 
 class XueQiuTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/xq.json'
@@ -264,7 +264,7 @@ class XueQiuTrader(WebTrader):
 
         for i in range(2, maxPage+1):
             try:
-                print str(i) + "/" + str(maxPage)
+                print(str(i) + "/" + str(maxPage))
                 time.sleep(5)
                 data = {
                     "cube_symbol": str(self.account_config['portfolio_code']),
@@ -278,7 +278,7 @@ class XueQiuTrader(WebTrader):
                 history.extend(r['list'])
             except:
                 traceback.print_exc()
-                print i
+                print(i)
                 continue
         return history
 
@@ -595,7 +595,7 @@ class XueQiuTrader(WebTrader):
         }
         r = self.session.get(self.config['profit_daily'], params=data)
         if r.status_code != 200:
-            print r.status_code
+            print(r.status_code)
             return None
         r = json.loads(r.text)
         return r

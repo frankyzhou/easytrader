@@ -43,9 +43,9 @@ def use(broker, debug=True, **kwargs):
         return WBTrader()
     if broker.lower() in ['df', "DF"]:
         return DFTrader()
-    if broker.lower() in ['yh_client', '银河客户端']:
-        from .yh_clienttrader import YHClientTrader
-        return YHClientTrader()
+    elif broker.lower() in ['gj_client', '国金客户端']:
+        from .gj_clienttrader import GJClientTrader
+        return GJClientTrader()
 
 
 def follower(platform, **kwargs):
