@@ -214,7 +214,7 @@ def cal_time_cost(begin):
 
 def parse_digit(string):
     p = re.compile(r"\d+\.*\d*")
-    m = p.findall(string)
+    m = p.findall(str(string))
     return float(m[0]), float(m[1]), float(m[2]), float(m[3])
 
 
