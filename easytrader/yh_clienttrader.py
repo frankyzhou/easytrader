@@ -222,7 +222,7 @@ class YHClientTrader(ClientTrader):
         )
         self._type_keys(
             self._config.TRADE_AMOUNT_CONTROL_ID,
-            str(int(amount))
+            str(int(float(amount)))
         )
 
     def _get_grid_data(self, control_id):

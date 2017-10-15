@@ -172,7 +172,7 @@ class XqTrade(CNTrade):
                 self.trade_by_entrust(entrust, k, factor, percent)
 
             except Exception as e:
-                msg = "xq:" + str(e.message)
+                msg = "xq:error"
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
                 time.sleep(10)

@@ -200,10 +200,6 @@ def update_stocks_data(state, all_stocks):
     return state, all_stocks
 
 
-def str_to_dict(string):
-    return eval(string)
-
-
 def cal_time_cost(begin):
     try:
         dt_begin = datetime.datetime.strptime(begin, "%Y-%m-%d %H:%M:%S")
@@ -264,7 +260,10 @@ class client:
         buf = self.client.recv(204800)
         if not len(buf):
             return "No data"
-        return eval(buf)
+        try:
+            return eval(buf)
+        except:
+            return buf.decode('ascii')
 
 
 # class MyHTMLParser(HTMLParser):
