@@ -4,7 +4,7 @@ from cn_trade import *
 import traceback
 import tushare as ts
 COLLECTION = "ths_monitor"
-TEST_STATE = False
+TEST_STATE = True
 
 
 class ThsMonitor(CNTrade):
@@ -49,9 +49,9 @@ class ThsMonitor(CNTrade):
         now = datetime.datetime.now()
         if now > self.last_trade_time[3] + datetime.timedelta(hours=1) and not self.is_report:
             # 大于3点才开始执行
-            self.position = str_to_dict(self.client.exec_order("get_position all"))
+            self.position = self.client.exec_order("get_position all")
             time.sleep(30)
-            self.position = str_to_dict(self.client.exec_order("get_position all"))
+            self.position = self.client.exec_order("get_position all")
             self.get_real_price()
             self.is_report = True
             report = ""
@@ -86,7 +86,7 @@ class ThsMonitor(CNTrade):
             self.update_para(TEST_STATE)
             while is_trade_time(TEST_STATE, self.last_trade_time):
                 try:
-                    self.position = str_to_dict(self.client.exec_order("get_position all"))
+                    self.position = self.client.exec_order("get_position all")
                     self.get_real_price()
                     self.get_sh_sz_percent()
                     time.sleep(5 * 60)

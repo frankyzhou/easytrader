@@ -201,7 +201,7 @@ def update_stocks_data(state, all_stocks):
 
 
 def str_to_dict(string):
-    return ast.literal_eval(string)
+    return eval(string)
 
 
 def cal_time_cost(begin):
@@ -264,7 +264,7 @@ class client:
         buf = self.client.recv(204800)
         if not len(buf):
             return "No data"
-        return str(buf)
+        return eval(buf)
 
 
 # class MyHTMLParser(HTMLParser):

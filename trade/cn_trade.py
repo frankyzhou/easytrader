@@ -49,14 +49,14 @@ class CNTrade(object):
         result = {}
         if dif > 0:
                 if amount >= 100:
-                    result = str_to_dict(self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount)))
+                    result = self.client.exec_order("buy " + code + " " + str(price) + " " + str(amount))
                     result["trade"] = "买入 "+code+" @ " + str(price) + " 共 " + str(amount)
                 else:
                     result["trade"] = "买入不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
         elif dif < 0:
             amount = enable_amount if dif == -2 else min(enable_amount, amount)
             if amount >= 100:
-                result = str_to_dict(self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount)))
+                result = self.client.exec_order("sell " + code + " " + str(price) + " " + str(amount))
                 result["trade"] = "卖出 "+code+" @ " + str(price) + " 共 " + str(amount)
             else:
                 result["trade"] = "卖出不足100股 "+code+" @ " + str(price) + " 共 " + str(amount)
