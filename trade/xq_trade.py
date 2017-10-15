@@ -6,7 +6,7 @@ from cn_trade import *
 import copy
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 DB_NAME = "Xueqiu"
 OPEA_COLL = "xq_operation"
 SP_COLL = "shipan"
@@ -171,7 +171,7 @@ class XqTrade(CNTrade):
                 percent = self.portfolio_list[k]["percent"]
                 self.trade_by_entrust(entrust, k, factor, percent)
 
-            except Exception, e:
+            except Exception as e:
                 msg = "xq:" + str(e.message)
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
@@ -179,7 +179,7 @@ class XqTrade(CNTrade):
                 try:
                     self.xq.autologin()
                 except:
-                    print "login fail..."
+                    print("login fail...")
                     return -1
 
     def main(self):
@@ -194,7 +194,7 @@ class XqTrade(CNTrade):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print "usage: python xq_trade.py profilio_num[1,2,....n]"
+        print("usage: python xq_trade.py profilio_num[1,2,....n]")
         exit(-1)
     is_first = True
     while 1:
