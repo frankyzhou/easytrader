@@ -11,3 +11,7 @@ pytesseract
 pandas
 pyperclip
 rqopen-client
+tushare
+selenium
+pymongo
+easyutils

@@ -20,7 +20,7 @@ class ThsTrade:
         if type == IPO:
             # if self._user.auto_ipo() == IPO:
             msg_dict = self._user.auto_ipo()
-            record_msg(self.logger, msg=msg_dict['message'], subject="ipo", email=self.email)
+            record_msg(self.logger, msg=str(msg_dict['message']), subject="ipo", email=self.email)
             return 'ipo is done!'
             # else:
             #     return 'no ipo!'

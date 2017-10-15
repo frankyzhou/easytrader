@@ -24,7 +24,7 @@ class ThsMonitor(CNTrade):
                 sz_amount += self.position[code]["turnover"]
         sh_amount = int(sh_amount/10000) * 1000
         sz_amount = int(sz_amount/5000) * 500
-        print "\n"
+        print("\n")
         record_msg(self.logger, "sh:" + str(sh_amount) + ",  sz:" + str(sz_amount))
 
     def get_real_price(self):
@@ -37,10 +37,10 @@ class ThsMonitor(CNTrade):
             s = self.all_stocks_data[self.all_stocks_data.code == code]
             try:
                 if s["changepercent"].values[0] > 7:
-                    print "\n"
+                    print("\n")
                     record_msg(self.logger, str(code) + " up to 7%!", email=self.email)
                 if s["changepercent"].values[0] < -7:
-                    print "\n"
+                    print("\n")
                     record_msg(self.logger, str(code) + " down to 7%!", email=self.email)
             except:
                 continue
@@ -99,7 +99,7 @@ class ThsMonitor(CNTrade):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print "usage: python ThsMonitor.py profilio_num[1,2,....n]"
+        print("usage: python ThsMonitor.py profilio_num[1,2,....n]")
         exit(-1)
     is_first = True
     while 1:

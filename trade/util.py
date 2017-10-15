@@ -16,6 +16,8 @@ import re
 from easytrader.log import log
 from PIL import Image
 import pytesseract
+import traceback
+
 COLLECTION = "yjb_operation"
 GET_POSITION = "get_position"
 IPO = "ipo"
@@ -114,7 +116,7 @@ def get_trade_date_series(country):
     """
     if country == "CN":
         df = ts.get_realtime_quotes("sh")
-        date_cn = datetime.datetime.strptime(df["date"].values[0].encode("utf8"), "%Y-%m-%d")
+        date_cn = datetime.datetime.strptime(df["date"].values[0], "%Y-%m-%d")
         trade_begin_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 9, 25, 0)
         trade_end_am = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 11, 35, 0)
         trade_begin_pm = datetime.datetime(int(date_cn.year), int(date_cn.month), int(date_cn.day), 12, 55, 0)
@@ -255,9 +257,10 @@ class client:
         self.client = get_client(host=host)
 
     def exec_order(self, order, response=True):
-        self.client.sendall(order)
+        self.client.sendall(order.encode('ascii'))
         if not response:
             return
+
         buf = self.client.recv(204800)
         if not len(buf):
             return "No data"
@@ -393,6 +396,7 @@ class Email():
                 return
             except:
                 # print "Error: 无法发送邮件"
+                # traceback.print_exc()
                 self.smtpObj = smtplib.SMTP()
                 self.smtpObj.connect(self.mail_host, 25)
                 self.smtpObj.login(self.mail_user, self.mail_pass)
