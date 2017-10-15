@@ -84,7 +84,7 @@ class ThsTrade:
                     return False
             except:
                 traceback.print_exc()
-                self.server.sendto("error", address)
+                self.server.sendto(b'error', address)
                 record_msg(self.logger, "重新启动")
                 # self._user.exit()
                 # return True
