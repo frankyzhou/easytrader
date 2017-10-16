@@ -30,12 +30,6 @@ class XqTrade(CNTrade):
         self.logger = get_logger(OPEA_COLL, is_first=is_first)
         self.db = MongoDB(DB_NAME)
 
-        # 每日更新 都在cn_trade里
-        # self.last_trade_time = get_trade_date_series("CN")
-        # self.trade_time = get_date_now("CN")
-        # self.all_stocks_data = None
-        # self.is_update_stocks = False
-        # self.is_update_stocks, self.all_stocks_data = update_stocks_data(False, self.all_stocks_data)
 
     def judge_sp_trades(self, trade):
         trade_list = []
@@ -179,7 +173,6 @@ class XqTrade(CNTrade):
 
             except Exception, e:
                 msg = "xq:" + str(e.message)
-                # self.xq.driver.close()
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
                 time.sleep(10)
@@ -188,7 +181,6 @@ class XqTrade(CNTrade):
                 except:
                     print "login fail..."
                     return -1
-                # return -1
 
     def main(self):
         while 1:

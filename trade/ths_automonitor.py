@@ -83,18 +83,20 @@ class ThsMonitor(CNTrade):
 
     def main(self):
         while 1:
-            self.update_para(TEST_STATE)
-            while is_trade_time(TEST_STATE, self.last_trade_time):
-                try:
+            try:
+
+                self.update_para(TEST_STATE)
+                while is_trade_time(TEST_STATE, self.last_trade_time):
                     self.position = str_to_dict(self.client.exec_order("get_position all"))
                     self.get_real_price()
                     self.get_sh_sz_percent()
                     time.sleep(5 * 60)
-                except Exception:
-                    traceback.print_exc()
-                    time.sleep(60)
-            self.sumup_today()
-            self.ipo_am()
+                self.sumup_today()
+                self.ipo_am()
+
+            except Exception:
+                traceback.print_exc()
+                time.sleep(60)
 
 
 if __name__ == '__main__':

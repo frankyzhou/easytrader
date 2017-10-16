@@ -11,3 +11,5 @@ pytesseract
 pandas
 pyperclip
 rqopen-client
+yahoo_finance
+selenium
