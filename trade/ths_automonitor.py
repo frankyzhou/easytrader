@@ -5,7 +5,7 @@ import traceback
 import tushare as ts
 COLLECTION = "ths_monitor"
 TEST_STATE = False
-
+from easytrader import helpers
 
 class ThsMonitor(CNTrade):
     def __init__(self, p, is_first):
@@ -78,8 +78,12 @@ class ThsMonitor(CNTrade):
     def ipo_am(self):
         now = datetime.datetime.now()
         if self.last_trade_time[1] < now < self.last_trade_time[2] and not self.is_ipo:
-            self.client.exec_order("ipo", response=False)  # 不需要等待消息
-            self.is_ipo = True
+            ipo_lst = helpers.get_today_ipo_data()
+            if len(ipo_lst) > 0:
+                self.client.exec_order("ipo", response=False)  # 不需要等待消息
+                self.is_ipo = True
+            else:
+                record_msg(self.logger, msg="今日无申购", subject="新股说明", email=self.email)
 
     def main(self):
         while 1:
@@ -100,15 +104,14 @@ class ThsMonitor(CNTrade):
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) != 2:
-    #     print "usage: python ThsMonitor.py profilio_num[1,2,....n]"
-    #     exit(-1)
-    # is_first = True
-    # while 1:
-    #     xq = ThsMonitor(sys.argv[1], is_first)
-    #     xq.main()
-    #     time.sleep(60)
-    #     is_first = False
-    from easytrader import helpers
-    helpers.get_today_ipo_data()
+    if len(sys.argv) != 2:
+        print "usage: python ThsMonitor.py profilio_num[1,2,....n]"
+        exit(-1)
+    is_first = True
+    while 1:
+        xq = ThsMonitor(sys.argv[1], is_first)
+        xq.main()
+        time.sleep(60)
+        is_first = False
+
 
