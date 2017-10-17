@@ -81,9 +81,10 @@ class ThsMonitor(CNTrade):
             ipo_lst = helpers.get_today_ipo_data()
             if len(ipo_lst) > 0:
                 self.client.exec_order("ipo", response=False)  # 不需要等待消息
-                self.is_ipo = True
+
             else:
                 record_msg(self.logger, msg="今日无申购", subject="新股说明", email=self.email)
+            self.is_ipo = True
 
     def main(self):
         while 1:
