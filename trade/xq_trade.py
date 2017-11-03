@@ -176,10 +176,10 @@ class XqTrade(CNTrade):
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
                 time.sleep(10)
-                try:
-                    self.xq.autologin()
-                except:
-                    print "login fail..."
+                if self.xq.login():
+                    record_msg(logger=self.logger, msg='relogin success!', email=self.email)
+                else:
+                    record_msg(logger=self.logger, msg='relogin fail, need help!', email=self.email)
                     return -1
 
     def main(self):
