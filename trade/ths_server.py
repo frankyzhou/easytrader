@@ -43,12 +43,8 @@ class ThsTrade:
 
     def get_position_by_stock(self, code):
         position_broker = self.operation.getPosition()
-        total_money = self.operation.getMoney()  # 获得资金，探测光标是否有效
-        stock_money = 0.01
-        if len(position_broker) > 0:
-            for k in position_broker.keys():
-                stock_money += position_broker[k]["turnover"]
-        rest_money = total_money - stock_money
+        rest_money, total_money = self.operation.getMoney()  # 获得资金，探测光标是否有效
+
         enable = 0
         percent = 0.0
         for c in position_broker:

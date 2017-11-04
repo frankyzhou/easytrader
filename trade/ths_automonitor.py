@@ -5,7 +5,7 @@ import traceback
 import tushare as ts
 COLLECTION = "ths_monitor"
 TEST_STATE = False
-
+from easytrader import helpers
 
 class ThsMonitor(CNTrade):
     def __init__(self, p, is_first):
@@ -78,7 +78,12 @@ class ThsMonitor(CNTrade):
     def ipo_am(self):
         now = datetime.datetime.now()
         if self.last_trade_time[1] < now < self.last_trade_time[2] and not self.is_ipo:
-            self.client.exec_order("ipo", response=False)  # 不需要等待消息
+            ipo_lst = helpers.get_today_ipo_data()
+            if len(ipo_lst) > 0:
+                self.client.exec_order("ipo", response=False)  # 不需要等待消息
+
+            else:
+                record_msg(self.logger, msg="今日无申购", subject="新股说明", email=self.email)
             self.is_ipo = True
 
     def main(self):
@@ -109,4 +114,5 @@ if __name__ == '__main__':
         xq.main()
         time.sleep(60)
         is_first = False
+
 
