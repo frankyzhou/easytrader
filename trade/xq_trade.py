@@ -6,7 +6,7 @@ from cn_trade import *
 import copy
 __author__ = 'frankyzhou'
 # declare basic vars
-TEST_STATE = False
+TEST_STATE = True
 DB_NAME = "Xueqiu"
 OPEA_COLL = "xq_operation"
 SP_COLL = "shipan"

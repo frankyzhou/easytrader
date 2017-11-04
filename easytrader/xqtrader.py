@@ -20,8 +20,8 @@ if six.PY2:
 
 chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
 options = webdriver.ChromeOptions()
-options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
-
+# options.add_argument("user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
+options.add_argument("user-data-dir=C:\Users\\frankyzhou\AppData\Local\Google\Chrome\User Data")
 
 class XueQiuTrader(WebTrader):
     config_path = os.path.dirname(__file__) + '/config/xq.json'
