@@ -66,9 +66,9 @@ class ThsTrade:
         return percent, enable, total_money, rest_money
 
     def main(self):
-        self._ACCOUNT = os.environ.get('EZ_TEST_HT_ACCOUNT') or '31040000'
-        self._PASSWORD = os.environ.get('EZ_TEST_HT_password') or '660211'
-        self._COMM_PASSWORD = os.environ.get('EZ_TEST_HT_comm_password') or '660211'
+        self._ACCOUNT = os.environ.get('EZ_TEST_HT_ACCOUNT')
+        self._PASSWORD = os.environ.get('EZ_TEST_HT_password')
+        self._COMM_PASSWORD = os.environ.get('EZ_TEST_HT_comm_password')
 
         self._user = easytrader.use('gj_client')
         self._user.prepare(user=self._ACCOUNT, password=self._PASSWORD, comm_password=self._COMM_PASSWORD)
