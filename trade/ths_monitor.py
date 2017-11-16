@@ -31,3 +31,4 @@ while 1:
         # print datetime.datetime.now().strftime("%H:%M:%S")
     except :
         traceback.print_exc()
+        c = client(host="127.0.0.1")
