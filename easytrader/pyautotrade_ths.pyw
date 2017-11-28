@@ -86,10 +86,11 @@ class Operation:
                 self.__sell(code, price, quantity)
             time.sleep(1)
             msg = closePopupWindow(self.__top_hwnd)
-            if msg.find('存在') > -1:  # 证券代码不存在
+            if msg.find('存在') > -1 or msg.find('输入') > -1:  # 证券代码不存在
                 times -= 1
                 time.sleep(1)
-                print u"代码不存在"
+                # print u"代码不存在"
+                print msg
             # elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
             #     quantity = 0  # 将目标量降低为0，以识别是资金不足
             #     print u'可用资金不足'
