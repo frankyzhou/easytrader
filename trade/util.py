@@ -256,9 +256,17 @@ def get_code_name(all_data, code, name=None):
 
 class client:
     def __init__(self, host):
+        self.host = host
         self.client = get_client(host=host)
 
     def exec_order(self, order, response=True):
+        '''
+        每次发送请求前更新连接，以便剔除脏数据
+        :param order:
+        :param response:
+        :return:
+        '''
+        self.reflash()
         self.client.sendall(order)
         if not response:
             return
@@ -266,6 +274,9 @@ class client:
         if not len(buf):
             return "No data"
         return str(buf)
+
+    def reflash(self):
+        self.client = get_client(self.host)
 
 
 class MyHTMLParser(HTMLParser):
@@ -414,4 +425,5 @@ class Email():
 # # while True:
 # # time.sleep(60*10)
 # e.send_email("ipo", "ipo")
-
+# c = client('127.0.0.1')
+# pass
