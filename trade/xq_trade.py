@@ -30,6 +30,7 @@ class XqTrade(CNTrade):
         self.logger = get_logger(OPEA_COLL, is_first=is_first)
         self.db = MongoDB(DB_NAME)
 
+
     def judge_sp_trades(self, trade):
         trade_list = []
         trade_new = copy.deepcopy(trade)
@@ -175,10 +176,10 @@ class XqTrade(CNTrade):
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
                 time.sleep(10)
-                if self.xq.login():
-                    record_msg(logger=self.logger, msg='relogin success!', email=self.email)
-                else:
-                    record_msg(logger=self.logger, msg='relogin fail, need help!', email=self.email)
+                try:
+                    self.xq.autologin()
+                except:
+                    print "login fail..."
                     return -1
 
     def main(self):
