@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'frankyzhou'
-import socket, sys, re
+import test.socket, sys, re
 
 
 # Step1: 输入host和port信息
@@ -8,11 +8,11 @@ host = "127.0.0.1"
 textport = 51500
 
 # Step2: 创建socket对象
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s = test.socket.socket(test.socket.AF_INET, test.socket.SOCK_DGRAM)
 try:
     port = int(textport)
 except ValueError:
-    port = socket.getservbyname(textport, 'udp')
+    port = test.socket.getservbyname(textport, 'udp')
 
 # Step3: 打开socket连接
 s.connect((host, port))
