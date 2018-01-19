@@ -102,14 +102,14 @@ class Operation:
         """
         点击刷新按钮
         """
-        #restoreFocusWindow(self.__top_hwnd)
+        # 用句柄重新得到新的动态对象，类似初始化
+        self.__temp_hwnds = dumpWindows(self.__top_hwnd)
         clickButton(self.__control_hwnds[12][0])
 
     def getMoney(self):
         """
         获取总资产
         """
-        #restoreFocusWindow(self.__top_hwnd)
         for i in range(len(self.__temp_hwnds)):
             t_lst = []
             try:
