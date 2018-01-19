@@ -102,8 +102,6 @@ class Operation:
         """
         点击刷新按钮
         """
-        # 用句柄重新得到新的动态对象，类似初始化
-        self.__temp_hwnds = dumpWindows(self.__top_hwnd)
         clickButton(self.__control_hwnds[12][0])
 
     def getMoney(self):
@@ -124,8 +122,12 @@ class Operation:
                 continue
             if len(t_lst) > 100:
                 break
-        index = t_lst.index(u'股票市值')
-        return float(t_lst[index-2]), float(t_lst[index+4])
+        index_sum = t_lst.index(u'股票市值')
+        index_ava = t_lst.index(u'可用余额')
+       # for i in t_lst:
+       #     if len(i) >= 4:
+        #        print i
+        return float(t_lst[index_ava-1]), float(t_lst[index_sum +4])
 
     def getPosition(self):
         """
