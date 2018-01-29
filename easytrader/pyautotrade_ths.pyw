@@ -124,7 +124,8 @@ class Operation:
                 break
         index = t_lst.index(u'股票市值')
         total_money = float(t_lst[index+4])
-        rest_money = float(t_lst[index-2]) - total_money * 0.0003
+        # 对于剩余资金需要剔除可能的所有费用，暂时设置为千一
+        rest_money = float(t_lst[index-2]) - total_money * 0.001
         return rest_money, total_money
 
     def getPosition(self):
