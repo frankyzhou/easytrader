@@ -125,7 +125,9 @@ class Operation:
             if len(t_lst) > 100:
                 break
         index = t_lst.index(u'股票市值')
-        return float(t_lst[index-2]), float(t_lst[index+4])
+        total_money = float(t_lst[index+4])
+        rest_money = float(t_lst[index-2]) - total_money * 0.0003,
+        return rest_money, total_money
 
     def getPosition(self):
         """
