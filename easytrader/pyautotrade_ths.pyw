@@ -102,8 +102,6 @@ class Operation:
         """
         点击刷新按钮
         """
-        # 用句柄重新得到新的动态对象，类似初始化
-        self.__temp_hwnds = dumpWindows(self.__top_hwnd)
         clickButton(self.__control_hwnds[12][0])
 
     def getMoney(self):
