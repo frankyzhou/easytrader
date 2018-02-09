@@ -47,8 +47,8 @@ def get_price_by_factor(all_stocks_data, code, price, factor):
             price = max(price, low_stop)
     except Exception, e:
         print e
-        print values
-        print len(values)
+        # print values
+        # print len(values)
 
     return price
 

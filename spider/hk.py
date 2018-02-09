@@ -23,16 +23,20 @@ class HKSpider:
         for date in self.trade_days:
             if not os.path.exists(market + '/' + date + '.csv'):
                 df = self.get_holding_by_oneday(date)
-                df.to_csv(market + '/' + date + '.csv', encoding='utf8')
+                df.to_csv(market + '/' + date + '.csv', encoding='gbk')
         pass
 
     def get_holding_by_oneday(self, date):
         day = date[-2:]
         month = date[5:7]
         year = date[:4]
-        self.driver.find_element_by_id('ddlShareholdingDay').send_keys(day)
-        self.driver.find_element_by_id('ddlShareholdingMonth').send_keys(month)
-        self.driver.find_element_by_id('ddlShareholdingYear').send_keys(year)
+        def_date = self.driver.find_element_by_id('pnlResult').text.split('\n')[0][-10:]
+        if def_date[:2] != day:
+            self.driver.find_element_by_id('ddlShareholdingDay').send_keys(day)
+        if def_date[3:5] != month:
+            self.driver.find_element_by_id('ddlShareholdingMonth').send_keys(month)
+        if def_date[6:] != year:
+            self.driver.find_element_by_id('ddlShareholdingYear').send_keys(year)
         self.driver.find_element_by_id('btnSearch').click()
         time.sleep(5)
         text = self.driver.find_element_by_id('pnlResult').text
