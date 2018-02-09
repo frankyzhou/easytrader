@@ -24,6 +24,7 @@ SELL = "sell"
 STOP = "stop"
 READ_SIZE = 8192
 
+
 def is_today(report_time, last_trade_time):
     report_time = datetime.datetime.strptime(report_time,"%Y-%m-%d %H:%M:%S")
     if report_time > last_trade_time:
@@ -56,31 +57,6 @@ def get_price_by_factor(all_stocks_data, code, price, factor):
 def get_four_five(num, pre=3):
     p = '{:.' + str(pre) + 'f}'
     return float(p.format(Decimal(num)))
-
-
-# def get_date_now(country):
-#     """
-#     获得相应市场的每天交易岂止时间，上午开始，结束，下午开始，结束
-#     :param country:
-#     :return:
-#     """
-#     now_time = datetime.datetime.now()
-#     if country == "CN":
-#         # 开盘提前更新数据
-#         trade_begin_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 9, 28, 0)
-#         trade_end_am = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 11, 30, 0)
-#         trade_begin_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 13, 0, 0)
-#         trade_end_pm = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day), 15, 0, 0)
-#
-#     elif country == "US":
-#         offsize = 0 if now_time.hour < 4 else 1
-#         base_time = datetime.datetime(int(now_time.year), int(now_time.month), int(now_time.day))
-#         trade_begin_am = base_time + datetime.timedelta(days=offsize-1, hours=21, minutes=25)
-#         trade_end_pm = base_time + datetime.timedelta(days=offsize, hours=4, minutes=5)
-#         trade_end_am = base_time + datetime.timedelta(days=offsize)
-#         trade_begin_pm = trade_end_am
-#
-#     return [trade_begin_am, trade_end_am, trade_begin_pm, trade_end_pm]
 
 
 def is_trade_time(test, last_trade_time, is_day_in=False, test_time=None):
@@ -220,16 +196,6 @@ def parse_digit(string):
     return float(m[0]), float(m[1]), float(m[2]), float(m[3])
 
 
-# def is_trade_day(last_trade_time):
-#     """
-#     判断当天是否为交易日，
-#     :param last_trade_time: get_trade_date_series得到的最近一个交易日的开始时间
-#     :return:
-#     """
-#     now = datetime.datetime.now()
-#     return now.month == last_trade_time.month and now.day == last_trade_time.day
-
-
 def get_client(host='127.0.0.1', textport=51500, timeout=15):
     # 如果超时一般都是交易端有故障，抛出异常，邮件提示
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -256,9 +222,17 @@ def get_code_name(all_data, code, name=None):
 
 class client:
     def __init__(self, host):
+        self.host = host
         self.client = get_client(host=host)
 
     def exec_order(self, order, response=True):
+        '''
+        每次发送请求前更新连接，以便剔除脏数据
+        :param order:
+        :param response:
+        :return:
+        '''
+        self.reflash()
         self.client.sendall(order)
         if not response:
             return
@@ -267,67 +241,8 @@ class client:
             return "No data"
         return str(buf)
 
-
-class MyHTMLParser(HTMLParser):
-    def __init__(self):
-      self.data=[]
-      self.rt=0
-      self.sy=0
-      self.td=0
-      self.mt=0
-      self.linkname=''
-      HTMLParser.__init__(self)
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'meta':
-            for name, value in attrs:
-                if name == "content" and "雪球" in value  and self.mt == 0:
-                    self.data.append(value.split(" ")[0])
-                    self.mt = 1
-                    # return
-
-        if tag == 'div':
-            for name, value in attrs:
-                if value == 'column-rt':
-                    self.rt = 1
-                    # return
-                if value == 'stock-symbol':
-                    self.sy = 1
-                    # return
-
-        if tag == 'td':
-            self.td = 1
-            # return
-
-    def handle_data(self, data):
-        if self.rt or self.sy or self.td or self.mt:
-            self.linkname += data
-
-    def handle_endtag(self, tag):
-        if tag == 'div' or tag == 'td':
-            # self.linkname=''.join(self.linkname.split())
-            if self.rt or self.sy or self.td:
-                self.linkname = self.linkname.strip()
-                if self.linkname:
-                    self.data.append(self.linkname)
-                self.linkname = ''
-                self.rt = 0
-                self.sy = 0
-                self.td = 0
-
-    def getresult(self):
-        data = self.data
-        info_list = []
-        # time = data[1][:-2]
-        num = len(data)/6
-        info_list.append(data[0])
-        for i in range(0,num):
-            e = {}
-            stock = {"price":data[i*6+6], "reason":data[i*6+8]}
-            stock_name = data[i*6+4]
-            e[stock_name] = stock
-            info_list.append(e)
-        return info_list
+    def reflash(self):
+        self.client = get_client(self.host)
 
 
 class PorfolioPosition():
@@ -414,4 +329,5 @@ class Email():
 # # while True:
 # # time.sleep(60*10)
 # e.send_email("ipo", "ipo")
-
+# c = client('127.0.0.1')
+# pass

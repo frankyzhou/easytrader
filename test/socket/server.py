@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 __author__ = 'frankyzhou'
-import socket, traceback
+import socket, traceback, time
 
 host = '' # Bind to all interfaces
-port = 51500
+port = 51501
 
 # Step1: 创建socket对象
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -17,11 +17,11 @@ s.bind((host, port))
 # Step4: 监听该端口上的连接
 while 1:
     try:
-        message, address = s.recvfrom(8192)
+        message, address = s.recvfrom(1024)
         print "Got data from ", address
-
+        time.sleep(5)
         s.sendto("Data is received succeefully.", address)
-        a = 1/0
+
         print message
 
     # except (KeyboardInterrupt, SystemExit):

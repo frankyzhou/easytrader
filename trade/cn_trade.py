@@ -38,7 +38,7 @@ class CNTrade(object):
 
     def trade_yjb(self, dif, code, price, amount, enable_amount):
         """
-         下单
+         下单，丢弃
         :param dif:
         :param code:
         :param price:

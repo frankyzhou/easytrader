@@ -86,10 +86,11 @@ class Operation:
                 self.__sell(code, price, quantity)
             time.sleep(1)
             msg = closePopupWindow(self.__top_hwnd)
-            if msg.find('存在') > -1:  # 证券代码不存在
+            if msg.find('存在') > -1 or msg.find('输入') > -1:  # 证券代码不存在
                 times -= 1
                 time.sleep(1)
-                print u"代码不存在"
+                # print u"代码不存在"
+                print msg
             # elif msg.find('可用资金不足') > -1:  # 可用资金不足，采用默认值
             #     quantity = 0  # 将目标量降低为0，以识别是资金不足
             #     print u'可用资金不足'
@@ -101,14 +102,12 @@ class Operation:
         """
         点击刷新按钮
         """
-        #restoreFocusWindow(self.__top_hwnd)
         clickButton(self.__control_hwnds[12][0])
 
     def getMoney(self):
         """
         获取总资产
         """
-        #restoreFocusWindow(self.__top_hwnd)
         for i in range(len(self.__temp_hwnds)):
             t_lst = []
             try:
@@ -124,7 +123,10 @@ class Operation:
             if len(t_lst) > 100:
                 break
         index = t_lst.index(u'股票市值')
-        return float(t_lst[index+2]), float(t_lst[index+4])
+        total_money = float(t_lst[index+4])
+        # 对于剩余资金需要剔除可能的所有费用，暂时设置为千一
+        rest_money = float(t_lst[index-2]) - total_money * 0.001
+        return rest_money, total_money
 
     def getPosition(self):
         """

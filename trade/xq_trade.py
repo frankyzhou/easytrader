@@ -30,7 +30,6 @@ class XqTrade(CNTrade):
         self.logger = get_logger(OPEA_COLL, is_first=is_first)
         self.db = MongoDB(DB_NAME)
 
-
     def judge_sp_trades(self, trade):
         trade_list = []
         trade_new = copy.deepcopy(trade)
