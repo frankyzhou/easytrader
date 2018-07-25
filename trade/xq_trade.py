@@ -200,6 +200,7 @@ if __name__ == '__main__':
         try:
             ins = XqTrade(sys.argv[1], is_first)
             ins.main()
+            ins.xq.driver.close()
         except Exception as e:
             traceback.print_exc(e)
             ins.xq.driver.close()
