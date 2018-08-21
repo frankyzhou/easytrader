@@ -15,7 +15,7 @@ import win32gui
 import pyautogui
 from winguiauto import (dumpWindows, clickButton, click, setEditText,
                         findSubWindows, closePopupWindow, clickWindow,
-                        findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile)
+                        findTopWindow, getTableData, sendKeyEvent, restoreFocusWindow, getTableDataFromFile, sendKeyMsg)
 import os
 from easytrader import helpers
 
@@ -102,7 +102,12 @@ class Operation:
         """
         点击刷新按钮
         """
-        clickButton(self.__control_hwnds[12][0])
+        top_hwnd = self.__top_hwnd
+        sendKeyMsg(top_hwnd, win32con.VK_F4)
+        sendKeyMsg(top_hwnd, win32con.VK_F5)
+        sendKeyMsg(top_hwnd, win32con.VK_F6)
+        sendKeyMsg(top_hwnd, win32con.VK_F5)
+        #clickButton(self.__control_hwnds[12][0])
 
     def getMoney(self):
         """
@@ -141,15 +146,16 @@ class Operation:
         sendKeyEvent(win32con.VK_CONTROL, win32con.KEYEVENTF_KEYUP)
         position_dict = {}
         position = getTableDataFromFile("position.csv")
+        tks = position[0].split("\t")
         stock = {}
-        if len(position) > 0:
-            for s in position:
+        if len(position) > 1:
+            for s in position[1:]:
                 tokens = s.strip().split("\t")
-                stock["code"] = str(tokens[0])
-                stock["amount"] = int(tokens[2])
-                stock["enable"] = int(tokens[3])
-                stock["gain"] = float(tokens[5])
-                stock["turnover"] = float(tokens[8])
+                stock["code"] = str(tokens[tks.index('证券代码')])
+                stock["amount"] = int(tokens[tks.index('股票余额')])
+                stock["enable"] = int(tokens[tks.index('可用余额')])
+                stock["gain"] = float(tokens[tks.index('参考盈亏')])
+                stock["turnover"] = float(tokens[tks.index('市值')])
                 position_dict[stock["code"]] = copy.deepcopy(stock)
         return position_dict
 

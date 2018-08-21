@@ -49,7 +49,7 @@ def getTableDataFromFile(path):
     if len(lst) == 1:
         return []
     else:
-        lst = content.strip().split("\t\n")[1:]
+        lst = content.strip().split("\t\n")[:]
     return lst
 
 def getListViewInfo(hwnd, cols):

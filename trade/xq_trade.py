@@ -197,8 +197,8 @@ if __name__ == '__main__':
         exit(-1)
     is_first = True
     while 1:
-        try:
-            ins = XqTrade(sys.argv[1], is_first)
+        ins = XqTrade(sys.argv[1], is_first)
+        try:    
             ins.main()
             ins.xq.driver.close()
         except Exception as e:
