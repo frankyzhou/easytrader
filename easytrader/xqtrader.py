@@ -61,23 +61,23 @@ class XueQiuTrader(WebTrader):
             log.info("xueqiu has login!")
             return True
         else:
-            # log.warn("need to login!")
-            user = self.driver.find_element_by_name('username')
-            user.clear()
-            user.send_keys(self.account_config['username'])
-            pw = self.driver.find_element_by_name('password')
-            pw.clear()
-            pw.send_keys(self.account_config['password'])
-            # self.driver.find_element_by_xpath('''//*[@id="mod-login-form"]/div[5]/button''')
-            self.driver.find_element_by_class_name('button').click()
-            time.sleep(10)
-            if self.driver.title.find("我的首页") == 0:
-                log.info("xueqiu has relogin!")
-                return True
-            else:
-                log.warn("need to help!")
-                return False
-            # raise Exception
+            log.warn("need to login!")
+            # user = self.driver.find_element_by_name('username')
+            # user.clear()
+            # user.send_keys(self.account_config['username'])
+            # pw = self.driver.find_element_by_name('password')
+            # pw.clear()
+            # pw.send_keys(self.account_config['password'])
+            # # self.driver.find_element_by_xpath('''//*[@id="mod-login-form"]/div[5]/button''')
+            # self.driver.find_element_by_class_name('button').click()
+            # time.sleep(10)
+            # if self.driver.title.find("我的首页") == 0:
+            #     log.info("xueqiu has relogin!")
+            #     return True
+            # else:
+            #     log.warn("need to help!")
+            #     return False
+            raise Exception
 
     def _prepare_account(self, user='', password='', **kwargs):
         """
