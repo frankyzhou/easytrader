@@ -77,7 +77,8 @@ class XueQiuTrader(WebTrader):
             # else:
             #     log.warn("need to help!")
             #     return False
-            raise Exception
+            return False
+            # raise Exception
 
     def _prepare_account(self, user='', password='', **kwargs):
         """

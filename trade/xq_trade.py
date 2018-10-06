@@ -170,7 +170,7 @@ class XqTrade(CNTrade):
                 percent = self.portfolio_list[k]["percent"]
                 self.trade_by_entrust(entrust, k, factor, percent)
 
-            except Exception, e:
+            except Exception as e:
                 msg = "xq:" + str(e.message)
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
@@ -179,7 +179,7 @@ class XqTrade(CNTrade):
                     record_msg(logger=self.logger, msg='relogin success!', email=self.email)
                 else:
                     record_msg(logger=self.logger, msg='relogin fail, need help!', email=self.email)
-                    return -1
+                    raise Exception
 
     def main(self):
         while 1:
@@ -187,8 +187,7 @@ class XqTrade(CNTrade):
             while is_trade_time(TEST_STATE, self.last_trade_time):
                 self.is_update_stocks, self.all_stocks_data = update_stocks_data(self.is_update_stocks,
                                                                                  self.all_stocks_data)
-                if self.trade_entrust():
-                    return -1  # 程序出错，跳出重启
+                self.trade_entrust()
 
 
 if __name__ == '__main__':
@@ -196,13 +195,13 @@ if __name__ == '__main__':
         print "usage: python xq_trade.py profilio_num[1,2,....n]"
         exit(-1)
     is_first = True
-    while 1:
-        ins = XqTrade(sys.argv[1], is_first)
-        try:    
-            ins.main()
-            ins.xq.driver.close()
-        except Exception as e:
-            traceback.print_exc(e)
-            ins.xq.driver.close()
-            time.sleep(10)
-            is_first = False
+    # while 1:
+    ins = XqTrade(sys.argv[1], is_first)
+    try:
+        ins.main()
+        ins.xq.driver.close()
+    except Exception as e:
+        traceback.print_exc(e)
+        ins.xq.driver.close()
+        time.sleep(10)
+        is_first = False
