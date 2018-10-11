@@ -9,7 +9,9 @@ from .webtrader import NotLoginError, TradeError
 from .log import log
 from .webtrader import WebTrader
 from selenium import webdriver
-
+from selenium.webdriver.support.wait import  WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from trade.util import *
 import time
 import helpers
@@ -256,6 +258,7 @@ class XueQiuTrader(WebTrader):
         url = url + "?cube_symbol=%s&count=%s&page=%s" % (str(self.account_config['portfolio_code']), 5, 1)
         self.driver.get(url)
         # time.sleep(1)
+        WebDriverWait(self.driver, 10, 0.1).until(EC.presence_of_element_located((By.XPATH, "/html/body/pre")))
         r = json.loads(self.driver.find_element_by_xpath('/html/body/pre').text)
         return r['list']
 

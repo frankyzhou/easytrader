@@ -171,7 +171,7 @@ class XqTrade(CNTrade):
                 self.trade_by_entrust(entrust, k, factor, percent)
 
             except Exception as e:
-                msg = "xq:" + str(e.message)
+                msg = "xq:" + str(e.__class__)
                 traceback.print_exc()
                 record_msg(logger=self.logger, msg=msg, email=self.email)
                 time.sleep(10)
@@ -195,13 +195,15 @@ if __name__ == '__main__':
         print "usage: python xq_trade.py profilio_num[1,2,....n]"
         exit(-1)
     is_first = True
-    # while 1:
-    ins = XqTrade(sys.argv[1], is_first)
-    try:
-        ins.main()
-        ins.xq.driver.close()
-    except Exception as e:
-        traceback.print_exc(e)
-        ins.xq.driver.close()
-        time.sleep(10)
-        is_first = False
+    times = 10
+    while times > 0:
+        ins = XqTrade(sys.argv[1], is_first)
+        try:
+            ins.main()
+            ins.xq.driver.close()
+        except Exception as e:
+            traceback.print_exc(e)
+            ins.xq.driver.close()
+            time.sleep(10)
+            is_first = False
+        times -= 1
