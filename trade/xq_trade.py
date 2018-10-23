@@ -29,6 +29,10 @@ class XqTrade(CNTrade):
         self.xq.set_attr("portfolio_code", "ZH776826")
         self.logger = get_logger(OPEA_COLL, is_first=is_first)
         self.db = MongoDB(DB_NAME)
+        if self.xq.login():
+            record_msg(logger=self.logger, msg='relogin success!', email=self.email)
+        else:
+            record_msg(logger=self.logger, msg='relogin fail, need help!', email=self.email)
 
     def judge_sp_trades(self, trade):
         trade_list = []
@@ -195,7 +199,7 @@ if __name__ == '__main__':
         print "usage: python xq_trade.py profilio_num[1,2,....n]"
         exit(-1)
     is_first = True
-    times = 10
+    times = 3
     while times > 0:
         ins = XqTrade(sys.argv[1], is_first)
         try:
@@ -206,4 +210,4 @@ if __name__ == '__main__':
             ins.xq.driver.close()
             time.sleep(10)
             is_first = False
-        times -= 1
+        # times -= 1
